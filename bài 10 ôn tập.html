@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Đoán Từ</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .score-display {
+            font-size: 20px;
+            margin: 15px 0;
+            font-weight: bold;
+            color: #2e8b57;
+        }
+        .hint {
+            font-size: 18px;
+            margin: 15px 0;
+            color: #555;
+            font-style: italic;
+        }
+        .hangman-figure {
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+        }
+        .word-display {
+            font-size: 28px;
+            letter-spacing: 12px;
+            margin: 25px 0;
+            color: #333;
+        }
+        .pinyin-display {
+            font-size: 22px;
+            letter-spacing: 8px;
+            margin: 15px 0;
+            color: #333;
+        }
+        .guessed-letters {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+        .input-section {
+            margin: 25px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        input {
+            padding: 10px;
+            font-size: 17px;
+            text-align: center;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            margin: 20px 0;
+            font-size: 20px;
+            font-weight: bold;
+            min-height: 30px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .progress-text {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        .instruction {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>TRÒ CHƠI ĐOÁN TỪ</h1>
+        </div>
+        <div class="score-display">ĐIỂM: <span id="score">0</span></div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="progress-text" id="progressText">Câu 1/25</div>
+        <div class="hint" id="hint"></div>
+        <div class="hangman-figure">
+            <svg width="250" height="250">
+                <line x1="60" y1="220" x2="200" y2="220" stroke="#333" stroke-width="3"/>
+                <line x1="130" y1="220" x2="130" y2="30" stroke="#333" stroke-width="3"/>
+                <line x1="130" y1="30" x2="190" y2="30" stroke="#333" stroke-width="3"/>
+                <line x1="190" y1="30" x2="190" y2="50" stroke="#333" stroke-width="3"/>
+                <circle cx="190" cy="70" r="20" stroke="#333" stroke-width="3" fill="none" id="head" style="display: none;"/>
+                <line x1="190" y1="90" x2="190" y2="150" stroke="#333" stroke-width="3" id="body" style="display: none;"/>
+                <line x1="190" y1="100" x2="160" y2="120" stroke="#333" stroke-width="3" id="left-arm" style="display: none;"/>
+                <line x1="190" y1="100" x2="220" y2="120" stroke="#333" stroke-width="3" id="right-arm" style="display: none;"/>
+                <line x1="190" y1="150" x2="160" y2="180" stroke="#333" stroke-width="3" id="left-leg" style="display: none;"/>
+                <line x1="190" y1="150" x2="220" y2="180" stroke="#333" stroke-width="3" id="right-leg" style="display: none;"/>
+            </svg>
+        </div>
+        <div class="word-display" id="wordDisplay"></div>
+        <div class="pinyin-display" id="pinyinDisplay"></div>
+        <div class="guessed-letters">Chữ đã đoán: <span id="guessedLetters"></span></div>
+        <div class="guessed-letters">Pinyin đã đoán: <span id="guessedPinyin"></span></div>
+        <div class="instruction">Lưu ý: Bạn chỉ có thể đoán câu trả lời đầy đủ bằng chữ Hán.</div>
+        <div class="input-section">
+            <input type="text" id="letterInput" maxlength="1" placeholder="Chữ" style="width: 50px;">
+            <button id="guessButton">ĐOÁN CHỮ</button>
+            <input type="text" id="pinyinInput" maxlength="1" placeholder="Pinyin" style="width: 50px;">
+            <button id="pinyinGuessButton">ĐOÁN PINYIN</button>
+            <input type="text" id="wordGuessInput" placeholder="Câu trả lời đầy đủ (chữ Hán)">
+            <button id="wordGuessButton">ĐOÁN CÂU TRẢ LỜI</button>
+            <button id="newGameButton">TRÒ CHƠI MỚI</button>
+        </div>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        // Từ vựng, gợi ý và pinyin
+        const wordHintsPinyin = [
+            { word: "闹钟", pinyin: "naozhong", hint: "Đồng hồ báo thức" },
+            { word: "衣柜", pinyin: "yigui", hint: "Tủ quần áo" },
+            { word: "床单", pinyin: "chuangdan", hint: "Drap giường" },
+            { word: "地毯", pinyin: "ditan", hint: "Thảm" },
+            { word: "床", pinyin: "chuang", hint: "Giường" },
+            { word: "被子", pinyin: "beizi", hint: "Chăn, mền" },
+            { word: "枕头", pinyin: "zhentou", hint: "Gối" },
+            { word: "电脑", pinyin: "diannao", hint: "Máy tính" },
+            { word: "手机", pinyin: "shouji", hint: "Điện thoại" },
+            { word: "办公室", pinyin: "bangongshi", hint: "Văn phòng làm việc" },
+            { word: "房间", pinyin: "fangjian", hint: "Căn phòng" },
+            { word: "窗帘", pinyin: "chuanglian", hint: "Cái rèm" },
+            { word: "洗手盆", pinyin: "xishoupen", hint: "Bồn rửa tay" },
+            { word: "窗户", pinyin: "chuanghu", hint: "Cửa sổ" },
+            { word: "家", pinyin: "jia", hint: "Nhà (home)" },
+            { word: "回家", pinyin: "huijia", hint: "Về nhà" },
+            { word: "门口", pinyin: "menkou", hint: "Cổng, cửa" },
+            { word: "找", pinyin: "zhao", hint: "Tìm kiếm" },
+            { word: "手机号码", pinyin: "shoujihaoma", hint: "Số điện thoại di động" },
+            { word: "职员", pinyin: "zhiyuan", hint: "Nhân viên" },
+            { word: "经理", pinyin: "jingli", hint: "Giám đốc" },
+            { word: "老板", pinyin: "laoban", hint: "Sếp" },
+            { word: "楼", pinyin: "lou", hint: "Toà nhà, lầu" },
+            { word: "公寓", pinyin: "gongyu", hint: "Chung cư" },
+            { word: "知道", pinyin: "zhidao", hint: "Biết (1 thông tin)" },
+            { word: "住", pinyin: "zhu", hint: "Sống (ở đâu đó)" },
+            { word: "护照", pinyin: "huzhao", hint: "Hộ chiếu" },
+            { word: "签证", pinyin: "qianzheng", hint: "Visa" },
+            { word: "身份证", pinyin: "shenfenzheng", hint: "Căn cước" }
+        ];
+        
+        let currentQuestionIndex = 0;
+        let selectedWord = "";
+        let selectedPinyin = "";
+        let guessedLetters = [];
+        let guessedPinyin = [];
+        let incorrectGuesses = 0;
+        let score = 0;
+        const maxGuesses = 6;
+        
+        // DOM elements
+        const wordDisplay = document.getElementById('wordDisplay');
+        const pinyinDisplay = document.getElementById('pinyinDisplay');
+        const guessedLettersDisplay = document.getElementById('guessedLetters');
+        const guessedPinyinDisplay = document.getElementById('guessedPinyin');
+        const letterInput = document.getElementById('letterInput');
+        const guessButton = document.getElementById('guessButton');
+        const pinyinInput = document.getElementById('pinyinInput');
+        const pinyinGuessButton = document.getElementById('pinyinGuessButton');
+        const newGameButton = document.getElementById('newGameButton');
+        const message = document.getElementById('message');
+        const hintDisplay = document.getElementById('hint');
+        const wordGuessInput = document.getElementById('wordGuessInput');
+        const wordGuessButton = document.getElementById('wordGuessButton');
+        const scoreDisplay = document.getElementById('score');
+        const progressBar = document.getElementById('progress');
+        const progressText = document.getElementById('progressText');
+        
+        // Hangman parts
+        const hangmanParts = [
+            document.getElementById('head'),
+            document.getElementById('body'),
+            document.getElementById('left-arm'),
+            document.getElementById('right-arm'),
+            document.getElementById('left-leg'),
+            document.getElementById('right-leg')
+        ];
+        
+        // Initialize game
+        function initGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreDisplay.textContent = score;
+            loadNextQuestion();
+        }
+        
+        function loadNextQuestion() {
+            if (currentQuestionIndex >= wordHintsPinyin.length) {
+                message.textContent = `CHÚC MỪNG! BẠN ĐÃ HOÀN THÀNH TẤT CẢ CÁC CÂU! TỔNG ĐIỂM: ${score}`;
+                guessButton.disabled = true;
+                pinyinGuessButton.disabled = true;
+                wordGuessButton.disabled = true;
+                return;
+            }
+            
+            const question = wordHintsPinyin[currentQuestionIndex];
+            selectedWord = question.word;
+            selectedPinyin = question.pinyin;
+            hintDisplay.textContent = question.hint;
+            
+            guessedLetters = [];
+            guessedPinyin = [];
+            incorrectGuesses = 0;
+            
+            guessedLettersDisplay.textContent = "";
+            guessedPinyinDisplay.textContent = "";
+            message.textContent = "";
+            letterInput.value = "";
+            pinyinInput.value = "";
+            wordGuessInput.value = "";
+            
+            hangmanParts.forEach(part => {
+                part.style.display = 'none';
+            });
+            
+            updateWordDisplay();
+            updatePinyinDisplay();
+            
+            const progress = ((currentQuestionIndex) / wordHintsPinyin.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `Câu ${currentQuestionIndex + 1}/${wordHintsPinyin.length}`;
+        }
+        
+        function updateWordDisplay() {
+            wordDisplay.textContent = selectedWord.split('').map(letter => {
+                return guessedLetters.includes(letter) ? letter : '_';
+            }).join(' ');
+        }
+        
+        function updatePinyinDisplay() {
+            pinyinDisplay.textContent = selectedPinyin.split('').map(py => {
+                return guessedPinyin.includes(py) ? py : '_';
+            }).join(' ');
+        }
+        
+        function checkWin() {
+            return selectedWord.split('').every(letter => guessedLetters.includes(letter)) &&
+                   selectedPinyin.split('').every(py => guessedPinyin.includes(py));
+        }
+        
+        function processGuess() {
+            const guess = letterInput.value.trim();
+            
+            if (!guess || guess.length > 1) {
+                message.textContent = "Vui lòng nhập một chữ!";
+                return;
+            }
+            
+            if (guessedLetters.includes(guess)) {
+                message.textContent = "Bạn đã đoán chữ này rồi!";
+                return;
+            }
+            
+            guessedLetters.push(guess);
+            guessedLettersDisplay.textContent = guessedLetters.join(', ');
+            letterInput.value = "";
+            
+            if (selectedWord.includes(guess)) {
+                message.textContent = "Đúng rồi!";
+                score += 10;
+                scoreDisplay.textContent = score;
+                updateWordDisplay();
+                
+                if (checkWin()) {
+                    score += 50;
+                    scoreDisplay.textContent = score;
+                    message.textContent = `Chúc mừng! Bạn đã thắng! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
+                    currentQuestionIndex++;
+                    setTimeout(loadNextQuestion, 2000);
+                }
+            } else {
+                message.textContent = "Sai rồi!";
+                incorrectGuesses++;
+                
+                if (incorrectGuesses <= maxGuesses) {
+                    hangmanParts[incorrectGuesses - 1].style.display = 'block';
+                }
+                
+                if (incorrectGuesses >= maxGuesses) {
+                    message.textContent = `Bạn thua rồi! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
+                    currentQuestionIndex++;
+                    setTimeout(loadNextQuestion, 2000);
+                }
+            }
+        }
+        
+        function processPinyinGuess() {
+            const guess = pinyinInput.value.trim().toLowerCase();
+            
+            if (!guess || guess.length > 1) {
+                message.textContent = "Vui lòng nhập một ký tự pinyin!";
+                return;
+            }
+            
+            if (guessedPinyin.includes(guess)) {
+                message.textContent = "Bạn đã đoán pinyin này rồi!";
+                return;
+            }
+            
+            guessedPinyin.push(guess);
+            guessedPinyinDisplay.textContent = guessedPinyin.join(', ');
+            pinyinInput.value = "";
+            
+            if (selectedPinyin.includes(guess)) {
+                message.textContent = "Đúng rồi!";
+                score += 10;
+                scoreDisplay.textContent = score;
+                updatePinyinDisplay();
+                
+                if (checkWin()) {
+                    score += 50;
+                    scoreDisplay.textContent = score;
+                    message.textContent = `Chúc mừng! Bạn đã thắng! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
+                    currentQuestionIndex++;
+                    setTimeout(loadNextQuestion, 2000);
+                }
+            } else {
+                message.textContent = "Sai rồi!";
+                incorrectGuesses++;
+                
+                if (incorrectGuesses <= maxGuesses) {
+                    hangmanParts[incorrectGuesses - 1].style.display = 'block';
+                }
+                
+                if (incorrectGuesses >= maxGuesses) {
+                    message.textContent = `Bạn thua rồi! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
+                    currentQuestionIndex++;
+                    setTimeout(loadNextQuestion, 2000);
+                }
+            }
+        }
+        
+        function processWordGuess() {
+            const guess = wordGuessInput.value.trim();
+            
+            if (!guess) {
+                message.textContent = "Vui lòng nhập câu trả lời đầy đủ!";
+                return;
+            }
+            
+            if (guess === selectedWord) {
+                message.textContent = `Chúc mừng! Bạn đã thắng! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
+                score += 100;
+                scoreDisplay.textContent = score;
+                currentQuestionIndex++;
+                setTimeout(loadNextQuestion, 2000);
+            } else {
+                message.textContent = "Câu trả lời sai rồi!";
+                incorrectGuesses++;
+                
+                if (incorrectGuesses <= maxGuesses) {
+                    hangmanParts[incorrectGuesses - 1].style.display = 'block';
+                }
+                
+                if (incorrectGuesses >= maxGuesses) {
+                    message.textContent = `Bạn thua rồi! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
+                    currentQuestionIndex++;
+                    setTimeout(loadNextQuestion, 2000);
+                }
+            }
+        }
+        
+        // Event listeners
+        guessButton.addEventListener('click', processGuess);
+        pinyinGuessButton.addEventListener('click', processPinyinGuess);
+        wordGuessButton.addEventListener('click', processWordGuess);
+        newGameButton.addEventListener('click', initGame);
+        
+        letterInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                processGuess();
+            }
+        });
+        
+        pinyinInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                processPinyinGuess();
+            }
+        });
+        
+        wordGuessInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                processWordGuess();
+            }
+        });
+        
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
