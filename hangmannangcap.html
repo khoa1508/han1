@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉字与拼音猜猜猜</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .word-display {
+            font-size: 24px;
+            letter-spacing: 10px;
+            margin: 20px 0;
+        }
+        .pinyin-display {
+            font-size: 18px;
+            letter-spacing: 5px;
+            margin: 10px 0;
+        }
+        .hangman-figure {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+        }
+        .input-section {
+            margin: 20px 0;
+        }
+        input {
+            padding: 8px;
+            font-size: 16px;
+            text-align: center;
+            margin: 0 5px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .guessed-letters {
+            margin: 10px 0;
+        }
+        .hint {
+            margin: 10px 0;
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>汉字与拼音猜猜猜</h1>
+        <div class="hint" id="hint"></div>
+        <div class="hangman-figure">
+            <svg width="200" height="200">
+                <!-- Gallows -->
+                <line x1="50" y1="180" x2="150" y2="180" stroke="#333" stroke-width="3"/>
+                <line x1="100" y1="180" x2="100" y2="30" stroke="#333" stroke-width="3"/>
+                <line x1="100" y1="30" x2="160" y2="30" stroke="#333" stroke-width="3"/>
+                <line x1="160" y1="30" x2="160" y2="50" stroke="#333" stroke-width="3"/>
+                
+                <!-- Hangman parts (initially hidden) -->
+                <circle cx="160" cy="70" r="20" stroke="#333" stroke-width="3" fill="none" id="head" style="display: none;"/>
+                <line x1="160" y1="90" x2="160" y2="130" stroke="#333" stroke-width="3" id="body" style="display: none;"/>
+                <line x1="160" y1="100" x2="130" y2="120" stroke="#333" stroke-width="3" id="left-arm" style="display: none;"/>
+                <line x1="160" y1="100" x2="190" y2="120" stroke="#333" stroke-width="3" id="right-arm" style="display: none;"/>
+                <line x1="160" y1="130" x2="130" y2="160" stroke="#333" stroke-width="3" id="left-leg" style="display: none;"/>
+                <line x1="160" y1="130" x2="190" y2="160" stroke="#333" stroke-width="3" id="right-leg" style="display: none;"/>
+            </svg>
+        </div>
+        
+        <div class="word-display" id="wordDisplay"></div>
+        <div class="pinyin-display" id="pinyinDisplay"></div>
+        <div class="guessed-letters">已猜过的字: <span id="guessedLetters"></span></div>
+        <div class="guessed-letters">已猜过的拼音: <span id="guessedPinyin"></span></div>
+        
+        <div class="input-section">
+            <input type="text" id="letterInput" maxlength="1" placeholder="汉字">
+            <button id="guessButton">猜汉字</button>
+            <input type="text" id="pinyinInput" maxlength="1" placeholder="拼音">
+            <button id="pinyinGuessButton">猜拼音</button>
+            <input type="text" id="wordGuessInput" placeholder="完整答案">
+            <button id="wordGuessButton">猜完整答案</button>
+            <button id="newGameButton">新游戏</button>
+        </div>
+        
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        // 单词、提示和拼音
+        const wordHintsPinyin = [
+            { word: "闹钟", pinyin: "naozhong", hint: "同 hồ báo thức" },
+            { word: "衣柜", pinyin: "yigui", hint: "tủ quần áo" },
+            { word: "床单", pinyin: "chuangdan", hint: "drap giường" },
+            { word: "地毯", pinyin: "ditan", hint: "thảm" },
+            { word: "床", pinyin: "chuang", hint: "giường" },
+            { word: "被子", pinyin: "beizi", hint: "chăn, mền" },
+            { word: "枕头", pinyin: "zhentou", hint: "gối" },
+            { word: "电脑", pinyin: "diannao", hint: "máy tính" },
+            { word: "手机", pinyin: "shouji", hint: "điện thoại" }
+        ];
+        
+        let selectedWord = "";
+        let selectedPinyin = "";
+        let guessedLetters = [];
+        let guessedPinyin = [];
+        let incorrectGuesses = 0;
+        const maxGuesses = 6;
+        
+        // DOM元素
+        const wordDisplay = document.getElementById('wordDisplay');
+        const pinyinDisplay = document.getElementById('pinyinDisplay');
+        const guessedLettersDisplay = document.getElementById('guessedLetters');
+        const guessedPinyinDisplay = document.getElementById('guessedPinyin');
+        const letterInput = document.getElementById('letterInput');
+        const guessButton = document.getElementById('guessButton');
+        const pinyinInput = document.getElementById('pinyinInput');
+        const pinyinGuessButton = document.getElementById('pinyinGuessButton');
+        const newGameButton = document.getElementById('newGameButton');
+        const message = document.getElementById('message');
+        const hintDisplay = document.getElementById('hint');
+        const wordGuessInput = document.getElementById('wordGuessInput');
+        const wordGuessButton = document.getElementById('wordGuessButton');
+        
+        // Hangman部分
+        const hangmanParts = [
+            document.getElementById('head'),
+            document.getElementById('body'),
+            document.getElementById('left-arm'),
+            document.getElementById('right-arm'),
+            document.getElementById('left-leg'),
+            document.getElementById('right-leg')
+        ];
+        
+        // 初始化游戏
+        function initGame() {
+            // 随机选择一个单词、拼音和提示
+            const randomIndex = Math.floor(Math.random() * wordHintsPinyin.length);
+            selectedWord = wordHintsPinyin[randomIndex].word;
+            selectedPinyin = wordHintsPinyin[randomIndex].pinyin;
+            hintDisplay.textContent = wordHintsPinyin[randomIndex].hint;
+            
+            guessedLetters = [];
+            guessedPinyin = [];
+            incorrectGuesses = 0;
+            
+            // 重置显示
+            guessedLettersDisplay.textContent = "";
+            guessedPinyinDisplay.textContent = "";
+            message.textContent = "";
+            letterInput.value = "";
+            pinyinInput.value = "";
+            wordGuessInput.value = "";
+            
+            // 隐藏所有Hangman部分
+            hangmanParts.forEach(part => {
+                part.style.display = 'none';
+            });
+            
+            // 更新单词和拼音显示
+            updateWordDisplay();
+            updatePinyinDisplay();
+        }
+        
+        // 更新单词显示
+        function updateWordDisplay() {
+            wordDisplay.textContent = selectedWord.split('').map(letter => {
+                return guessedLetters.includes(letter) ? letter : '_';
+            }).join(' ');
+        }
+        
+        // 更新拼音显示
+        function updatePinyinDisplay() {
+            pinyinDisplay.textContent = selectedPinyin.split('').map(py => {
+                return guessedPinyin.includes(py) ? py : '_';
+            }).join(' ');
+        }
+        
+        // 检查是否获胜
+        function checkWin() {
+            return selectedWord.split('').every(letter => guessedLetters.includes(letter)) &&
+                   selectedPinyin.split('').every(py => guessedPinyin.includes(py));
+        }
+        
+        // 处理汉字猜测
+        function processGuess() {
+            const guess = letterInput.value.trim();
+            
+            if (!guess || guess.length > 1) {
+                message.textContent = "请输入一个汉字!";
+                return;
+            }
+            
+            if (guessedLetters.includes(guess)) {
+                message.textContent = "你已经猜过这个字了!";
+                return;
+            }
+            
+            guessedLetters.push(guess);
+            guessedLettersDisplay.textContent = guessedLetters.join(', ');
+            letterInput.value = "";
+            
+            if (selectedWord.includes(guess)) {
+                message.textContent = "正确!";
+                updateWordDisplay();
+                
+                if (checkWin()) {
+                    message.textContent = `恭喜你赢了! 正确答案是: ${selectedWord} (${selectedPinyin})`;
+                    guessButton.disabled = true;
+                    pinyinGuessButton.disabled = true;
+                    wordGuessButton.disabled = true;
+                }
+            } else {
+                message.textContent = "错误!";
+                incorrectGuesses++;
+                
+                // 显示下一个Hangman部分
+                if (incorrectGuesses <= maxGuesses) {
+                    hangmanParts[incorrectGuesses - 1].style.display = 'block';
+                }
+                
+                if (incorrectGuesses >= maxGuesses) {
+                    message.textContent = `你输了! 正确答案是: ${selectedWord} (${selectedPinyin})`;
+                    guessButton.disabled = true;
+                    pinyinGuessButton.disabled = true;
+                    wordGuessButton.disabled = true;
+                }
+            }
+        }
+        
+        // 处理拼音猜测
+        function processPinyinGuess() {
+            const guess = pinyinInput.value.trim().toLowerCase();
+            
+            if (!guess || guess.length > 1) {
+                message.textContent = "请输入一个拼音字母!";
+                return;
+            }
+            
+            if (guessedPinyin.includes(guess)) {
+                message.textContent = "你已经猜过这个拼音了!";
+                return;
+            }
+            
+            guessedPinyin.push(guess);
+            guessedPinyinDisplay.textContent = guessedPinyin.join(', ');
+            pinyinInput.value = "";
+            
+            if (selectedPinyin.includes(guess)) {
+                message.textContent = "正确!";
+                updatePinyinDisplay();
+                
+                if (checkWin()) {
+                    message.textContent = `恭喜你赢了! 正确答案是: ${selectedWord} (${selectedPinyin})`;
+                    guessButton.disabled = true;
+                    pinyinGuessButton.disabled = true;
+                    wordGuessButton.disabled = true;
+                }
+            } else {
+                message.textContent = "错误!";
+                incorrectGuesses++;
+                
+                // 显示下一个Hangman部分
+                if (incorrectGuesses <= maxGuesses) {
+                    hangmanParts[incorrectGuesses - 1].style.display = 'block';
+                }
+                
+                if (incorrectGuesses >= maxGuesses) {
+                    message.textContent = `你输了! 正确答案是: ${selectedWord} (${selectedPinyin})`;
+                    guessButton.disabled = true;
+                    pinyinGuessButton.disabled = true;
+                    wordGuessButton.disabled = true;
+                }
+            }
+        }
+        
+        // 处理完整单词猜测
+        function processWordGuess() {
+            const guess = wordGuessInput.value.trim();
+            
+            if (!guess) {
+                message.textContent = "请输入完整答案!";
+                return;
+            }
+            
+            if (guess === selectedWord) {
+                message.textContent = `恭喜你赢了! 正确答案是: ${selectedWord} (${selectedPinyin})`;
+                guessButton.disabled = true;
+                pinyinGuessButton.disabled = true;
+                wordGuessButton.disabled = true;
+            } else {
+                message.textContent = "答案错误!";
+                incorrectGuesses++;
+                
+                // 显示下一个Hangman部分
+                if (incorrectGuesses <= maxGuesses) {
+                    hangmanParts[incorrectGuesses - 1].style.display = 'block';
+                }
+                
+                if (incorrectGuesses >= maxGuesses) {
+                    message.textContent = `你输了! 正确答案是: ${selectedWord} (${selectedPinyin})`;
+                    guessButton.disabled = true;
+                    pinyinGuessButton.disabled = true;
+                    wordGuessButton.disabled = true;
+                }
+            }
+        }
+        
+        // 事件监听
+        guessButton.addEventListener('click', processGuess);
+        pinyinGuessButton.addEventListener('click', processPinyinGuess);
+        wordGuessButton.addEventListener('click', processWordGuess);
+        newGameButton.addEventListener('click', () => {
+            guessButton.disabled = false;
+            pinyinGuessButton.disabled = false;
+            wordGuessButton.disabled = false;
+            initGame();
+        });
+        
+        letterInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                processGuess();
+            }
+        });
+        
+        pinyinInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                processPinyinGuess();
+            }
+        });
+        
+        wordGuessInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                processWordGuess();
+            }
+        });
+        
+        // 开始游戏
+        initGame();
+    </script>
+</body>
+</html>
