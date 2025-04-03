@@ -112,10 +112,49 @@
             font-size: 16px;
             color: #666;
         }
+        .intro-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: block;
+        }
+        .intro-content {
+            text-align: left;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .hidden {
+            display: none;
+        }
+        .hint-label {
+            font-weight: bold;
+            color: red;
+        }
     </style>
 </head>
 <body>
-    <div class="game-container">
+    <div class="intro-container" id="introContainer">
+        <h1>TRÒ CHƠI ĐOÁN TỪ</h1>
+        <div class="intro-content">
+            <p><strong>Trò chơi Hangman</strong>, hay còn gọi là "người treo cổ", là một trò chơi đoán chữ cổ điển, thường được chơi bằng giấy và bút chì, nhưng ngày nay cũng có nhiều phiên bản trực tuyến và trên điện thoại di động.</p>
+            <h2>Luật chơi cơ bản:</h2>
+            <h3>Đoán chữ cái:</h3>
+            <p>Người chơi đoán pinyin mà họ nghĩ có thể có dựa vào gợi ý phía trên, hoặc viết chữ Hán (lưu ý viết từng chữ 1).</p>
+            <h3>Người chơi có thể chọn đoán đầy đủ từ bằng cách điền vào ô bên phải ngoài cùng (chỉ điền chữ Hán).</h3>
+            <h2>Kết quả:</h2>
+            <p>Nếu đoán đúng, hệ thống sẽ viết chữ cái đó vào đúng vị trí của nó trên các dấu gạch ngang.</p>
+            <p>Nếu đoán sai, hệ thống sẽ vẽ một phần của hình người treo cổ (thường là đầu, thân, tay, chân).</p>
+            <h2>Thắng/Thua:</h2>
+            <p>Người chơi đoán đúng toàn bộ từ trước khi hình người treo cổ được vẽ xong sẽ thắng.</p>
+            <p>Nếu hình người treo cổ được vẽ xong trước khi từ được đoán ra, người chơi đoán thua.</p>
+        </div>
+        <button id="startButton">Tôi đã hiểu luật chơi</button>
+    </div>
+
+    <div class="game-container hidden" id="gameContainer">
         <div class="header">
             <h1>TRÒ CHƠI ĐOÁN TỪ</h1>
         </div>
@@ -124,7 +163,9 @@
             <div class="progress" id="progress"></div>
         </div>
         <div class="progress-text" id="progressText">Câu 1/25</div>
-        <div class="hint" id="hint"></div>
+        <div class="hint">
+            <span class="hint-label">Gợi ý:</span> <span id="hint"></span>
+        </div>
         <div class="hangman-figure">
             <svg width="250" height="250">
                 <line x1="60" y1="220" x2="200" y2="220" stroke="#333" stroke-width="3"/>
@@ -216,6 +257,9 @@
         const scoreDisplay = document.getElementById('score');
         const progressBar = document.getElementById('progress');
         const progressText = document.getElementById('progressText');
+        const introContainer = document.getElementById('introContainer');
+        const gameContainer = document.getElementById('gameContainer');
+        const startButton = document.getElementById('startButton');
         
         // Hangman parts
         const hangmanParts = [
@@ -229,10 +273,23 @@
         
         // Initialize game
         function initGame() {
+            // Shuffle the questions
+            shuffleArray(wordHintsPinyin);
+            
             currentQuestionIndex = 0;
             score = 0;
             scoreDisplay.textContent = score;
             loadNextQuestion();
+            introContainer.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+        }
+        
+        // Function to shuffle an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
         }
         
         function loadNextQuestion() {
@@ -415,7 +472,11 @@
         guessButton.addEventListener('click', processGuess);
         pinyinGuessButton.addEventListener('click', processPinyinGuess);
         wordGuessButton.addEventListener('click', processWordGuess);
-        newGameButton.addEventListener('click', initGame);
+        newGameButton.addEventListener('click', () => {
+            introContainer.classList.remove('hidden');
+            gameContainer.classList.add('hidden');
+        });
+        startButton.addEventListener('click', initGame);
         
         letterInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -434,9 +495,6 @@
                 processWordGuess();
             }
         });
-        
-        // Start the game
-        initGame();
     </script>
 </body>
 </html>
