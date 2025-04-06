@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Từ Vựng Việt-Trung (Bài 3 - 1 File - Sửa Lỗi Hiển Thị)</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            color: #343a40;
+        }
+
+        /* Kiểu cho bộ đếm thời gian */
+        .timer {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 15px;
+            padding: 8px 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            min-width: 220px;
+            text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Kiểu khi thời gian sắp hết */
+        .timer.low-time {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            font-weight: bolder;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+
+        .prompt-container {
+            text-align: center;
+            margin-bottom: 25px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            min-width: 300px;
+        }
+
+        #prompt-language-helper {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        #prompt-word {
+            color: #007bff;
+            font-size: 2.2em;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 10px;
+            width: 450px; /* Giữ nguyên kích thước lưới */
+            height: 450px; /* Giữ nguyên kích thước lưới */
+            margin-bottom: 20px;
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Lớp phủ khi trò chơi kết thúc */
+        .grid-container.game-over::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(200, 200, 200, 0.5);
+            border-radius: 8px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* === KHỐI CSS ĐÃ SỬA CHO Ô ĐÁP ÁN === */
+        .grid-cell {
+            background-color: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            display: flex; /* Sử dụng flexbox để căn chỉnh */
+            justify-content: center; /* Căn giữa theo chiều ngang */
+            align-items: center;    /* Căn giữa theo chiều dọc */
+            /* Giảm cỡ chữ một chút để vừa nhiều chữ hơn */
+            font-size: 1.2em; /* <-- Giảm từ 1.4em xuống 1.2em */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            text-align: center; /* Căn chữ giữa trong trường hợp xuống dòng */
+            padding: 5px; /* Giữ padding để chữ không sát viền */
+
+            /* Bỏ các thuộc tính ngăn xuống dòng và ẩn chữ thừa */
+            /* overflow: hidden; */ /* --- Dòng này đã bị loại bỏ hoặc comment */
+            /* text-overflow: ellipsis; */ /* --- Dòng này đã bị loại bỏ hoặc comment */
+            /* white-space: nowrap; */ /* --- Dòng này đã bị loại bỏ hoặc comment */
+
+            /* Cho phép chữ tự động xuống dòng nếu cần */
+            word-wrap: break-word; /* Đảm bảo từ dài bị ngắt */
+            overflow-wrap: break-word; /* Tương tự word-wrap, hỗ trợ tốt hơn */
+            hyphens: auto; /* Tự động gạch nối từ (tùy chọn, tùy trình duyệt) */
+
+            position: relative;
+            z-index: 1;
+        }
+        /* === KẾT THÚC KHỐI CSS ĐÃ SỬA === */
+
+        .grid-cell:hover:not(.correct):not(.disabled) {
+            background-color: #f1f3f5;
+            transform: scale(1.03);
+        }
+
+        .correct {
+            background-color: #28a745 !important;
+            color: white;
+            cursor: default;
+            transform: scale(1);
+            pointer-events: none;
+        }
+
+        .incorrect {
+            animation: flash-red 0.5s;
+        }
+
+        .disabled {
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            opacity: 0.6 !important;
+             background-color: #e9ecef !important;
+             color: #6c757d !important;
+        }
+
+
+        @keyframes flash-red {
+            0%, 100% { background-color: #fff; color: black; }
+            50% { background-color: #dc3545; color: white; }
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #17a2b8;
+            min-height: 25px;
+        }
+
+        /* Kiểu cho nút Bắt đầu lại */
+        .restart-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 25px;
+            font-size: 1.15em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #6c757d;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .restart-btn:hover {
+            background-color: #5a6268;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .restart-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .restart-btn:disabled {
+            background-color: #adb5bd;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+    </style>
+    </head>
+<body>
+
+    <h1>Bingo Từ Vựng Việt-Trung</h1>
+
+    <div id="timer-display" class="timer">Thời gian còn lại: 03:00</div>
+
+    <div class="prompt-container">
+        <p id="prompt-language-helper"></p>
+        <h2 id="prompt-word"></h2>
+    </div>
+
+    <div id="grid-container" class="grid-container">
+        </div>
+
+    <div id="message" class="message"></div>
+
+    <button id="restart-button" class="restart-btn">Bắt đầu lại</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Từ vựng và Parsing ---
+            const rawVocabularyString = `
+学 - học
+英语 - tiếng Anh
+阿拉伯语 - Tiếng Ả Rập
+德语 - Tiếng Đức
+俄语 - Tiếng Nga
+法语 - Tiếng Pháp
+日语 - Tiếng Nhật
+韩国语 - Tiếng Hàn
+越南语 - Tiếng Việt
+西班牙语 - Tiếng Tây Ban Nha
+北京 - Bắc Kinh
+去 - Đi
+银行 - Ngân hàng
+取钱 - Rút tiền
+今天 - Hôm nay
+昨天 - Hôm qua
+明天 - Ngày mai
+见 - Gặp
+            `;
+
+            function parseVocabulary(rawString) {
+                console.log("---- Bắt đầu Parse Vocabulary ----");
+                if (!rawString || typeof rawString !== 'string') {
+                     console.error("Lỗi: Dữ liệu từ vựng đầu vào không hợp lệ.");
+                     return [];
+                }
+                const lines = rawString.trim().split('\n');
+                const pairs = lines
+                    .map(line => line.trim())
+                    .filter(line => line && line.includes(' - '))
+                    .map((line, index) => {
+                        const parts = line.split(' - ');
+                        if (parts.length === 2) {
+                            const chinesePart = parts[0].trim();
+                            const vietnamesePart = parts[1].trim();
+                            if (chinesePart && vietnamesePart) {
+                                return { chinese: chinesePart, vietnamese: vietnamesePart };
+                            } else {
+                                 console.warn(`Bỏ qua dòng ${index + 1}: Phần tử rỗng sau khi tách "${line}"`);
+                                 return null;
+                            }
+                        } else {
+                            console.warn(`Bỏ qua dòng ${index + 1}: Sai định dạng "${line}" (Số phần tử: ${parts.length})`);
+                            return null;
+                        }
+                    })
+                    .filter(pair => pair !== null);
+                console.log(`---- Parse Vocabulary Hoàn tất - Tìm thấy ${pairs.length} cặp từ ----`);
+                return pairs;
+            }
+
+
+            // --- DOM References ---
+            const gridContainer = document.getElementById('grid-container');
+            const promptWordElement = document.getElementById('prompt-word');
+            const promptLanguageHelperElement = document.getElementById('prompt-language-helper');
+            const messageElement = document.getElementById('message');
+            const timerDisplayElement = document.getElementById('timer-display');
+            const restartButtonElement = document.getElementById('restart-button');
+
+            // --- Constants ---
+            const GRID_SIZE = 5;
+            const TOTAL_CELLS = GRID_SIZE * GRID_SIZE;
+            const TOTAL_TIME_SECONDS = 180; // 3 phút
+
+            // --- Game State Variables ---
+            let vocabulary = []; // Sẽ được điền sau khi parse
+            let remainingPairs = [];
+            let currentPair = null;
+            let promptLanguage = '';
+            let targetLanguage = '';
+            let pairsFound = 0;
+            let timerInterval = null;
+            let timeLeft = TOTAL_TIME_SECONDS;
+            let gameActive = false;
+
+             // --- Timer Functions ---
+             function updateTimerDisplay() {
+                if (!timerDisplayElement) return;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                timerDisplayElement.textContent = `Thời gian còn lại: ${formattedTime}`;
+                if (timeLeft <= 30 && timeLeft > 0) { timerDisplayElement.classList.add('low-time'); }
+                else { timerDisplayElement.classList.remove('low-time'); }
+                if (timeLeft <= 0) { timerDisplayElement.classList.remove('low-time'); }
+            }
+            function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
+            function startTimer() {
+                 stopTimer();
+                 timeLeft = TOTAL_TIME_SECONDS;
+                 updateTimerDisplay();
+                 gameActive = true; // QUAN TRỌNG: Đánh dấu game active KHI timer bắt đầu
+                 timerInterval = setInterval(() => {
+                     timeLeft--;
+                     updateTimerDisplay();
+                     if (timeLeft <= 0) { endGame(false); }
+                 }, 1000);
+            }
+
+            // --- Game Logic Functions ---
+             function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[array[i], array[j]] = [array[j], array[i]]; } }
+             function endGame(isWin) {
+                if (!gameActive && timerInterval == null) return; // Tránh gọi lại khi đã kết thúc
+                gameActive = false; // Đánh dấu game không còn active
+                stopTimer();
+                const cells = gridContainer.querySelectorAll('.grid-cell');
+                cells.forEach(cell => { cell.classList.add('disabled'); });
+                gridContainer.classList.add('game-over');
+                if (isWin) {
+                     messageElement.textContent = `🎉 Chúc mừng! Bạn đã hoàn thành! 🎉`;
+                     promptWordElement.textContent = "✔️";
+                     promptLanguageHelperElement.textContent = "Tuyệt vời!";
+                     timerDisplayElement.classList.remove('low-time');
+                 } else {
+                     messageElement.textContent = "⏰ Hết giờ! Thử lại nhé! ⏰";
+                     promptWordElement.textContent = "⏳";
+                     promptLanguageHelperElement.textContent = "Đã hết thời gian";
+                     timerDisplayElement.textContent = "Thời gian: 00:00";
+                     timerDisplayElement.classList.remove('low-time');
+                 }
+             }
+            function createGrid() {
+                gridContainer.innerHTML = ''; // Xóa sạch ô cũ
+                for (let i = 0; i < TOTAL_CELLS; i++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('grid-cell'); // Chỉ thêm class cơ bản
+                    gridContainer.appendChild(cell);
+                }
+                gridContainer.classList.remove('game-over'); // Xóa lớp phủ
+            }
+             function selectNextChallenge() {
+                if (remainingPairs.length === 0) {
+                    if(gameActive) endGame(true);
+                    return false;
+                }
+                if (!gameActive && timerInterval != null) {
+                    return false;
+                }
+
+                const randomIndex = Math.floor(Math.random() * remainingPairs.length);
+                currentPair = remainingPairs[randomIndex];
+                remainingPairs.splice(randomIndex, 1);
+                promptLanguage = Math.random() < 0.5 ? 'vietnamese' : 'chinese';
+                targetLanguage = promptLanguage === 'vietnamese' ? 'chinese' : 'vietnamese';
+                promptLanguageHelperElement.textContent = `Tìm từ ${targetLanguage === 'vietnamese' ? 'Tiếng Việt' : 'Tiếng Trung'} tương ứng:`;
+                promptWordElement.textContent = currentPair[promptLanguage];
+                populateGrid();
+                return true;
+            }
+             function populateGrid() {
+                 const correctWord = currentPair[targetLanguage];
+                 const allTargetWords = vocabulary.map(pair => pair[targetLanguage]);
+                 let distractors = allTargetWords.filter(word => word !== correctWord);
+                 shuffleArray(distractors);
+                 let gridWords = [correctWord];
+                 let distractorIndex = 0;
+                 while (gridWords.length < TOTAL_CELLS) {
+                     if (distractors.length === 0 || vocabulary.length <= 1) {
+                          gridWords.push(correctWord);
+                     } else {
+                          gridWords.push(distractors[distractorIndex % distractors.length]);
+                          distractorIndex++;
+                     }
+                 }
+                 shuffleArray(gridWords);
+                 const cells = gridContainer.querySelectorAll('.grid-cell');
+                 cells.forEach((cell, index) => {
+                      cell.textContent = gridWords[index];
+                      cell.className = 'grid-cell';
+                      cell.style.pointerEvents = 'auto';
+                      cell.removeEventListener('click', handleCellClick); // Đảm bảo listener cũ bị xóa
+                      cell.addEventListener('click', handleCellClick); // Thêm listener mới
+                 });
+             }
+            function handleCellClick(event) {
+                if (!gameActive) return;
+                const clickedCell = event.target;
+                if (!clickedCell.classList.contains('grid-cell') || clickedCell.classList.contains('correct') || clickedCell.classList.contains('disabled')) {
+                    return;
+                }
+                const clickedWord = clickedCell.textContent;
+                const expectedWord = currentPair[targetLanguage];
+                if (clickedWord === expectedWord) {
+                    clickedCell.classList.add('correct','disabled');
+                    pairsFound++;
+                    selectNextChallenge();
+                } else {
+                    clickedCell.classList.add('incorrect');
+                    clickedCell.style.pointerEvents = 'none'; // Tạm thời vô hiệu hóa khi sai
+                    setTimeout(() => {
+                         if (clickedCell.classList.contains('incorrect')) {
+                              clickedCell.classList.remove('incorrect');
+                               if (!clickedCell.classList.contains('correct') && !clickedCell.classList.contains('disabled')) {
+                                  clickedCell.style.pointerEvents = 'auto'; // Kích hoạt lại nếu chưa bị disable vĩnh viễn
+                              }
+                         }
+                    }, 500);
+                }
+            }
+
+            // --- Initialization ---
+            function initGame() {
+                console.log("Initializing game...");
+                stopTimer();
+                gameActive = false;
+                pairsFound = 0;
+                // QUAN TRỌNG: Đảm bảo vocabulary đã được parse trước khi gọi initGame
+                if (!vocabulary || vocabulary.length === 0) {
+                     console.error("Không thể init game vì vocabulary rỗng!");
+                     messageElement.textContent = "Lỗi: Không có từ vựng.";
+                     if(restartButtonElement) restartButtonElement.disabled = true;
+                     return; // Dừng init nếu không có từ
+                }
+                remainingPairs = [...vocabulary];
+                shuffleArray(remainingPairs);
+                messageElement.textContent = '';
+                promptWordElement.textContent = '';
+                promptLanguageHelperElement.textContent = 'Đang tải...';
+                timerDisplayElement.classList.remove('low-time');
+                timerDisplayElement.textContent = "Thời gian: 03:00";
+
+                createGrid(); // Tạo lưới trống
+
+                // Reset các ô hiện có (nếu có) và gắn listener
+                 const cells = gridContainer.querySelectorAll('.grid-cell');
+                 cells.forEach(cell => {
+                     cell.className = 'grid-cell';
+                     cell.textContent = '';
+                     cell.style.pointerEvents = 'auto';
+                     cell.removeEventListener('click', handleCellClick);
+                     cell.addEventListener('click', handleCellClick);
+                 });
+
+
+                if (remainingPairs.length > 0) {
+                     if (selectNextChallenge()) { // Gọi lần đầu để populate grid
+                          startTimer(); // Chỉ bắt đầu timer khi mọi thứ sẵn sàng
+                          promptLanguageHelperElement.textContent = 'Tìm từ đi!'; // Cập nhật trạng thái
+                          if(restartButtonElement) restartButtonElement.disabled = false;
+                     } else {
+                         messageElement.textContent = "Lỗi khi bắt đầu vòng mới.";
+                         if(restartButtonElement) restartButtonElement.disabled = true;
+                     }
+                } else {
+                     // Xử lý trường hợp vocabulary có nhưng remainingPairs lại rỗng? (Không nên xảy ra nếu logic đúng)
+                     messageElement.textContent = "Lỗi: Không có từ vựng để bắt đầu.";
+                     promptLanguageHelperElement.textContent = 'Lỗi tải từ';
+                     timerDisplayElement.textContent = "Thời gian: --:--";
+                     if(restartButtonElement) restartButtonElement.disabled = true;
+                 }
+            }
+
+            // --- Event Listeners ---
+            if(restartButtonElement) {
+                 restartButtonElement.addEventListener('click', initGame);
+            } else {
+                 console.error("Không tìm thấy nút Restart (ID: restart-button)");
+            }
+
+
+            // --- Start Game on Load ---
+            vocabulary = parseVocabulary(rawVocabularyString); // Parse ngay khi script chạy
+
+            if (vocabulary.length === 0) {
+                if(messageElement) messageElement.textContent = "Lỗi: Không thể tải danh sách từ vựng. (Hãy kiểm tra Console)";
+                if(promptLanguageHelperElement) promptLanguageHelperElement.textContent = 'Lỗi tải từ';
+                if(timerDisplayElement) timerDisplayElement.textContent = "Thời gian: --:--";
+                console.error("!!! Lỗi nghiêm trọng: Danh sách từ vựng rỗng sau khi parse. Trò chơi không thể bắt đầu.");
+                if(restartButtonElement) restartButtonElement.disabled = true;
+            } else {
+                console.log(`Đã tải thành công ${vocabulary.length} cặp từ. Khởi tạo trò chơi...`);
+                // Đảm bảo nút không bị disable nếu có từ vựng
+                 if(restartButtonElement) restartButtonElement.disabled = false;
+                initGame(); // Bắt đầu trò chơi lần đầu
+            }
+        });
+    </script>
+    </body>
+</html>
