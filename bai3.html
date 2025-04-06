@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bingo Từ Vựng Việt-Trung (Bài 3 - 1 File - Sửa Lỗi Hiển Thị)</title>
+    <title>Bingo Từ Vựng Việt-Trung (Có Gợi Ý)</title>
 
     <style>
         body {
@@ -34,7 +34,6 @@
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        /* Kiểu khi thời gian sắp hết */
         .timer.low-time {
             color: #dc3545;
             background-color: #f8d7da;
@@ -79,8 +78,8 @@
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(5, 1fr);
             gap: 10px;
-            width: 450px; /* Giữ nguyên kích thước lưới */
-            height: 450px; /* Giữ nguyên kích thước lưới */
+            width: 450px;
+            height: 450px;
             margin-bottom: 20px;
             background-color: #e9ecef;
             padding: 15px;
@@ -89,7 +88,6 @@
             position: relative;
         }
 
-        /* Lớp phủ khi trò chơi kết thúc */
         .grid-container.game-over::after {
             content: '';
             position: absolute;
@@ -103,35 +101,24 @@
             z-index: 10;
         }
 
-        /* === KHỐI CSS ĐÃ SỬA CHO Ô ĐÁP ÁN === */
         .grid-cell {
             background-color: #fff;
             border: 1px solid #ced4da;
             border-radius: 5px;
-            display: flex; /* Sử dụng flexbox để căn chỉnh */
-            justify-content: center; /* Căn giữa theo chiều ngang */
-            align-items: center;    /* Căn giữa theo chiều dọc */
-            /* Giảm cỡ chữ một chút để vừa nhiều chữ hơn */
-            font-size: 1.2em; /* <-- Giảm từ 1.4em xuống 1.2em */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.1s ease;
-            text-align: center; /* Căn chữ giữa trong trường hợp xuống dòng */
-            padding: 5px; /* Giữ padding để chữ không sát viền */
-
-            /* Bỏ các thuộc tính ngăn xuống dòng và ẩn chữ thừa */
-            /* overflow: hidden; */ /* --- Dòng này đã bị loại bỏ hoặc comment */
-            /* text-overflow: ellipsis; */ /* --- Dòng này đã bị loại bỏ hoặc comment */
-            /* white-space: nowrap; */ /* --- Dòng này đã bị loại bỏ hoặc comment */
-
-            /* Cho phép chữ tự động xuống dòng nếu cần */
-            word-wrap: break-word; /* Đảm bảo từ dài bị ngắt */
-            overflow-wrap: break-word; /* Tương tự word-wrap, hỗ trợ tốt hơn */
-            hyphens: auto; /* Tự động gạch nối từ (tùy chọn, tùy trình duyệt) */
-
+            text-align: center;
+            padding: 5px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
             position: relative;
             z-index: 1;
         }
-        /* === KẾT THÚC KHỐI CSS ĐÃ SỬA === */
 
         .grid-cell:hover:not(.correct):not(.disabled) {
             background-color: #f1f3f5;
@@ -158,11 +145,33 @@
              color: #6c757d !important;
         }
 
-
         @keyframes flash-red {
             0%, 100% { background-color: #fff; color: black; }
             50% { background-color: #dc3545; color: white; }
         }
+
+        /* === CSS CHO GỢI Ý === */
+        .hint-highlight {
+            /* Dùng animation để nhấp nháy */
+            animation: flash-yellow 0.8s ease-out;
+            /* Có thể thêm viền nếu muốn */
+            /* border: 3px solid #ffc107 !important; */
+        }
+
+        @keyframes flash-yellow {
+            0%, 100% {
+                /* Trạng thái bình thường (có thể lấy từ .grid-cell) */
+                background-color: #fff;
+                /* border-color: #ced4da; */
+            }
+            50% {
+                /* Trạng thái nhấp nháy màu vàng */
+                background-color: #fff3cd; /* Màu vàng nhạt */
+                /* border-color: #ffeeba; */
+            }
+        }
+         /* === KẾT THÚC CSS CHO GỢI Ý === */
+
 
         .message {
             margin-top: 15px;
@@ -172,15 +181,19 @@
             min-height: 25px;
         }
 
-        /* Kiểu cho nút Bắt đầu lại */
-        .restart-btn {
-            display: block;
-            margin: 20px auto;
+        /* === CSS CHO CÁC NÚT === */
+        .button-container { /* Container để chứa các nút */
+             text-align: center; /* Căn giữa các nút inline-block */
+             margin-top: 10px;
+        }
+
+        .restart-btn, .hint-btn {
+            display: inline-block; /* Để các nút nằm cạnh nhau */
+            margin: 10px 8px; /* Khoảng cách giữa các nút */
             padding: 12px 25px;
-            font-size: 1.15em;
+            font-size: 1.1em; /* Giảm nhẹ để vừa hơn */
             font-weight: bold;
             color: #fff;
-            background-color: #6c757d;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -188,11 +201,14 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
+        /* Nút Bắt đầu lại */
+        .restart-btn {
+            background-color: #6c757d; /* Màu xám */
+        }
         .restart-btn:hover {
             background-color: #5a6268;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
-
         .restart-btn:active {
             transform: translateY(1px);
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
@@ -202,6 +218,28 @@
             cursor: not-allowed;
             box-shadow: none;
         }
+
+         /* Nút Gợi ý */
+        .hint-btn {
+             background-color: #ffc107; /* Màu vàng */
+             color: #212529; /* Chữ đen */
+         }
+        .hint-btn:hover {
+             background-color: #e0a800; /* Vàng đậm hơn */
+             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+         }
+        .hint-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .hint-btn:disabled {
+             background-color: #e9ecef; /* Màu xám nhạt khi bị vô hiệu hóa */
+             color: #adb5bd;
+             cursor: not-allowed;
+             box-shadow: none;
+         }
+        /* === KẾT THÚC CSS CHO CÁC NÚT === */
+
     </style>
     </head>
 <body>
@@ -220,11 +258,14 @@
 
     <div id="message" class="message"></div>
 
-    <button id="restart-button" class="restart-btn">Bắt đầu lại</button>
+    <div class="button-container">
+        <button id="hint-button" class="hint-btn" disabled>Gợi ý</button>
+        <button id="restart-button" class="restart-btn">Bắt đầu lại</button>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Từ vựng và Parsing ---
+            // --- Từ vựng và Parsing (Giữ nguyên) ---
             const rawVocabularyString = `
 学 - học
 英语 - tiếng Anh
@@ -245,37 +286,9 @@
 明天 - Ngày mai
 见 - Gặp
             `;
-
-            function parseVocabulary(rawString) {
-                console.log("---- Bắt đầu Parse Vocabulary ----");
-                if (!rawString || typeof rawString !== 'string') {
-                     console.error("Lỗi: Dữ liệu từ vựng đầu vào không hợp lệ.");
-                     return [];
-                }
-                const lines = rawString.trim().split('\n');
-                const pairs = lines
-                    .map(line => line.trim())
-                    .filter(line => line && line.includes(' - '))
-                    .map((line, index) => {
-                        const parts = line.split(' - ');
-                        if (parts.length === 2) {
-                            const chinesePart = parts[0].trim();
-                            const vietnamesePart = parts[1].trim();
-                            if (chinesePart && vietnamesePart) {
-                                return { chinese: chinesePart, vietnamese: vietnamesePart };
-                            } else {
-                                 console.warn(`Bỏ qua dòng ${index + 1}: Phần tử rỗng sau khi tách "${line}"`);
-                                 return null;
-                            }
-                        } else {
-                            console.warn(`Bỏ qua dòng ${index + 1}: Sai định dạng "${line}" (Số phần tử: ${parts.length})`);
-                            return null;
-                        }
-                    })
-                    .filter(pair => pair !== null);
-                console.log(`---- Parse Vocabulary Hoàn tất - Tìm thấy ${pairs.length} cặp từ ----`);
-                return pairs;
-            }
+            function parseVocabulary(rawString) { /* ... giữ nguyên hàm này ... */
+                 console.log("---- Bắt đầu Parse Vocabulary ----"); if (!rawString || typeof rawString !== 'string') { console.error("Lỗi: Dữ liệu từ vựng đầu vào không hợp lệ."); return []; } const lines = rawString.trim().split('\n'); const pairs = lines .map(line => line.trim()) .filter(line => line && line.includes(' - ')) .map((line, index) => { const parts = line.split(' - '); if (parts.length === 2) { const chinesePart = parts[0].trim(); const vietnamesePart = parts[1].trim(); if (chinesePart && vietnamesePart) { return { chinese: chinesePart, vietnamese: vietnamesePart }; } else { console.warn(`Bỏ qua dòng ${index + 1}: Phần tử rỗng sau khi tách "${line}"`); return null; } } else { console.warn(`Bỏ qua dòng ${index + 1}: Sai định dạng "${line}" (Số phần tử: ${parts.length})`); return null; } }) .filter(pair => pair !== null); console.log(`---- Parse Vocabulary Hoàn tất - Tìm thấy ${pairs.length} cặp từ ----`); return pairs;
+             }
 
 
             // --- DOM References ---
@@ -285,14 +298,15 @@
             const messageElement = document.getElementById('message');
             const timerDisplayElement = document.getElementById('timer-display');
             const restartButtonElement = document.getElementById('restart-button');
+            const hintButtonElement = document.getElementById('hint-button'); // Thêm nút gợi ý
 
             // --- Constants ---
             const GRID_SIZE = 5;
             const TOTAL_CELLS = GRID_SIZE * GRID_SIZE;
-            const TOTAL_TIME_SECONDS = 180; // 3 phút
+            const TOTAL_TIME_SECONDS = 180;
 
             // --- Game State Variables ---
-            let vocabulary = []; // Sẽ được điền sau khi parse
+            let vocabulary = [];
             let remainingPairs = [];
             let currentPair = null;
             let promptLanguage = '';
@@ -302,144 +316,77 @@
             let timeLeft = TOTAL_TIME_SECONDS;
             let gameActive = false;
 
-             // --- Timer Functions ---
-             function updateTimerDisplay() {
-                if (!timerDisplayElement) return;
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                timerDisplayElement.textContent = `Thời gian còn lại: ${formattedTime}`;
-                if (timeLeft <= 30 && timeLeft > 0) { timerDisplayElement.classList.add('low-time'); }
-                else { timerDisplayElement.classList.remove('low-time'); }
-                if (timeLeft <= 0) { timerDisplayElement.classList.remove('low-time'); }
-            }
-            function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
-            function startTimer() {
-                 stopTimer();
-                 timeLeft = TOTAL_TIME_SECONDS;
-                 updateTimerDisplay();
-                 gameActive = true; // QUAN TRỌNG: Đánh dấu game active KHI timer bắt đầu
-                 timerInterval = setInterval(() => {
-                     timeLeft--;
-                     updateTimerDisplay();
-                     if (timeLeft <= 0) { endGame(false); }
-                 }, 1000);
-            }
+             // --- Timer Functions (Giữ nguyên) ---
+             function updateTimerDisplay() { /* ... giữ nguyên ... */ if (!timerDisplayElement) return; const minutes = Math.floor(timeLeft / 60); const seconds = timeLeft % 60; const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`; timerDisplayElement.textContent = `Thời gian còn lại: ${formattedTime}`; if (timeLeft <= 30 && timeLeft > 0) { timerDisplayElement.classList.add('low-time'); } else { timerDisplayElement.classList.remove('low-time'); } if (timeLeft <= 0) { timerDisplayElement.classList.remove('low-time'); } }
+             function stopTimer() { /* ... giữ nguyên ... */ clearInterval(timerInterval); timerInterval = null; }
+             function startTimer() { /* ... giữ nguyên ... */ stopTimer(); timeLeft = TOTAL_TIME_SECONDS; updateTimerDisplay(); gameActive = true; timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { endGame(false); } }, 1000); }
 
             // --- Game Logic Functions ---
-             function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[array[i], array[j]] = [array[j], array[i]]; } }
+             function shuffleArray(array) { /* ... giữ nguyên ... */ for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[array[i], array[j]] = [array[j], array[i]]; } }
+
+             // Cập nhật endGame để vô hiệu hóa nút gợi ý
              function endGame(isWin) {
-                if (!gameActive && timerInterval == null) return; // Tránh gọi lại khi đã kết thúc
-                gameActive = false; // Đánh dấu game không còn active
-                stopTimer();
-                const cells = gridContainer.querySelectorAll('.grid-cell');
-                cells.forEach(cell => { cell.classList.add('disabled'); });
-                gridContainer.classList.add('game-over');
-                if (isWin) {
-                     messageElement.textContent = `🎉 Chúc mừng! Bạn đã hoàn thành! 🎉`;
-                     promptWordElement.textContent = "✔️";
-                     promptLanguageHelperElement.textContent = "Tuyệt vời!";
-                     timerDisplayElement.classList.remove('low-time');
-                 } else {
-                     messageElement.textContent = "⏰ Hết giờ! Thử lại nhé! ⏰";
-                     promptWordElement.textContent = "⏳";
-                     promptLanguageHelperElement.textContent = "Đã hết thời gian";
-                     timerDisplayElement.textContent = "Thời gian: 00:00";
-                     timerDisplayElement.classList.remove('low-time');
-                 }
-             }
-            function createGrid() {
-                gridContainer.innerHTML = ''; // Xóa sạch ô cũ
-                for (let i = 0; i < TOTAL_CELLS; i++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('grid-cell'); // Chỉ thêm class cơ bản
-                    gridContainer.appendChild(cell);
-                }
-                gridContainer.classList.remove('game-over'); // Xóa lớp phủ
-            }
-             function selectNextChallenge() {
-                if (remainingPairs.length === 0) {
-                    if(gameActive) endGame(true);
-                    return false;
-                }
-                if (!gameActive && timerInterval != null) {
-                    return false;
-                }
-
-                const randomIndex = Math.floor(Math.random() * remainingPairs.length);
-                currentPair = remainingPairs[randomIndex];
-                remainingPairs.splice(randomIndex, 1);
-                promptLanguage = Math.random() < 0.5 ? 'vietnamese' : 'chinese';
-                targetLanguage = promptLanguage === 'vietnamese' ? 'chinese' : 'vietnamese';
-                promptLanguageHelperElement.textContent = `Tìm từ ${targetLanguage === 'vietnamese' ? 'Tiếng Việt' : 'Tiếng Trung'} tương ứng:`;
-                promptWordElement.textContent = currentPair[promptLanguage];
-                populateGrid();
-                return true;
-            }
-             function populateGrid() {
-                 const correctWord = currentPair[targetLanguage];
-                 const allTargetWords = vocabulary.map(pair => pair[targetLanguage]);
-                 let distractors = allTargetWords.filter(word => word !== correctWord);
-                 shuffleArray(distractors);
-                 let gridWords = [correctWord];
-                 let distractorIndex = 0;
-                 while (gridWords.length < TOTAL_CELLS) {
-                     if (distractors.length === 0 || vocabulary.length <= 1) {
-                          gridWords.push(correctWord);
-                     } else {
-                          gridWords.push(distractors[distractorIndex % distractors.length]);
-                          distractorIndex++;
-                     }
-                 }
-                 shuffleArray(gridWords);
+                 if (!gameActive && timerInterval == null && !isWin) return; // Sửa: chỉ return nếu không thắng VÀ game chưa chạy
+                 gameActive = false;
+                 stopTimer();
                  const cells = gridContainer.querySelectorAll('.grid-cell');
-                 cells.forEach((cell, index) => {
-                      cell.textContent = gridWords[index];
-                      cell.className = 'grid-cell';
-                      cell.style.pointerEvents = 'auto';
-                      cell.removeEventListener('click', handleCellClick); // Đảm bảo listener cũ bị xóa
-                      cell.addEventListener('click', handleCellClick); // Thêm listener mới
-                 });
+                 cells.forEach(cell => { cell.classList.add('disabled'); });
+                 gridContainer.classList.add('game-over');
+                 if(hintButtonElement) hintButtonElement.disabled = true; // Vô hiệu hóa nút gợi ý
+
+                 if (isWin) { /* ... hiển thị thắng ... */ messageElement.textContent = `🎉 Chúc mừng! Bạn đã hoàn thành! 🎉`; promptWordElement.textContent = "✔️"; promptLanguageHelperElement.textContent = "Tuyệt vời!"; timerDisplayElement.classList.remove('low-time'); }
+                 else { /* ... hiển thị thua ... */ messageElement.textContent = "⏰ Hết giờ! Thử lại nhé! ⏰"; promptWordElement.textContent = "⏳"; promptLanguageHelperElement.textContent = "Đã hết thời gian"; timerDisplayElement.textContent = "Thời gian: 00:00"; timerDisplayElement.classList.remove('low-time'); }
              }
-            function handleCellClick(event) {
-                if (!gameActive) return;
-                const clickedCell = event.target;
-                if (!clickedCell.classList.contains('grid-cell') || clickedCell.classList.contains('correct') || clickedCell.classList.contains('disabled')) {
-                    return;
-                }
-                const clickedWord = clickedCell.textContent;
-                const expectedWord = currentPair[targetLanguage];
-                if (clickedWord === expectedWord) {
-                    clickedCell.classList.add('correct','disabled');
-                    pairsFound++;
-                    selectNextChallenge();
-                } else {
-                    clickedCell.classList.add('incorrect');
-                    clickedCell.style.pointerEvents = 'none'; // Tạm thời vô hiệu hóa khi sai
+            function createGrid() { /* ... giữ nguyên ... */ gridContainer.innerHTML = ''; for (let i = 0; i < TOTAL_CELLS; i++) { const cell = document.createElement('div'); cell.classList.add('grid-cell'); gridContainer.appendChild(cell); } gridContainer.classList.remove('game-over'); }
+             function selectNextChallenge() { /* ... giữ nguyên ... */ if (remainingPairs.length === 0) { if(gameActive) endGame(true); return false; } if (!gameActive && timerInterval != null) { return false; } const randomIndex = Math.floor(Math.random() * remainingPairs.length); currentPair = remainingPairs[randomIndex]; remainingPairs.splice(randomIndex, 1); promptLanguage = Math.random() < 0.5 ? 'vietnamese' : 'chinese'; targetLanguage = promptLanguage === 'vietnamese' ? 'chinese' : 'vietnamese'; promptLanguageHelperElement.textContent = `Tìm từ ${targetLanguage === 'vietnamese' ? 'Tiếng Việt' : 'Tiếng Trung'} tương ứng:`; promptWordElement.textContent = currentPair[promptLanguage]; populateGrid(); return true; }
+             function populateGrid() { /* ... giữ nguyên, đảm bảo add/remove listener đúng ... */ const correctWord = currentPair[targetLanguage]; const allTargetWords = vocabulary.map(pair => pair[targetLanguage]); let distractors = allTargetWords.filter(word => word !== correctWord); shuffleArray(distractors); let gridWords = [correctWord]; let distractorIndex = 0; while (gridWords.length < TOTAL_CELLS) { if (distractors.length === 0 || vocabulary.length <= 1) { gridWords.push(correctWord); } else { gridWords.push(distractors[distractorIndex % distractors.length]); distractorIndex++; } } shuffleArray(gridWords); const cells = gridContainer.querySelectorAll('.grid-cell'); cells.forEach((cell, index) => { cell.textContent = gridWords[index]; cell.className = 'grid-cell'; cell.style.pointerEvents = 'auto'; cell.removeEventListener('click', handleCellClick); cell.addEventListener('click', handleCellClick); }); }
+            function handleCellClick(event) { /* ... giữ nguyên ... */ if (!gameActive) return; const clickedCell = event.target; if (!clickedCell.classList.contains('grid-cell') || clickedCell.classList.contains('correct') || clickedCell.classList.contains('disabled')) { return; } const clickedWord = clickedCell.textContent; const expectedWord = currentPair[targetLanguage]; if (clickedWord === expectedWord) { clickedCell.classList.add('correct','disabled'); pairsFound++; selectNextChallenge(); } else { clickedCell.classList.add('incorrect'); clickedCell.style.pointerEvents = 'none'; setTimeout(() => { if (clickedCell.classList.contains('incorrect')) { clickedCell.classList.remove('incorrect'); if (!clickedCell.classList.contains('correct') && !clickedCell.classList.contains('disabled')) { clickedCell.style.pointerEvents = 'auto'; } } }, 500); } }
+
+            // --- HÀM MỚI: Xử lý nút gợi ý ---
+            function handleHintClick() {
+                if (!gameActive || !currentPair) return; // Chỉ hoạt động khi game đang chạy và có từ hiện tại
+
+                const correctWord = currentPair[targetLanguage];
+                const cells = gridContainer.querySelectorAll('.grid-cell');
+                let foundCell = null;
+
+                cells.forEach(cell => {
+                    // Tìm ô có nội dung đúng và chưa bị đánh dấu là đúng (hoặc disabled)
+                    if (cell.textContent === correctWord && !cell.classList.contains('correct') && !cell.classList.contains('disabled')) {
+                        foundCell = cell;
+                    }
+                });
+
+                if (foundCell) {
+                    // Thêm class highlight tạm thời
+                    foundCell.classList.add('hint-highlight');
+                    console.log("Gợi ý: ", correctWord); // Log gợi ý ra console (tùy chọn)
+
+                    // Xóa class highlight sau 800ms (phù hợp với animation)
                     setTimeout(() => {
-                         if (clickedCell.classList.contains('incorrect')) {
-                              clickedCell.classList.remove('incorrect');
-                               if (!clickedCell.classList.contains('correct') && !clickedCell.classList.contains('disabled')) {
-                                  clickedCell.style.pointerEvents = 'auto'; // Kích hoạt lại nếu chưa bị disable vĩnh viễn
-                              }
+                         // Kiểm tra lại xem ô đó có còn tồn tại và chưa bị sửa đổi không
+                         if (foundCell && foundCell.classList.contains('hint-highlight')) {
+                              foundCell.classList.remove('hint-highlight');
                          }
-                    }, 500);
+                    }, 800);
+
+                    // Có thể thêm logic tính điểm/thời gian phạt ở đây nếu muốn
+                    // hintButtonElement.disabled = true; // Ví dụ: Vô hiệu hóa nút sau khi dùng 1 lần cho từ đó
+                } else {
+                     console.log("Không tìm thấy ô gợi ý (có thể đã chọn đúng?)");
                 }
             }
 
-            // --- Initialization ---
+
+            // --- Initialization (Cập nhật để quản lý nút Gợi ý) ---
             function initGame() {
                 console.log("Initializing game...");
                 stopTimer();
                 gameActive = false;
                 pairsFound = 0;
-                // QUAN TRỌNG: Đảm bảo vocabulary đã được parse trước khi gọi initGame
-                if (!vocabulary || vocabulary.length === 0) {
-                     console.error("Không thể init game vì vocabulary rỗng!");
-                     messageElement.textContent = "Lỗi: Không có từ vựng.";
-                     if(restartButtonElement) restartButtonElement.disabled = true;
-                     return; // Dừng init nếu không có từ
-                }
+
+                if (!vocabulary || vocabulary.length === 0) { /* ... xử lý lỗi vocab rỗng ... */ console.error("Không thể init game vì vocabulary rỗng!"); messageElement.textContent = "Lỗi: Không có từ vựng."; if(restartButtonElement) restartButtonElement.disabled = true; if(hintButtonElement) hintButtonElement.disabled = true; return; }
+
                 remainingPairs = [...vocabulary];
                 shuffleArray(remainingPairs);
                 messageElement.textContent = '';
@@ -447,60 +394,44 @@
                 promptLanguageHelperElement.textContent = 'Đang tải...';
                 timerDisplayElement.classList.remove('low-time');
                 timerDisplayElement.textContent = "Thời gian: 03:00";
+                // Đảm bảo các nút được kích hoạt/vô hiệu hóa đúng
+                if(restartButtonElement) restartButtonElement.disabled = false; // Bật nút restart
+                if(hintButtonElement) hintButtonElement.disabled = true; // Vô hiệu hóa gợi ý ban đầu
 
-                createGrid(); // Tạo lưới trống
-
-                // Reset các ô hiện có (nếu có) và gắn listener
-                 const cells = gridContainer.querySelectorAll('.grid-cell');
-                 cells.forEach(cell => {
-                     cell.className = 'grid-cell';
-                     cell.textContent = '';
-                     cell.style.pointerEvents = 'auto';
-                     cell.removeEventListener('click', handleCellClick);
-                     cell.addEventListener('click', handleCellClick);
-                 });
+                createGrid();
+                const cells = gridContainer.querySelectorAll('.grid-cell');
+                 cells.forEach(cell => { /* ... reset ô và gắn listener ... */ cell.className = 'grid-cell'; cell.textContent = ''; cell.style.pointerEvents = 'auto'; cell.removeEventListener('click', handleCellClick); cell.addEventListener('click', handleCellClick); });
 
 
                 if (remainingPairs.length > 0) {
-                     if (selectNextChallenge()) { // Gọi lần đầu để populate grid
-                          startTimer(); // Chỉ bắt đầu timer khi mọi thứ sẵn sàng
-                          promptLanguageHelperElement.textContent = 'Tìm từ đi!'; // Cập nhật trạng thái
-                          if(restartButtonElement) restartButtonElement.disabled = false;
-                     } else {
-                         messageElement.textContent = "Lỗi khi bắt đầu vòng mới.";
-                         if(restartButtonElement) restartButtonElement.disabled = true;
-                     }
-                } else {
-                     // Xử lý trường hợp vocabulary có nhưng remainingPairs lại rỗng? (Không nên xảy ra nếu logic đúng)
-                     messageElement.textContent = "Lỗi: Không có từ vựng để bắt đầu.";
-                     promptLanguageHelperElement.textContent = 'Lỗi tải từ';
-                     timerDisplayElement.textContent = "Thời gian: --:--";
-                     if(restartButtonElement) restartButtonElement.disabled = true;
-                 }
+                     if (selectNextChallenge()) {
+                          startTimer();
+                          promptLanguageHelperElement.textContent = 'Tìm từ đi!';
+                          if(hintButtonElement) hintButtonElement.disabled = false; // Kích hoạt nút gợi ý khi game bắt đầu
+                     } else { /* ... xử lý lỗi ... */ messageElement.textContent = "Lỗi khi bắt đầu vòng mới."; if(restartButtonElement) restartButtonElement.disabled = true; if(hintButtonElement) hintButtonElement.disabled = true; }
+                } else { /* ... xử lý lỗi không có từ ... */ messageElement.textContent = "Lỗi: Không có từ vựng để bắt đầu."; promptLanguageHelperElement.textContent = 'Lỗi tải từ'; timerDisplayElement.textContent = "Thời gian: --:--"; if(restartButtonElement) restartButtonElement.disabled = true; if(hintButtonElement) hintButtonElement.disabled = true; }
             }
 
             // --- Event Listeners ---
             if(restartButtonElement) {
                  restartButtonElement.addEventListener('click', initGame);
-            } else {
-                 console.error("Không tìm thấy nút Restart (ID: restart-button)");
-            }
+            } else { console.error("Không tìm thấy nút Restart (ID: restart-button)"); }
+
+            // Thêm listener cho nút Gợi ý
+            if(hintButtonElement) {
+                 hintButtonElement.addEventListener('click', handleHintClick);
+            } else { console.error("Không tìm thấy nút Hint (ID: hint-button)"); }
 
 
             // --- Start Game on Load ---
-            vocabulary = parseVocabulary(rawVocabularyString); // Parse ngay khi script chạy
+            vocabulary = parseVocabulary(rawVocabularyString);
 
-            if (vocabulary.length === 0) {
-                if(messageElement) messageElement.textContent = "Lỗi: Không thể tải danh sách từ vựng. (Hãy kiểm tra Console)";
-                if(promptLanguageHelperElement) promptLanguageHelperElement.textContent = 'Lỗi tải từ';
-                if(timerDisplayElement) timerDisplayElement.textContent = "Thời gian: --:--";
-                console.error("!!! Lỗi nghiêm trọng: Danh sách từ vựng rỗng sau khi parse. Trò chơi không thể bắt đầu.");
-                if(restartButtonElement) restartButtonElement.disabled = true;
-            } else {
+            if (vocabulary.length === 0) { /* ... xử lý lỗi vocab rỗng ... */ if(messageElement) messageElement.textContent = "Lỗi: Không thể tải danh sách từ vựng. (Hãy kiểm tra Console)"; if(promptLanguageHelperElement) promptLanguageHelperElement.textContent = 'Lỗi tải từ'; if(timerDisplayElement) timerDisplayElement.textContent = "Thời gian: --:--"; console.error("!!! Lỗi nghiêm trọng: Danh sách từ vựng rỗng sau khi parse."); if(restartButtonElement) restartButtonElement.disabled = true; if(hintButtonElement) hintButtonElement.disabled = true; }
+            else {
                 console.log(`Đã tải thành công ${vocabulary.length} cặp từ. Khởi tạo trò chơi...`);
-                // Đảm bảo nút không bị disable nếu có từ vựng
-                 if(restartButtonElement) restartButtonElement.disabled = false;
-                initGame(); // Bắt đầu trò chơi lần đầu
+                if(restartButtonElement) restartButtonElement.disabled = false;
+                // Nút hint sẽ được kích hoạt trong initGame sau khi có từ đầu tiên
+                initGame();
             }
         });
     </script>
