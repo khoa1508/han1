@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ôn tập bài 3 đầu giờ</title> <style>
+    <title>Ôn tập bài 3 đầu giờ - Chạm để nối</title> <style>
         /* CSS cập nhật */
         body {
             font-family: sans-serif;
@@ -13,22 +13,22 @@
             align-items: center;
             margin: 0;
             padding: 20px;
+            /* Chống double-tap zoom trên mobile */
+            touch-action: manipulation;
         }
 
-        h1, h2, p, .subtitle { /* Thêm .subtitle vào danh sách */
+        h1, h2, p, .subtitle {
             text-align: center;
             color: #333;
         }
 
-        /* Kiểu cho tiêu đề phụ mới */
         .subtitle {
             font-size: 1.3em;
             font-weight: normal;
             color: #555;
-            margin-top: -10px; /* Giảm khoảng cách với tiêu đề chính */
+            margin-top: -10px;
             margin-bottom: 15px;
         }
-
 
         .game-status {
             display: flex;
@@ -40,14 +40,8 @@
             font-weight: bold;
         }
 
-        #timer-display {
-            color: #dc3545;
-        }
-
-        #score-display {
-             color: #007bff;
-        }
-
+        #timer-display { color: #17a2b8; }
+        #score-display { color: #dc3545; }
 
         .game-container {
             display: flex;
@@ -69,65 +63,76 @@
             flex-direction: column;
             align-items: center;
             gap: 15px;
-            min-height: 500px;
+            min-height: 550px;
+            /* Cho phép cuộn nếu nội dung quá dài trên mobile */
+             overflow-y: auto;
+             max-height: 70vh; /* Giới hạn chiều cao để luôn thấy cả 2 cột khi xếp chồng */
         }
 
-        /* Cập nhật kiểu cho ô chữ */
+        /* --- Cập nhật CSS cho ô chữ --- */
         .word-item {
-            border: 1px solid #007bff;
+            border: 2px solid #007bff; /* Viền dày hơn chút */
             background-color: #e7f3ff;
-            padding: 10px 15px; /* Giữ nguyên padding */
-            cursor: grab;
-            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer; /* Đổi con trỏ thành pointer */
+            border-radius: 8px; /* Bo tròn hơn */
             text-align: center;
-            /* font-size: 1.1em; Bỏ font-size chung ở đây */
-            transition: background-color 0.2s, opacity 0.2s;
-            width: 85%; /* Tăng nhẹ chiều rộng */
+            transition: background-color 0.2s, opacity 0.2s, border-color 0.2s; /* Thêm transition cho border */
+            width: 85%;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             user-select: none;
-            /* Thêm để chứa các span con */
             display: flex;
-            flex-direction: column; /* Hiển thị Hán tự trên, Pinyin dưới */
-            align-items: center; /* Căn giữa theo chiều ngang */
-            justify-content: center; /* Căn giữa theo chiều dọc nếu cần */
-            min-height: 50px; /* Đảm bảo chiều cao tối thiểu */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px;
         }
 
-        /* Kiểu cho Chữ Hán */
+        /* Kiểu khi ô chữ được chọn */
+        .word-item.selected {
+            background-color: #ffc107; /* Màu vàng nổi bật khi chọn */
+            border-color: #e0a800;
+        }
+
         .hanzi {
-            font-size: 1.8em; /* Chữ Hán to hơn đáng kể */
+            font-size: 1.8em;
             font-weight: bold;
-            display: block; /* Hiển thị trên 1 dòng riêng */
-            line-height: 1.2; /* Điều chỉnh khoảng cách dòng nếu cần */
-            color: #0056b3; /* Màu đậm hơn chút */
+            display: block;
+            line-height: 1.2;
+            color: #0056b3;
+             pointer-events: none; /* Tránh sự kiện click vào text con */
         }
 
-        /* Kiểu cho Pinyin */
         .pinyin {
-            font-size: 0.9em; /* Pinyin nhỏ hơn */
-            display: block; /* Hiển thị trên 1 dòng riêng */
-            color: #555; /* Màu xám nhẹ */
-            margin-top: 2px; /* Khoảng cách nhỏ với chữ Hán */
+            font-size: 0.9em;
+            display: block;
+            color: #555;
+            margin-top: 2px;
+             pointer-events: none; /* Tránh sự kiện click vào text con */
         }
 
+        /* Bỏ kiểu :active cũ của kéo thả */
+        /* .word-item:active { ... } */
 
-        .word-item:active {
-            cursor: grabbing;
-            background-color: #cce5ff;
-        }
-
+        /* --- Cập nhật CSS cho ô ảnh --- */
         .image-box {
             border: 2px solid #ccc;
-            width: 100px;
-            height: 100px;
+            width: 140px;
+            height: 140px;
             display: flex;
             justify-content: center;
             align-items: center;
             background-color: #f9f9f9;
-            border-radius: 5px;
+            border-radius: 8px; /* Bo tròn hơn */
             position: relative;
-            transition: border-color 0.2s, background-color 0.2s;
+            transition: border-color 0.2s, background-color 0.2s, transform 0.1s; /* Thêm transform */
+            cursor: pointer; /* Thêm con trỏ pointer */
         }
+         /* Hiệu ứng nhẹ khi nhấn vào ảnh */
+         .image-box:active {
+            transform: scale(0.97);
+         }
+
 
         .image-box img {
             max-width: 90%;
@@ -136,31 +141,37 @@
             pointer-events: none;
         }
 
-        .image-box.drag-over {
-            border-color: #28a745;
-            background-color: #e9f7ec;
-        }
+        /* Bỏ kiểu .drag-over */
+        /* .image-box.drag-over { ... } */
 
         .image-box.dropped {
             border-color: #28a745;
             background-color: #e9f7ec;
+            cursor: default; /* Không cho click nữa khi đã ghép */
+             opacity: 0.7; /* Làm mờ đi chút khi đã ghép */
         }
+         /* Làm mờ luôn ảnh bên trong khi đã ghép */
+         .image-box.dropped img {
+            opacity: 0.6;
+         }
+
 
         .image-box .matched-text {
             position: absolute;
-            bottom: -25px;
+            bottom: -30px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(40, 167, 69, 0.8);
+            background-color: rgba(40, 167, 69, 0.9); /* Đậm hơn chút */
             color: white;
-            padding: 2px 8px;
+            padding: 3px 10px;
             border-radius: 3px;
-            font-size: 0.9em;
+            font-size: 0.95em;
             white-space: nowrap;
+             pointer-events: none; /* Không cho text này bắt sự kiện */
         }
 
         .feedback {
-            margin-top: 20px;
+            margin-top: 35px;
             font-size: 1.3em;
             font-weight: bold;
             min-height: 30px;
@@ -168,34 +179,35 @@
             color: #17a2b8;
         }
 
-        .feedback.correct {
-            color: green;
-        }
-
-        .feedback.incorrect {
-            color: red;
-        }
+        .feedback.correct { color: green; }
+        .feedback.incorrect { color: red; }
 
         .word-item.matched {
-            opacity: 0.3;
-            cursor: default;
+            opacity: 0.4; /* Mờ hơn */
+            cursor: default; /* Không cho click */
             background-color: #e9ecef;
             border-color: #ced4da;
             pointer-events: none;
         }
-
-        .game-over .word-item,
-        .game-over .image-box {
-            pointer-events: none;
-            opacity: 0.6;
-        }
-         .game-over .word-item:not(.matched) {
-             cursor: not-allowed;
+         /* Làm mờ chữ bên trong khi đã ghép */
+         .word-item.matched .hanzi,
+         .word-item.matched .pinyin {
+            opacity: 0.7;
          }
 
 
+        /* Cập nhật lớp game-over để vô hiệu hóa click */
+        .game-over .word-item,
+        .game-over .image-box {
+            pointer-events: none; /* Quan trọng: Vô hiệu hóa click */
+            opacity: 0.6 !important; /* Dùng !important để ghi đè các opacity khác */
+            cursor: default !important;
+        }
+        /* Không cần dòng dưới nữa vì pointer-events: none đã đủ */
+        /* .game-over .word-item:not(.matched) { cursor: not-allowed; } */
+
         #reset-button {
-            margin-top: 20px;
+            margin-top: 25px;
             padding: 12px 25px;
             font-size: 1.1em;
             cursor: pointer;
@@ -206,15 +218,11 @@
             transition: background-color 0.2s;
         }
 
-        #reset-button:hover {
-            background-color: #0056b3;
-        }
+        #reset-button:hover { background-color: #0056b3; }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .subtitle {
-                font-size: 1.1em;
-            }
+            .subtitle { font-size: 1.1em; }
             .game-status {
                 flex-direction: column;
                 align-items: center;
@@ -222,62 +230,61 @@
                 font-size: 1.1em;
             }
             .game-container {
-                flex-direction: column;
+                flex-direction: column; /* Xếp chồng 2 cột */
                 width: 95%;
                 gap: 20px;
+                max-height: none; /* Bỏ giới hạn chiều cao chung */
             }
             .container {
                 width: 100%;
-                min-height: 300px;
+                min-height: auto; /* Chiều cao tự động */
+                max-height: 45vh; /* Giới hạn chiều cao mỗi cột khi xếp chồng */
+                overflow-y: auto; /* Cho phép cuộn trong từng cột */
+                padding-bottom: 30px;
+                border-style: solid; /* Hiện border rõ hơn trên mobile */
             }
-            .word-item {
-                width: 90%;
-                 min-height: 45px;
-            }
-             /* Điều chỉnh lại font size cho màn hình nhỏ */
-             .hanzi {
-                 font-size: 1.5em;
-             }
-             .pinyin {
-                 font-size: 0.8em;
-             }
+            .word-item { width: 90%; min-height: 45px; }
+            .hanzi { font-size: 1.5em; }
+            .pinyin { font-size: 0.8em; }
 
              .image-box {
-                width: 80px;
-                height: 80px;
+                width: 100px;
+                height: 100px;
             }
              .image-box .matched-text {
                  font-size: 0.8em;
                  bottom: -20px;
+                 padding: 2px 8px;
              }
-             .feedback {
-                 font-size: 1.1em;
-             }
-             #reset-button {
-                 padding: 10px 20px;
-                 font-size: 1em;
-             }
+             .feedback { font-size: 1.1em; margin-top: 25px;}
+             #reset-button { padding: 10px 20px; font-size: 1em; margin-top: 20px;}
         }
+         @media (max-width: 480px) {
+             .hanzi { font-size: 1.3em; }
+             .pinyin { font-size: 0.75em; }
+             .image-box { width: 85px; height: 85px; }
+             .image-box .matched-text { font-size: 0.7em; bottom: -18px; }
+             .container { max-height: 40vh; } /* Giảm chiều cao cột trên màn hình rất nhỏ */
+         }
+
     </style>
 </head>
 <body>
 
     <h1>Ghép Ngôn ngữ vào Hình ảnh Tương ứng</h1>
     <h2 class="subtitle">Ôn tập bài 3 đầu giờ</h2>
-    <p>Kéo ô chữ Hán (Pinyin) và thả vào hình ảnh đúng trong vòng 2 phút.</p>
-
-    <div class="game-status">
-        <div id="timer-display">Thời gian: 02:00</div>
+    <p>Chạm vào Từ vựng rồi chạm vào Hình ảnh đúng.</p> <div class="game-status">
+        <div id="timer-display">Thời gian: 00:00</div>
         <div id="score-display">Số lần sai: 0</div>
     </div>
 
     <div class="game-container" id="game-area">
         <div id="word-container" class="container">
-            <h2>Từ vựng (Kéo từ đây)</h2>
-            </div>
+            <h2>Từ vựng</h2>
+        </div>
         <div id="image-container" class="container">
-            <h2>Hình ảnh (Thả vào đây)</h2>
-            </div>
+            <h2>Hình ảnh</h2>
+        </div>
     </div>
 
     <div id="feedback" class="feedback"></div>
@@ -286,7 +293,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const data = [
+            // Dữ liệu không đổi
+             const data = [
                  { hanzi: "英语", pinyin: "Yīngyǔ", img: "https://news.seehua.com/wp-content/uploads/2019/08/istockphoto-1047570732-612x612.jpg", id: "en" },
                 { hanzi: "阿拉伯语", pinyin: "Ālābóyǔ", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1KhD1oV_sPdPIM9Bv16yc4xXCzKsABljWXA&s", id: "ar" },
                 { hanzi: "俄语", pinyin: "Éyǔ", img: "https://d37sy4vufic209.cloudfront.net/website/_next/static/dynamic/9964e31df577bd0d9ef38d59c7016678/700.jpg", id: "ru" },
@@ -298,6 +306,7 @@
                 { hanzi: "西班牙语", pinyin: "Xībānyáyǔ", img: "https://casvischool.cn/wp-content/uploads/2023/07/%E8%A5%BF%E7%8F%AD%E7%89%99%E8%AF%AD%E4%BA%8C%E5%A4%96.png", id: "es" }
             ];
 
+            // DOM Elements không đổi
             const wordContainer = document.getElementById('word-container');
             const imageContainer = document.getElementById('image-container');
             const feedback = document.getElementById('feedback');
@@ -306,240 +315,179 @@
             const scoreDisplay = document.getElementById('score-display');
             const gameArea = document.getElementById('game-area');
 
-            let draggedItem = null;
+            // Biến trạng thái game
+            // --- Bỏ draggedItem ---
+            let selectedWordElement = null; // Biến lưu trữ ô chữ đang được chọn
             let correctMatches = 0;
             let incorrectAttempts = 0;
             let timerIntervalId = null;
-            let remainingTime = 120;
-            let gameStartTime = null;
+            let elapsedTime = 0;
             let gameActive = false;
 
-            function shuffle(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
+            // --- Các hàm tiện ích không đổi ---
+            function shuffle(array) { /* ... */ for(let i = array.length-1;i>0;i--){const j = Math.floor(Math.random()*(i+1));[array[i],array[j]]=[array[j],array[i]]}}
+            function formatTime(seconds) { /* ... */ const m = Math.floor(seconds/60); const s = seconds%60; return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;}
+            function updateScoreDisplay() { scoreDisplay.textContent = `Số lần sai: ${incorrectAttempts}`; }
+            function startTimer() { /* ... */ elapsedTime=0; timerDisplay.textContent=`Thời gian: ${formatTime(elapsedTime)}`; if(timerIntervalId)clearInterval(timerIntervalId); timerIntervalId=setInterval(()=>{elapsedTime++;timerDisplay.textContent=`Thời gian: ${formatTime(elapsedTime)}`},1000);}
+            function endGame() { /* ... */ gameActive=false; clearInterval(timerIntervalId); gameArea.classList.add('game-over'); feedback.textContent=`🎉 Hoàn thành! Thời gian: ${formatTime(elapsedTime)}. Số lần sai: ${incorrectAttempts}.`; feedback.className='feedback correct';}
+
+            // --- Hàm xử lý sự kiện click ---
+            function handleWordClick(event) {
+                if (!gameActive) return; // Game chưa bắt đầu hoặc đã kết thúc
+
+                const clickedWord = event.currentTarget; // Lấy phần tử div.word-item được click
+
+                // Bỏ qua nếu click vào từ đã ghép đúng
+                if (clickedWord.classList.contains('matched')) return;
+
+                // Nếu đã có từ đang được chọn -> bỏ chọn từ đó
+                if (selectedWordElement && selectedWordElement !== clickedWord) {
+                    selectedWordElement.classList.remove('selected');
                 }
+
+                // Chọn từ mới (hoặc bỏ chọn nếu click lại chính nó)
+                 if (selectedWordElement === clickedWord) {
+                    // Click lại từ đang chọn -> bỏ chọn
+                    selectedWordElement.classList.remove('selected');
+                    selectedWordElement = null;
+                 } else {
+                    // Chọn từ mới
+                    clickedWord.classList.add('selected');
+                    selectedWordElement = clickedWord;
+                 }
             }
 
-            function formatTime(seconds) {
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = seconds % 60;
-                return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-            }
+            function handleImageClick(event) {
+                if (!gameActive) return; // Game chưa bắt đầu hoặc đã kết thúc
 
-            function updateScoreDisplay() {
-                scoreDisplay.textContent = `Số lần sai: ${incorrectAttempts}`;
-            }
+                const clickedImage = event.currentTarget; // Lấy phần tử div.image-box được click
 
-            function startTimer() {
-                remainingTime = 120;
-                timerDisplay.textContent = `Thời gian: ${formatTime(remainingTime)}`;
-                // Xóa interval cũ trước khi tạo cái mới (đề phòng)
-                if(timerIntervalId) clearInterval(timerIntervalId);
-                timerIntervalId = setInterval(() => {
-                    remainingTime--;
-                    timerDisplay.textContent = `Thời gian: ${formatTime(remainingTime)}`;
-                    if (remainingTime <= 0) {
-                        endGame(false);
+                 // Bỏ qua nếu chưa chọn từ nào hoặc click vào ảnh đã ghép đúng
+                if (!selectedWordElement || clickedImage.classList.contains('dropped')) {
+                    // Có thể thêm phản hồi nhẹ nhàng nếu chưa chọn từ
+                     if (!selectedWordElement && !clickedImage.classList.contains('dropped')) {
+                         feedback.textContent = "Hãy chọn một từ vựng trước.";
+                         feedback.className = 'feedback';
+                         setTimeout(() => { if (!feedback.classList.contains('correct') && !feedback.classList.contains('incorrect')) feedback.textContent = ''; }, 1500);
+                     }
+                    return;
+                }
+
+                const selectedWordId = selectedWordElement.dataset.id;
+                const targetImageId = clickedImage.dataset.id;
+
+                // --- So sánh ID ---
+                if (selectedWordId === targetImageId) {
+                    // Ghép đúng
+                    feedback.textContent = 'Đúng rồi!';
+                    feedback.className = 'feedback correct';
+
+                    // Đánh dấu cả hai là đã ghép
+                    selectedWordElement.classList.add('matched');
+                    selectedWordElement.classList.remove('selected'); // Bỏ lớp selected
+                    clickedImage.classList.add('dropped');
+
+                    // Hiển thị text dưới ảnh
+                    const matchedText = document.createElement('span');
+                    matchedText.classList.add('matched-text');
+                    const hanziSpan = selectedWordElement.querySelector('.hanzi');
+                    const pinyinSpan = selectedWordElement.querySelector('.pinyin');
+                    if (hanziSpan && pinyinSpan) {
+                        matchedText.textContent = `${hanziSpan.textContent} ${pinyinSpan.textContent}`;
                     }
-                }, 1000);
-            }
+                    const existingText = clickedImage.querySelector('.matched-text');
+                    if (existingText) clickedImage.removeChild(existingText);
+                    if(matchedText.textContent) clickedImage.appendChild(matchedText);
 
-            function endGame(completed) {
-                gameActive = false;
-                clearInterval(timerIntervalId);
-                gameArea.classList.add('game-over');
+                    correctMatches++;
+                    selectedWordElement = null; // Reset lựa chọn từ
 
-                const gameEndTime = Date.now();
-                const timeTaken = gameStartTime ? Math.round((gameEndTime - gameStartTime) / 1000) : 0;
+                    // Xóa phản hồi đúng sau 1.5s
+                    setTimeout(() => { if(feedback.classList.contains('correct')) { feedback.textContent = ''; feedback.className = 'feedback'; } }, 1500);
 
-                if (completed) {
-                     feedback.textContent = `🎉 Hoàn thành! Thời gian: ${timeTaken} giây. Số lần sai: ${incorrectAttempts}.`;
-                     feedback.className = 'feedback correct';
+                    // Kiểm tra hoàn thành game
+                    if (correctMatches === data.length) {
+                        endGame();
+                    }
+
                 } else {
-                    feedback.textContent = `⏳ Hết giờ! Bạn ghép đúng ${correctMatches}/${data.length} cặp. Số lần sai: ${incorrectAttempts}.`;
+                    // Ghép sai
+                    incorrectAttempts++;
+                    updateScoreDisplay();
+                    feedback.textContent = 'Sai rồi, thử lại nhé!';
                     feedback.className = 'feedback incorrect';
+
+                    // Bỏ chọn từ hiện tại để người dùng chọn lại
+                     selectedWordElement.classList.remove('selected');
+                     selectedWordElement = null;
+
+
+                    // Rung nhẹ (nếu trình duyệt hỗ trợ) để báo sai - tùy chọn
+                    if (navigator.vibrate) {
+                        navigator.vibrate(100); // Rung 100ms
+                    }
+
+                    // Xóa phản hồi sai sau 2s
+                    setTimeout(() => { if (feedback.classList.contains('incorrect')) { feedback.textContent = ''; feedback.className = 'feedback'; } }, 2000);
                 }
             }
 
+
+            // --- Hàm khởi tạo game ---
             function initGame() {
                 gameActive = true;
                 correctMatches = 0;
                 incorrectAttempts = 0;
-                draggedItem = null;
+                selectedWordElement = null; // Reset từ đang chọn
                 gameArea.classList.remove('game-over');
 
-                wordContainer.innerHTML = '<h2>Từ vựng (Kéo từ đây)</h2>';
-                imageContainer.innerHTML = '<h2>Hình ảnh (Thả vào đây)</h2>';
+                wordContainer.innerHTML = '<h2>Từ vựng</h2>'; // Chỉ giữ tiêu đề
+                imageContainer.innerHTML = '<h2>Hình ảnh</h2>'; // Chỉ giữ tiêu đề
                 feedback.textContent = '';
                 feedback.className = 'feedback';
                 updateScoreDisplay();
 
-                 if (timerIntervalId) {
-                    clearInterval(timerIntervalId);
-                 }
+                if (timerIntervalId) clearInterval(timerIntervalId);
+                startTimer();
 
                 const shuffledWords = [...data];
                 const shuffledImages = [...data];
                 shuffle(shuffledWords);
                 shuffle(shuffledImages);
 
-                // Tạo các ô chữ kéo thả - *** CẬP NHẬT Ở ĐÂY ***
+                // Tạo ô chữ - *** THAY ĐỔI: Gắn sự kiện click ***
                 shuffledWords.forEach(item => {
                     const wordDiv = document.createElement('div');
                     wordDiv.classList.add('word-item');
-                    wordDiv.setAttribute('draggable', true);
+                    // Bỏ draggable="true"
                     wordDiv.dataset.id = item.id;
+                    wordDiv.innerHTML = `<span class="hanzi">${item.hanzi}</span><span class="pinyin">(${item.pinyin})</span>`;
 
-                    // Tạo cấu trúc HTML với span riêng cho Hán tự và Pinyin
-                    wordDiv.innerHTML = `
-                        <span class="hanzi">${item.hanzi}</span>
-                        <span class="pinyin">(${item.pinyin})</span>
-                    `;
-
-                    wordDiv.addEventListener('dragstart', (e) => {
-                        if (!gameActive) return;
-                        draggedItem = wordDiv;
-                        if (e.dataTransfer) {
-                           e.dataTransfer.setData('text/plain', item.id);
-                           e.dataTransfer.effectAllowed = 'move';
-                        }
-                        // Dùng requestAnimationFrame để tránh lỗi rendering khi đổi style ngay lập tức
-                        requestAnimationFrame(() => {
-                            wordDiv.style.opacity = '0.5';
-                        });
-                    });
-
-                     wordDiv.addEventListener('dragend', (e) => {
-                        // Luôn reset opacity khi kết thúc kéo, trừ khi nó đã matched
-                        // Cần kiểm tra xem wordDiv có còn trong DOM không
-                        if (wordDiv.parentNode && !wordDiv.classList.contains('matched')) {
-                             wordDiv.style.opacity = '1';
-                        }
-                        draggedItem = null;
-                     });
-
+                    // Gắn sự kiện click thay vì dragstart/dragend
+                    wordDiv.addEventListener('click', handleWordClick);
 
                     wordContainer.appendChild(wordDiv);
                 });
 
-                // Tạo các ô ảnh để thả vào (giữ nguyên như cũ)
+                // Tạo ô ảnh - *** THAY ĐỔI: Gắn sự kiện click ***
                 shuffledImages.forEach(item => {
                     const imgBox = document.createElement('div');
                     imgBox.classList.add('image-box');
                     imgBox.dataset.id = item.id;
-
                     const imgElement = document.createElement('img');
                     imgElement.src = item.img;
                     imgElement.alt = `Hình ảnh cho ${item.hanzi}`;
-                    imgElement.onerror = function() {
-                        console.error(`Không thể tải ảnh: ${item.hanzi} từ ${item.img}`);
-                        imgBox.innerHTML = `(Lỗi ảnh: ${item.id})`;
-                    };
+                    imgElement.onerror = function() { console.error(`Lỗi tải ảnh: ${item.hanzi}`); imgBox.innerHTML = `(Lỗi ảnh: ${item.id})`; };
                     imgBox.appendChild(imgElement);
 
-                     const dragOverHandler = (e) => {
-                        if (!gameActive || !draggedItem) return;
-                        e.preventDefault();
-                        if (!imgBox.classList.contains('dropped')) {
-                            imgBox.classList.add('drag-over');
-                        }
-                     };
-
-                      const dragLeaveHandler = () => {
-                        if (!gameActive) return;
-                        imgBox.classList.remove('drag-over');
-                      };
-
-                    const dropHandler = (e) => {
-                        if (!gameActive || !draggedItem) return;
-
-                        e.preventDefault();
-                        imgBox.classList.remove('drag-over');
-                        const targetId = imgBox.dataset.id;
-                        const draggedId = e.dataTransfer ? e.dataTransfer.getData('text/plain') : null;
-
-                        if (imgBox.classList.contains('dropped')) {
-                            return;
-                        }
-
-                        if (draggedId && draggedId === targetId) {
-                            feedback.textContent = 'Đúng rồi!';
-                            feedback.className = 'feedback correct';
-
-                            imgBox.classList.add('dropped');
-                            if (draggedItem) { // Kiểm tra draggedItem tồn tại
-                                draggedItem.classList.add('matched');
-                                draggedItem.setAttribute('draggable', false);
-                            }
-
-
-                            // Hiển thị chữ Hán/Pinyin bên dưới ảnh - CẬP NHẬT LẤY TEXT TỪ DRAGGED ITEM
-                             const matchedText = document.createElement('span');
-                             matchedText.classList.add('matched-text');
-                             if (draggedItem) { // Lấy text từ item vừa kéo thả đúng
-                                 const hanziSpan = draggedItem.querySelector('.hanzi');
-                                 const pinyinSpan = draggedItem.querySelector('.pinyin');
-                                 if (hanziSpan && pinyinSpan) {
-                                     matchedText.textContent = `${hanziSpan.textContent} ${pinyinSpan.textContent}`;
-                                 }
-                             } else { // Fallback nếu không tìm thấy draggedItem
-                                const originalData = data.find(d => d.id === targetId);
-                                if (originalData) {
-                                    matchedText.textContent = `${originalData.hanzi} (${originalData.pinyin})`;
-                                }
-                             }
-
-                            const existingText = imgBox.querySelector('.matched-text');
-                            if (existingText) {
-                                imgBox.removeChild(existingText);
-                            }
-                            if(matchedText.textContent) {
-                                imgBox.appendChild(matchedText);
-                            }
-
-                            correctMatches++;
-                             setTimeout(() => {
-                                if(feedback.classList.contains('correct')){
-                                    feedback.textContent = '';
-                                    feedback.className = 'feedback';
-                                }
-                             }, 1500);
-
-                            if (correctMatches === data.length) {
-                                endGame(true);
-                            }
-
-                        } else if (draggedId) {
-                            incorrectAttempts++;
-                            updateScoreDisplay();
-                            feedback.textContent = 'Sai rồi, thử lại nhé!';
-                            feedback.className = 'feedback incorrect';
-                             setTimeout(() => {
-                                if (feedback.classList.contains('incorrect')) {
-                                    feedback.textContent = '';
-                                    feedback.className = 'feedback';
-                                }
-                             }, 2000);
-                        }
-                         // Reset opacity của item vừa thả (nếu nó chưa matched)
-                         if (draggedItem && !draggedItem.classList.contains('matched')) {
-                            draggedItem.style.opacity = '1';
-                         }
-                         draggedItem = null; // Reset sau khi thả
-                    };
-
-                    imgBox.addEventListener('dragover', dragOverHandler);
-                    imgBox.addEventListener('dragleave', dragLeaveHandler);
-                    imgBox.addEventListener('drop', dropHandler);
+                    // Gắn sự kiện click thay vì dragover/drop
+                    imgBox.addEventListener('click', handleImageClick);
 
                     imageContainer.appendChild(imgBox);
                 });
-
-                gameStartTime = Date.now();
-                startTimer();
             }
 
+            // Chạy game lần đầu và gắn sự kiện cho nút reset
             initGame();
             resetButton.addEventListener('click', initGame);
         });
