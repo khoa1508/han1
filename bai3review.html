@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn tập bài 3 đầu giờ</title> <style>
+        /* CSS cập nhật */
+        body {
+            font-family: sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2, p, .subtitle { /* Thêm .subtitle vào danh sách */
+            text-align: center;
+            color: #333;
+        }
+
+        /* Kiểu cho tiêu đề phụ mới */
+        .subtitle {
+            font-size: 1.3em;
+            font-weight: normal;
+            color: #555;
+            margin-top: -10px; /* Giảm khoảng cách với tiêu đề chính */
+            margin-bottom: 15px;
+        }
+
+
+        .game-status {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            max-width: 1000px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        #timer-display {
+            color: #dc3545;
+        }
+
+        #score-display {
+             color: #007bff;
+        }
+
+
+        .game-container {
+            display: flex;
+            justify-content: space-around;
+            width: 90%;
+            max-width: 1000px;
+            margin-top: 10px;
+            gap: 30px;
+        }
+
+        .container {
+            border: 2px dashed #ccc;
+            padding: 15px;
+            width: 45%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            min-height: 500px;
+        }
+
+        /* Cập nhật kiểu cho ô chữ */
+        .word-item {
+            border: 1px solid #007bff;
+            background-color: #e7f3ff;
+            padding: 10px 15px; /* Giữ nguyên padding */
+            cursor: grab;
+            border-radius: 5px;
+            text-align: center;
+            /* font-size: 1.1em; Bỏ font-size chung ở đây */
+            transition: background-color 0.2s, opacity 0.2s;
+            width: 85%; /* Tăng nhẹ chiều rộng */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            user-select: none;
+            /* Thêm để chứa các span con */
+            display: flex;
+            flex-direction: column; /* Hiển thị Hán tự trên, Pinyin dưới */
+            align-items: center; /* Căn giữa theo chiều ngang */
+            justify-content: center; /* Căn giữa theo chiều dọc nếu cần */
+            min-height: 50px; /* Đảm bảo chiều cao tối thiểu */
+        }
+
+        /* Kiểu cho Chữ Hán */
+        .hanzi {
+            font-size: 1.8em; /* Chữ Hán to hơn đáng kể */
+            font-weight: bold;
+            display: block; /* Hiển thị trên 1 dòng riêng */
+            line-height: 1.2; /* Điều chỉnh khoảng cách dòng nếu cần */
+            color: #0056b3; /* Màu đậm hơn chút */
+        }
+
+        /* Kiểu cho Pinyin */
+        .pinyin {
+            font-size: 0.9em; /* Pinyin nhỏ hơn */
+            display: block; /* Hiển thị trên 1 dòng riêng */
+            color: #555; /* Màu xám nhẹ */
+            margin-top: 2px; /* Khoảng cách nhỏ với chữ Hán */
+        }
+
+
+        .word-item:active {
+            cursor: grabbing;
+            background-color: #cce5ff;
+        }
+
+        .image-box {
+            border: 2px solid #ccc;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            position: relative;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .image-box img {
+            max-width: 90%;
+            max-height: 90%;
+            display: block;
+            pointer-events: none;
+        }
+
+        .image-box.drag-over {
+            border-color: #28a745;
+            background-color: #e9f7ec;
+        }
+
+        .image-box.dropped {
+            border-color: #28a745;
+            background-color: #e9f7ec;
+        }
+
+        .image-box .matched-text {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(40, 167, 69, 0.8);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 30px;
+            text-align: center;
+            color: #17a2b8;
+        }
+
+        .feedback.correct {
+            color: green;
+        }
+
+        .feedback.incorrect {
+            color: red;
+        }
+
+        .word-item.matched {
+            opacity: 0.3;
+            cursor: default;
+            background-color: #e9ecef;
+            border-color: #ced4da;
+            pointer-events: none;
+        }
+
+        .game-over .word-item,
+        .game-over .image-box {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+         .game-over .word-item:not(.matched) {
+             cursor: not-allowed;
+         }
+
+
+        #reset-button {
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        #reset-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .subtitle {
+                font-size: 1.1em;
+            }
+            .game-status {
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+                font-size: 1.1em;
+            }
+            .game-container {
+                flex-direction: column;
+                width: 95%;
+                gap: 20px;
+            }
+            .container {
+                width: 100%;
+                min-height: 300px;
+            }
+            .word-item {
+                width: 90%;
+                 min-height: 45px;
+            }
+             /* Điều chỉnh lại font size cho màn hình nhỏ */
+             .hanzi {
+                 font-size: 1.5em;
+             }
+             .pinyin {
+                 font-size: 0.8em;
+             }
+
+             .image-box {
+                width: 80px;
+                height: 80px;
+            }
+             .image-box .matched-text {
+                 font-size: 0.8em;
+                 bottom: -20px;
+             }
+             .feedback {
+                 font-size: 1.1em;
+             }
+             #reset-button {
+                 padding: 10px 20px;
+                 font-size: 1em;
+             }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ghép Ngôn ngữ vào Hình ảnh Tương ứng</h1>
+    <h2 class="subtitle">Ôn tập bài 3 đầu giờ</h2>
+    <p>Kéo ô chữ Hán (Pinyin) và thả vào hình ảnh đúng trong vòng 2 phút.</p>
+
+    <div class="game-status">
+        <div id="timer-display">Thời gian: 02:00</div>
+        <div id="score-display">Số lần sai: 0</div>
+    </div>
+
+    <div class="game-container" id="game-area">
+        <div id="word-container" class="container">
+            <h2>Từ vựng (Kéo từ đây)</h2>
+            </div>
+        <div id="image-container" class="container">
+            <h2>Hình ảnh (Thả vào đây)</h2>
+            </div>
+    </div>
+
+    <div id="feedback" class="feedback"></div>
+
+    <button id="reset-button">Chơi lại</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const data = [
+                 { hanzi: "英语", pinyin: "Yīngyǔ", img: "https://news.seehua.com/wp-content/uploads/2019/08/istockphoto-1047570732-612x612.jpg", id: "en" },
+                { hanzi: "阿拉伯语", pinyin: "Ālābóyǔ", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1KhD1oV_sPdPIM9Bv16yc4xXCzKsABljWXA&s", id: "ar" },
+                { hanzi: "俄语", pinyin: "Éyǔ", img: "https://d37sy4vufic209.cloudfront.net/website/_next/static/dynamic/9964e31df577bd0d9ef38d59c7016678/700.jpg", id: "ru" },
+                { hanzi: "德语", pinyin: "Déyǔ", img: "https://imgcache.dealmoon.com/thumbimg.dealmoon.com/dealmoon/749/f05/79a/0090e42ad16301c0eb18429.jpg_1000_560_13_dc5b.jpg", id: "de" },
+                { hanzi: "法语", pinyin: "Fǎyǔ", img: "https://aixue.us/wp-content/uploads/2021/09/French-1.png", id: "fr" },
+                { hanzi: "日语", pinyin: "Rìyǔ", img: "https://wwwupload.gaodunwangxiao.com/uploads/220223/6329-220223144011K0.png", id: "ja" },
+                { hanzi: "韩国语", pinyin: "Hánguóyǔ", img: "https://newsroom.korea.net/upload/content/editImage/20210930175734784_QESCNQ4V.jpg", id: "ko" },
+                { hanzi: "越南语", pinyin: "Yuènányǔ", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/1200px-Flag_of_Vietnam.svg.png", id: "vi" },
+                { hanzi: "西班牙语", pinyin: "Xībānyáyǔ", img: "https://casvischool.cn/wp-content/uploads/2023/07/%E8%A5%BF%E7%8F%AD%E7%89%99%E8%AF%AD%E4%BA%8C%E5%A4%96.png", id: "es" }
+            ];
+
+            const wordContainer = document.getElementById('word-container');
+            const imageContainer = document.getElementById('image-container');
+            const feedback = document.getElementById('feedback');
+            const resetButton = document.getElementById('reset-button');
+            const timerDisplay = document.getElementById('timer-display');
+            const scoreDisplay = document.getElementById('score-display');
+            const gameArea = document.getElementById('game-area');
+
+            let draggedItem = null;
+            let correctMatches = 0;
+            let incorrectAttempts = 0;
+            let timerIntervalId = null;
+            let remainingTime = 120;
+            let gameStartTime = null;
+            let gameActive = false;
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+
+            function updateScoreDisplay() {
+                scoreDisplay.textContent = `Số lần sai: ${incorrectAttempts}`;
+            }
+
+            function startTimer() {
+                remainingTime = 120;
+                timerDisplay.textContent = `Thời gian: ${formatTime(remainingTime)}`;
+                // Xóa interval cũ trước khi tạo cái mới (đề phòng)
+                if(timerIntervalId) clearInterval(timerIntervalId);
+                timerIntervalId = setInterval(() => {
+                    remainingTime--;
+                    timerDisplay.textContent = `Thời gian: ${formatTime(remainingTime)}`;
+                    if (remainingTime <= 0) {
+                        endGame(false);
+                    }
+                }, 1000);
+            }
+
+            function endGame(completed) {
+                gameActive = false;
+                clearInterval(timerIntervalId);
+                gameArea.classList.add('game-over');
+
+                const gameEndTime = Date.now();
+                const timeTaken = gameStartTime ? Math.round((gameEndTime - gameStartTime) / 1000) : 0;
+
+                if (completed) {
+                     feedback.textContent = `🎉 Hoàn thành! Thời gian: ${timeTaken} giây. Số lần sai: ${incorrectAttempts}.`;
+                     feedback.className = 'feedback correct';
+                } else {
+                    feedback.textContent = `⏳ Hết giờ! Bạn ghép đúng ${correctMatches}/${data.length} cặp. Số lần sai: ${incorrectAttempts}.`;
+                    feedback.className = 'feedback incorrect';
+                }
+            }
+
+            function initGame() {
+                gameActive = true;
+                correctMatches = 0;
+                incorrectAttempts = 0;
+                draggedItem = null;
+                gameArea.classList.remove('game-over');
+
+                wordContainer.innerHTML = '<h2>Từ vựng (Kéo từ đây)</h2>';
+                imageContainer.innerHTML = '<h2>Hình ảnh (Thả vào đây)</h2>';
+                feedback.textContent = '';
+                feedback.className = 'feedback';
+                updateScoreDisplay();
+
+                 if (timerIntervalId) {
+                    clearInterval(timerIntervalId);
+                 }
+
+                const shuffledWords = [...data];
+                const shuffledImages = [...data];
+                shuffle(shuffledWords);
+                shuffle(shuffledImages);
+
+                // Tạo các ô chữ kéo thả - *** CẬP NHẬT Ở ĐÂY ***
+                shuffledWords.forEach(item => {
+                    const wordDiv = document.createElement('div');
+                    wordDiv.classList.add('word-item');
+                    wordDiv.setAttribute('draggable', true);
+                    wordDiv.dataset.id = item.id;
+
+                    // Tạo cấu trúc HTML với span riêng cho Hán tự và Pinyin
+                    wordDiv.innerHTML = `
+                        <span class="hanzi">${item.hanzi}</span>
+                        <span class="pinyin">(${item.pinyin})</span>
+                    `;
+
+                    wordDiv.addEventListener('dragstart', (e) => {
+                        if (!gameActive) return;
+                        draggedItem = wordDiv;
+                        if (e.dataTransfer) {
+                           e.dataTransfer.setData('text/plain', item.id);
+                           e.dataTransfer.effectAllowed = 'move';
+                        }
+                        // Dùng requestAnimationFrame để tránh lỗi rendering khi đổi style ngay lập tức
+                        requestAnimationFrame(() => {
+                            wordDiv.style.opacity = '0.5';
+                        });
+                    });
+
+                     wordDiv.addEventListener('dragend', (e) => {
+                        // Luôn reset opacity khi kết thúc kéo, trừ khi nó đã matched
+                        // Cần kiểm tra xem wordDiv có còn trong DOM không
+                        if (wordDiv.parentNode && !wordDiv.classList.contains('matched')) {
+                             wordDiv.style.opacity = '1';
+                        }
+                        draggedItem = null;
+                     });
+
+
+                    wordContainer.appendChild(wordDiv);
+                });
+
+                // Tạo các ô ảnh để thả vào (giữ nguyên như cũ)
+                shuffledImages.forEach(item => {
+                    const imgBox = document.createElement('div');
+                    imgBox.classList.add('image-box');
+                    imgBox.dataset.id = item.id;
+
+                    const imgElement = document.createElement('img');
+                    imgElement.src = item.img;
+                    imgElement.alt = `Hình ảnh cho ${item.hanzi}`;
+                    imgElement.onerror = function() {
+                        console.error(`Không thể tải ảnh: ${item.hanzi} từ ${item.img}`);
+                        imgBox.innerHTML = `(Lỗi ảnh: ${item.id})`;
+                    };
+                    imgBox.appendChild(imgElement);
+
+                     const dragOverHandler = (e) => {
+                        if (!gameActive || !draggedItem) return;
+                        e.preventDefault();
+                        if (!imgBox.classList.contains('dropped')) {
+                            imgBox.classList.add('drag-over');
+                        }
+                     };
+
+                      const dragLeaveHandler = () => {
+                        if (!gameActive) return;
+                        imgBox.classList.remove('drag-over');
+                      };
+
+                    const dropHandler = (e) => {
+                        if (!gameActive || !draggedItem) return;
+
+                        e.preventDefault();
+                        imgBox.classList.remove('drag-over');
+                        const targetId = imgBox.dataset.id;
+                        const draggedId = e.dataTransfer ? e.dataTransfer.getData('text/plain') : null;
+
+                        if (imgBox.classList.contains('dropped')) {
+                            return;
+                        }
+
+                        if (draggedId && draggedId === targetId) {
+                            feedback.textContent = 'Đúng rồi!';
+                            feedback.className = 'feedback correct';
+
+                            imgBox.classList.add('dropped');
+                            if (draggedItem) { // Kiểm tra draggedItem tồn tại
+                                draggedItem.classList.add('matched');
+                                draggedItem.setAttribute('draggable', false);
+                            }
+
+
+                            // Hiển thị chữ Hán/Pinyin bên dưới ảnh - CẬP NHẬT LẤY TEXT TỪ DRAGGED ITEM
+                             const matchedText = document.createElement('span');
+                             matchedText.classList.add('matched-text');
+                             if (draggedItem) { // Lấy text từ item vừa kéo thả đúng
+                                 const hanziSpan = draggedItem.querySelector('.hanzi');
+                                 const pinyinSpan = draggedItem.querySelector('.pinyin');
+                                 if (hanziSpan && pinyinSpan) {
+                                     matchedText.textContent = `${hanziSpan.textContent} ${pinyinSpan.textContent}`;
+                                 }
+                             } else { // Fallback nếu không tìm thấy draggedItem
+                                const originalData = data.find(d => d.id === targetId);
+                                if (originalData) {
+                                    matchedText.textContent = `${originalData.hanzi} (${originalData.pinyin})`;
+                                }
+                             }
+
+                            const existingText = imgBox.querySelector('.matched-text');
+                            if (existingText) {
+                                imgBox.removeChild(existingText);
+                            }
+                            if(matchedText.textContent) {
+                                imgBox.appendChild(matchedText);
+                            }
+
+                            correctMatches++;
+                             setTimeout(() => {
+                                if(feedback.classList.contains('correct')){
+                                    feedback.textContent = '';
+                                    feedback.className = 'feedback';
+                                }
+                             }, 1500);
+
+                            if (correctMatches === data.length) {
+                                endGame(true);
+                            }
+
+                        } else if (draggedId) {
+                            incorrectAttempts++;
+                            updateScoreDisplay();
+                            feedback.textContent = 'Sai rồi, thử lại nhé!';
+                            feedback.className = 'feedback incorrect';
+                             setTimeout(() => {
+                                if (feedback.classList.contains('incorrect')) {
+                                    feedback.textContent = '';
+                                    feedback.className = 'feedback';
+                                }
+                             }, 2000);
+                        }
+                         // Reset opacity của item vừa thả (nếu nó chưa matched)
+                         if (draggedItem && !draggedItem.classList.contains('matched')) {
+                            draggedItem.style.opacity = '1';
+                         }
+                         draggedItem = null; // Reset sau khi thả
+                    };
+
+                    imgBox.addEventListener('dragover', dragOverHandler);
+                    imgBox.addEventListener('dragleave', dragLeaveHandler);
+                    imgBox.addEventListener('drop', dropHandler);
+
+                    imageContainer.appendChild(imgBox);
+                });
+
+                gameStartTime = Date.now();
+                startTimer();
+            }
+
+            initGame();
+            resetButton.addEventListener('click', initGame);
+        });
+    </script>
+
+</body>
+</html>
