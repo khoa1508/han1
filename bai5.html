@@ -64,18 +64,7 @@
             max-width: 100%;
             max-height: 300px; /* Tăng chiều cao tối đa cho ảnh */
             border-radius: 8px; /* Giữ bo góc */
-            object-fit: contain; /* Đảm bảo ảnh vừa vặn, không bị méo */
-        }
-        /* Thông báo lỗi ảnh GDrive */
-        #gdrive-warning {
-            color: red;
-            font-weight: bold;
-            margin-bottom: 15px;
-            background-color: #ffebee;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid red;
-            display: none; /* Chỉ hiển thị khi cần */
+            object-fit: contain; /* Đảm bảo ảnh vừa vặn, không bị méo, hiển thị đầy đủ */
         }
 
         .input-area {
@@ -179,8 +168,6 @@
         <div id="game-part-title"></div>
         <div id="timer">Thời gian: 00:00</div>
 
-        </div>
-
         <div class="image-container">
             <img id="word-image" src="" alt="Hình ảnh thử thách">
         </div>
@@ -204,7 +191,7 @@
         // === Dữ liệu Phần 1: Từ vựng ===
         const vocabularyPart1 = [
             { hanzi: "果汁", pinyin: "guǒzhī", imageUrl: "https://i.epochtimes.com/assets/uploads/2022/04/id13706118-juice_218186962.jpg" },
-            { hanzi: "奶茶", pinyin: "náichá", imageUrl: "https://img.shoplineapp.com/media/image_clips/66f7d7d52d4266c0fcb52af9/original.jpg?1727518677" },
+            { hanzi: "奶茶", pinyin: "náichá", imageUrl: "https://img.shoplineapp.com/media/image_clips/66f7d7d52d4266c0fcb52af9/original.jpg?1727518677" }, // Đã sửa URL (nếu có)
             { hanzi: "矿泉水", pinyin: "kuàngquánshuǐ", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3kxsckY12vQ1RPXdy4OQ0Oz86cTixIBgZkw&s" },
             { hanzi: "啤酒", pinyin: "píjiǔ", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Aufse%C3%9F_Bier.JPG/1200px-Aufse%C3%9F_Bier.JPG" },
             { hanzi: "牛奶", pinyin: "niúnǎi", imageUrl: "https://i.epochtimes.com/assets/uploads/2021/06/id13021594-milk_279701309-600x400.jpg" },
@@ -215,8 +202,7 @@
             { hanzi: "身体", pinyin: "shēntǐ", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-vU4O18VX9vWPh4V4LXX1Dc4fV46lVTGmSw&s" }
         ];
 
-        // === Dữ liệu Phần 2: Câu ===
-        //
+        // === Dữ liệu Phần 2: Câu (ĐÃ CẬP NHẬT LINK IMGUR) ===
         const vocabularyPart2 = [
             { hanzi: "这是银行", pinyin: "Zhè shì yínháng", imageUrl: "https://i.imgur.com/3OrHy0d.png" },
             { hanzi: "这是邮局", pinyin: "Zhè shì yóujú", imageUrl: "https://i.imgur.com/50iUJIq.png" },
@@ -236,11 +222,11 @@
         const correctAnswerDisplay = document.getElementById('correct-answer');
         const nextButton = document.getElementById('next-button');
         const timerDisplay = document.getElementById('timer');
-        const finalSummary = document.getElementById('final-summary'); // Đổi tên từ final-message
+        const finalSummary = document.getElementById('final-summary');
         const gamePartTitle = document.getElementById('game-part-title');
         const hintButton = document.getElementById('hint-button');
         const hintDisplay = document.getElementById('hint-display');
-        const gdriveWarning = document.getElementById('gdrive-warning'); // Cảnh báo GDrive
+        // Không còn biến gdriveWarning
 
         // === Biến trạng thái game ===
         let currentGamePart = 1; // 1: Từ vựng, 2: Câu
@@ -284,9 +270,19 @@
             shuffleArray(shuffledVocabPart1);
             shuffleArray(shuffledVocabPart2);
 
+            // Hiển thị các thành phần game chính
+            wordImage.style.display = 'block';
+            document.querySelector('.input-area').style.display = 'flex'; // hoặc 'block' tùy layout
+            feedback.style.display = 'block';
+            hintDisplay.style.display = 'block'; // hoặc 'inline' tùy layout
+            attemptsDisplay.style.display = 'block';
+            correctAnswerDisplay.style.display = 'block'; // hoặc 'inline'
+            timerDisplay.style.display = 'block';
+            gamePartTitle.style.display = 'block';
+
             finalSummary.style.display = 'none';
             finalSummary.innerHTML = ''; // Xóa nội dung cũ
-            gdriveWarning.style.display = 'none'; // Ẩn cảnh báo GDrive ban đầu
+
 
             // Reset các nút và input
             answerInput.disabled = false;
@@ -314,8 +310,7 @@
                 itemType = "Câu";
                 gamePartTitle.textContent = `Phần 2: Điền Câu (${currentWordIndex + 1}/${currentVocab.length})`;
                 answerInput.placeholder = "Nhập câu (chữ Hán)...";
-                // Hiển thị cảnh báo nếu đang ở Phần 2 (vì có link GDrive)
-                gdriveWarning.style.display = 'block';
+                // Không còn cần hiển thị cảnh báo GDrive
             }
 
             // Kiểm tra nếu hết phần hiện tại
@@ -329,7 +324,7 @@
             }
 
             const currentItem = currentVocab[currentWordIndex];
-            wordImage.src = currentItem.imageUrl; // Sẽ bị lỗi nếu là link GDrive
+            wordImage.src = currentItem.imageUrl; // Link Imgur sẽ hoạt động
             wordImage.alt = `Hình ảnh cho ${itemType} ${currentWordIndex + 1}`;
             answerInput.value = '';
             feedback.textContent = '';
@@ -419,7 +414,7 @@
             currentGamePart = 2;
             currentWordIndex = 0;
             alert("Chúc mừng bạn đã hoàn thành Phần 1!\nChuẩn bị sang Phần 2: Điền câu."); // Thông báo chuyển tiếp
-            gdriveWarning.style.display = 'block'; // Hiển thị cảnh báo GDrive cho Phần 2
+            // Không còn cần hiển thị cảnh báo GDrive
             displayCurrentItem(); // Hiển thị câu đầu tiên của Phần 2
         }
 
@@ -451,7 +446,6 @@
             nextButton.style.display = 'none';
             timerDisplay.style.display = 'none'; // Ẩn timer
             gamePartTitle.style.display = 'none'; // Ẩn tiêu đề phần
-             gdriveWarning.style.display = 'none'; // Ẩn cảnh báo GDrive
 
 
             const totalQuestions = vocabularyPart1.length + vocabularyPart2.length;
