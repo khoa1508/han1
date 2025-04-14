@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Điền Từ & Câu Tiếng Trung</title>
+    <style>
+        /* --- CSS Code Starts Here --- */
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5; /* Màu nền nhẹ nhàng hơn */
+            margin: 0;
+            padding: 15px; /* Thêm padding cho màn hình nhỏ */
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 600px; /* Tăng chiều rộng tối đa */
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #1877f2; /* Màu xanh dương Facebook */
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        #game-part-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        #timer {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .image-container {
+            margin-bottom: 15px;
+            min-height: 180px; /* Điều chỉnh chiều cao tối thiểu */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #eee; /* Nền placeholder khi ảnh chưa tải */
+            border-radius: 8px;
+            overflow: hidden; /* Đảm bảo ảnh không tràn */
+        }
+
+        #word-image {
+            display: block; /* Để tránh khoảng trắng thừa bên dưới */
+            max-width: 100%;
+            max-height: 300px; /* Tăng chiều cao tối đa cho ảnh */
+            border-radius: 8px; /* Giữ bo góc */
+            object-fit: contain; /* Đảm bảo ảnh vừa vặn, không bị méo */
+        }
+        /* Thông báo lỗi ảnh GDrive */
+        #gdrive-warning {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background-color: #ffebee;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid red;
+            display: none; /* Chỉ hiển thị khi cần */
+        }
+
+        .input-area {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap; /* Cho phép xuống hàng trên màn hình nhỏ */
+            justify-content: center;
+            align-items: center; /* Căn giữa các item theo chiều dọc */
+            gap: 10px;
+        }
+
+        #answer-input {
+            padding: 12px; /* Tăng padding */
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            flex-grow: 1; /* Cho phép input chiếm không gian */
+            min-width: 200px; /* Chiều rộng tối thiểu */
+        }
+
+        #submit-button, #next-button, #hint-button {
+            padding: 12px 18px;
+            font-size: 1em;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+        }
+        #submit-button { background-color: #1877f2; } /* Xanh dương */
+        #hint-button { background-color: #ffc107; color: #333; } /* Vàng */
+        #next-button { background-color: #28a745; } /* Xanh lá */
+
+        #submit-button:hover { background-color: #166fe5; }
+        #hint-button:hover { background-color: #e0a800; }
+        #next-button:hover { background-color: #218838; }
+
+        #hint-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #feedback {
+            margin-bottom: 10px;
+            font-weight: bold;
+            min-height: 1.2em;
+            font-size: 1.1em;
+        }
+
+        #feedback.correct { color: #28a745; } /* Xanh lá */
+        #feedback.incorrect { color: #dc3545; } /* Đỏ */
+
+        #attempts {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        #correct-answer, #hint-display {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #4CAF50; /* Màu xanh lá cây */
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+         #hint-display {
+            color: #007bff; /* Màu xanh dương cho gợi ý */
+         }
+
+        #final-summary {
+            margin-top: 25px;
+            font-size: 1.2em;
+            font-weight: normal; /* Bình thường thay vì bold */
+            color: #333;
+            line-height: 1.7; /* Tăng khoảng cách dòng */
+            display: none; /* Ẩn ban đầu */
+            border-top: 2px solid #1877f2; /* Đường kẻ phân cách rõ hơn */
+            padding-top: 20px;
+            text-align: left; /* Căn trái nội dung tóm tắt */
+        }
+         #final-summary strong {
+            font-size: 1.4em;
+            color: #1877f2;
+            display: block; /* Cho tiêu đề chiếm 1 dòng */
+            text-align: center; /* Căn giữa tiêu đề */
+            margin-bottom: 15px;
+         }
+         #final-summary p {
+             margin: 5px 0; /* Khoảng cách giữa các dòng tóm tắt */
+         }
+
+        /* Ẩn nút "Next" ban đầu */
+        #next-button {
+            display: none;
+        }
+        /* --- CSS Code Ends Here --- */
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Game Tiếng Trung</h1>
+        <div id="game-part-title"></div>
+        <div id="timer">Thời gian: 00:00</div>
+
+        <div id="gdrive-warning">
+            LƯU Ý: Hình ảnh có thể không hiển thị vì sử dụng link Google Drive. Vui lòng thay thế bằng link ảnh trực tiếp!
+        </div>
+
+        <div class="image-container">
+            <img id="word-image" src="" alt="Hình ảnh thử thách">
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="answer-input" placeholder="Nhập đáp án (chữ Hán)...">
+            <button id="hint-button">Gợi ý (Pinyin)</button>
+            <button id="submit-button">Kiểm tra</button>
+        </div>
+
+        <div id="feedback"></div>
+        <div id="hint-display"></div> <div id="attempts">Số lần sai còn lại: 3</div>
+        <div id="correct-answer"></div> <button id="next-button">Câu Tiếp Theo</button>
+
+        <div id="final-summary"></div>
+    </div>
+
+    <script>
+        // --- JavaScript Code Starts Here ---
+
+        // === Dữ liệu Phần 1: Từ vựng ===
+        const vocabularyPart1 = [
+            { hanzi: "果汁", pinyin: "guǒzhī", imageUrl: "https://i.epochtimes.com/assets/uploads/2022/04/id13706118-juice_218186962.jpg" },
+            { hanzi: "奶茶", pinyin: "náichá", imageUrl: "https://img.shoplineapp.com/media/image_clips/66f7d7d52d4266c0fcb52af9/original.jpg?1727518677" },
+            { hanzi: "矿泉水", pinyin: "kuàngquánshuǐ", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3kxsckY12vQ1RPXdy4OQ0Oz86cTixIBgZkw&s" },
+            { hanzi: "啤酒", pinyin: "píjiǔ", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Aufse%C3%9F_Bier.JPG/1200px-Aufse%C3%9F_Bier.JPG" },
+            { hanzi: "牛奶", pinyin: "niúnǎi", imageUrl: "https://i.epochtimes.com/assets/uploads/2021/06/id13021594-milk_279701309-600x400.jpg" },
+            { hanzi: "喝", pinyin: "hē", imageUrl: "https://i0.wp.com/jerosse.com.tw/wp-content/uploads/1-2.png" },
+            { hanzi: "谢谢", pinyin: "xièxie", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQraUHJAf1KEPt6eI37q1giT-rMcfMB3VBBrg&s" },
+            { hanzi: "不客气", pinyin: "bùkèqì", imageUrl: "https://i.ytimg.com/vi/2emRBLKYGGw/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCKwE8pq-iMtQG1hMNRtw469_eKfQ" },
+            { hanzi: "工作", pinyin: "gōngzuò", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSj7kU9An_BgGY1YHQLPM-cvZ02Uz4rlUNV6g&s" },
+            { hanzi: "身体", pinyin: "shēntǐ", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-vU4O18VX9vWPh4V4LXX1Dc4fV46lVTGmSw&s" }
+        ];
+
+        // === Dữ liệu Phần 2: Câu ===
+        // !!! CẢNH BÁO: LINK GOOGLE DRIVE SẼ KHÔNG HIỂN THỊ ẢNH - CẦN THAY THẾ !!!
+        const vocabularyPart2 = [
+            { hanzi: "这是银行", pinyin: "Zhè shì yínháng", imageUrl: "https://drive.google.com/file/d/1p3Rc1Z3NhASQnv5TcgGC3BxCkm_6PH_u/view?usp=sharing" },
+            { hanzi: "这是邮局", pinyin: "Zhè shì yóujú", imageUrl: "https://drive.google.com/file/d/1lTRCOfOe1i8I6tF3cfjBSxzs80gzZGBL/view?usp=sharing" },
+            { hanzi: "我喝牛奶", pinyin: "Wǒ hē niúnǎi", imageUrl: "https://drive.google.com/file/d/1j3XYeQipKadEqw7DQSvspVBYnsxAD5C8/view?usp=sharing" },
+            { hanzi: "我喜欢喝果汁", pinyin: "Wǒ xǐhuān hē guǒzhī", imageUrl: "https://drive.google.com/file/d/1RFxA6ntsZ6e3LBD2pMK5neCv5s0BcIOk/view?usp=sharing" },
+            { hanzi: "我在银行工作", pinyin: "Wǒ zài yínháng gōngzuò", imageUrl: "https://drive.google.com/file/d/1ELSwJL7h7yJvEKw9baM366jTC1tZwIrp/view?usp=sharing" },
+            { hanzi: "你在哪儿工作？", pinyin: "Nǐ zài nǎr gōngzuò?", imageUrl: "https://drive.google.com/file/d/1tCrV4PI6V_Z-5oaLCMddcXCegAjCAL8n/view?usp=sharing" },
+            { hanzi: "你爸爸妈妈身体好吗？", pinyin: "Nǐ bàba māma shēntǐ hǎo ma?", imageUrl: "https://drive.google.com/file/d/1g0Fk-_MkVNwVCC-fjgXJbG_RYmrodjDJ/view?usp=sharing" }
+        ];
+
+        // === Lấy các phần tử DOM ===
+        const wordImage = document.getElementById('word-image');
+        const answerInput = document.getElementById('answer-input');
+        const submitButton = document.getElementById('submit-button');
+        const feedback = document.getElementById('feedback');
+        const attemptsDisplay = document.getElementById('attempts');
+        const correctAnswerDisplay = document.getElementById('correct-answer');
+        const nextButton = document.getElementById('next-button');
+        const timerDisplay = document.getElementById('timer');
+        const finalSummary = document.getElementById('final-summary'); // Đổi tên từ final-message
+        const gamePartTitle = document.getElementById('game-part-title');
+        const hintButton = document.getElementById('hint-button');
+        const hintDisplay = document.getElementById('hint-display');
+        const gdriveWarning = document.getElementById('gdrive-warning'); // Cảnh báo GDrive
+
+        // === Biến trạng thái game ===
+        let currentGamePart = 1; // 1: Từ vựng, 2: Câu
+        let currentWordIndex = 0;
+        let shuffledVocabPart1 = [];
+        let shuffledVocabPart2 = [];
+        let wrongAttempts = 0; // Số lần sai cho câu/từ HIỆN TẠI
+        const maxWrongAttempts = 3;
+        let timerInterval = null;
+        let startTime = 0;
+        let gameEnded = false;
+        let score = 0; // Tổng điểm
+        let totalIncorrectItems = 0; // Tổng số TỪ/CÂU trả lời sai
+
+        // === Hàm tiện ích ===
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // === Logic Game ===
+        function startGame() {
+            gameEnded = false;
+            currentGamePart = 1; // Bắt đầu từ phần 1
+            currentWordIndex = 0;
+            wrongAttempts = 0;
+            score = 0;
+            totalIncorrectItems = 0;
+
+            shuffledVocabPart1 = [...vocabularyPart1];
+            shuffledVocabPart2 = [...vocabularyPart2];
+            shuffleArray(shuffledVocabPart1);
+            shuffleArray(shuffledVocabPart2);
+
+            finalSummary.style.display = 'none';
+            finalSummary.innerHTML = ''; // Xóa nội dung cũ
+            gdriveWarning.style.display = 'none'; // Ẩn cảnh báo GDrive ban đầu
+
+            // Reset các nút và input
+            answerInput.disabled = false;
+            submitButton.disabled = false;
+            hintButton.disabled = false;
+            nextButton.style.display = 'none';
+            feedback.textContent = '';
+            hintDisplay.textContent = '';
+            correctAnswerDisplay.textContent = '';
+
+            displayCurrentItem(); // Hiển thị câu/từ đầu tiên của Phần 1
+            startTimer();
+            answerInput.focus();
+        }
+
+        function displayCurrentItem() {
+            let currentVocab, itemType;
+            if (currentGamePart === 1) {
+                currentVocab = shuffledVocabPart1;
+                itemType = "Từ Vựng";
+                gamePartTitle.textContent = `Phần 1: Điền Từ (${currentWordIndex + 1}/${currentVocab.length})`;
+                answerInput.placeholder = "Nhập từ vựng (chữ Hán)...";
+            } else { // currentGamePart === 2
+                currentVocab = shuffledVocabPart2;
+                itemType = "Câu";
+                gamePartTitle.textContent = `Phần 2: Điền Câu (${currentWordIndex + 1}/${currentVocab.length})`;
+                answerInput.placeholder = "Nhập câu (chữ Hán)...";
+                // Hiển thị cảnh báo nếu đang ở Phần 2 (vì có link GDrive)
+                gdriveWarning.style.display = 'block';
+            }
+
+            // Kiểm tra nếu hết phần hiện tại
+            if (currentWordIndex >= currentVocab.length) {
+                if (currentGamePart === 1) {
+                    transitionToPart2();
+                } else {
+                    endGame(); // Kết thúc game nếu đã hết Phần 2
+                }
+                return;
+            }
+
+            const currentItem = currentVocab[currentWordIndex];
+            wordImage.src = currentItem.imageUrl; // Sẽ bị lỗi nếu là link GDrive
+            wordImage.alt = `Hình ảnh cho ${itemType} ${currentWordIndex + 1}`;
+            answerInput.value = '';
+            feedback.textContent = '';
+            feedback.className = '';
+            correctAnswerDisplay.textContent = '';
+            hintDisplay.textContent = ''; // Xóa gợi ý cũ
+            wrongAttempts = 0;
+            updateAttemptsDisplay();
+
+            // Reset trạng thái nút
+            answerInput.disabled = false;
+            submitButton.disabled = false;
+            hintButton.disabled = false; // Kích hoạt lại nút gợi ý
+            nextButton.style.display = 'none';
+
+            answerInput.focus();
+        }
+
+        function updateAttemptsDisplay() {
+            const remainingAttempts = maxWrongAttempts - wrongAttempts;
+            attemptsDisplay.textContent = `Số lần sai còn lại: ${remainingAttempts}`;
+        }
+
+        function checkAnswer() {
+            if (gameEnded || answerInput.disabled) return; // Không kiểm tra nếu game kết thúc hoặc input đang bị khóa
+
+            const userAnswer = answerInput.value.trim();
+            const currentVocab = currentGamePart === 1 ? shuffledVocabPart1 : shuffledVocabPart2;
+            const currentItem = currentVocab[currentWordIndex];
+            const correctAnswer = currentItem.hanzi; // Dùng 'hanzi' cho cả từ và câu
+
+            if (!userAnswer) {
+                feedback.textContent = 'Vui lòng nhập đáp án!';
+                feedback.className = 'incorrect';
+                return;
+            }
+
+            if (userAnswer === correctAnswer) {
+                score++; // Cộng điểm
+                feedback.textContent = 'Chính xác!';
+                feedback.className = 'correct';
+                answerInput.disabled = true; // Khóa input và nút khi chờ chuyển
+                submitButton.disabled = true;
+                hintButton.disabled = true;
+
+                setTimeout(() => {
+                    currentWordIndex++;
+                    displayCurrentItem(); // Gọi hàm này sẽ tự xử lý chuyển phần hoặc kết thúc game
+                }, 1200); // Tăng thời gian chờ lên một chút
+            } else {
+                wrongAttempts++;
+                updateAttemptsDisplay();
+                feedback.textContent = 'Sai rồi! Thử lại.';
+                feedback.className = 'incorrect';
+                hintButton.disabled = false; // Cho phép dùng gợi ý lại nếu sai
+                answerInput.focus();
+                answerInput.select();
+
+                if (wrongAttempts >= maxWrongAttempts) {
+                    totalIncorrectItems++; // Tăng tổng số câu/từ sai
+                    feedback.textContent = 'Bạn đã hết lượt thử!';
+                    correctAnswerDisplay.textContent = `Đáp án đúng: ${currentItem.hanzi} (${currentItem.pinyin})`;
+                    answerInput.disabled = true;
+                    submitButton.disabled = true;
+                    hintButton.disabled = true;
+                    nextButton.style.display = 'inline-block'; // Hiện nút Next
+                }
+            }
+        }
+
+        function showHint() {
+            if (gameEnded || hintButton.disabled) return;
+
+            const currentVocab = currentGamePart === 1 ? shuffledVocabPart1 : shuffledVocabPart2;
+            const currentItem = currentVocab[currentWordIndex];
+            hintDisplay.textContent = `Gợi ý Pinyin: ${currentItem.pinyin}`;
+            hintButton.disabled = true; // Chỉ cho dùng gợi ý 1 lần mỗi câu/từ
+            answerInput.focus();
+        }
+
+        function nextItemAfterFail() {
+            currentWordIndex++;
+            displayCurrentItem(); // Hàm này sẽ tự xử lý chuyển phần hoặc kết thúc
+        }
+
+        function transitionToPart2() {
+            currentGamePart = 2;
+            currentWordIndex = 0;
+            alert("Chúc mừng bạn đã hoàn thành Phần 1!\nChuẩn bị sang Phần 2: Điền câu."); // Thông báo chuyển tiếp
+            gdriveWarning.style.display = 'block'; // Hiển thị cảnh báo GDrive cho Phần 2
+            displayCurrentItem(); // Hiển thị câu đầu tiên của Phần 2
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                if (gameEnded) return;
+                const elapsedTime = Date.now() - startTime;
+                timerDisplay.textContent = `Thời gian: ${formatTime(elapsedTime)}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function endGame() {
+            gameEnded = true;
+            stopTimer();
+
+            // Ẩn các thành phần game chính
+            wordImage.style.display = 'none'; // Ẩn ảnh
+            document.querySelector('.input-area').style.display = 'none'; // Ẩn khu vực input
+            feedback.style.display = 'none';
+            hintDisplay.style.display = 'none';
+            attemptsDisplay.style.display = 'none';
+            correctAnswerDisplay.style.display = 'none';
+            nextButton.style.display = 'none';
+            timerDisplay.style.display = 'none'; // Ẩn timer
+            gamePartTitle.style.display = 'none'; // Ẩn tiêu đề phần
+             gdriveWarning.style.display = 'none'; // Ẩn cảnh báo GDrive
+
+
+            const totalQuestions = vocabularyPart1.length + vocabularyPart2.length;
+            const elapsedTime = Date.now() - startTime;
+
+            // Hiển thị bảng tổng kết
+            finalSummary.innerHTML = `
+                <strong>🏆 KẾT QUẢ TỔNG KẾT 🏆</strong>
+                <p>Tổng thời gian: ${formatTime(elapsedTime)}</p>
+                <p>Tổng số câu hỏi: ${totalQuestions}</p>
+                <p>Số câu trả lời đúng: ${score}</p>
+                <p>Số câu trả lời sai (hết lượt): ${totalIncorrectItems}</p>
+                <p>Tỷ lệ đúng: ${totalQuestions > 0 ? ((score / totalQuestions) * 100).toFixed(1) : 0}%</p>
+                <button onclick="startGame()" style="padding: 10px 20px; font-size: 1em; background-color: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 15px;">Chơi lại</button>
+            `;
+            finalSummary.style.display = 'block';
+        }
+
+        // === Gắn Event Listeners ===
+        submitButton.addEventListener('click', checkAnswer);
+        nextButton.addEventListener('click', nextItemAfterFail);
+        hintButton.addEventListener('click', showHint);
+
+        answerInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (!submitButton.disabled) {
+                    checkAnswer();
+                }
+            }
+        });
+
+        // Bắt đầu game khi trang tải xong
+        document.addEventListener('DOMContentLoaded', startGame);
+
+        // --- JavaScript Code Ends Here ---
+    </script>
+</body>
+</html>
