@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Bài Tập Nâng Cao - Bài 14: 你的车是新的还是旧的</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            background-color: #eef2f7;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            width: 90%;
+            max-width: 800px;
+        }
+        h1 {
+            color: #1a237e;
+            text-align: center;
+            border-bottom: 3px solid #3949ab;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        h2 {
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 5px; /* Reduced margin to bring button closer */
+            padding-bottom: 8px;
+            border-bottom: 2px solid;
+        }
+        h3 {
+            font-size: 1.4em;
+            color: #455a64;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        .instructions {
+            font-size: 1.1em;
+            color: #546e7a;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #eceff1;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 10px;
+            position: relative; /* For positioning section-specific elements if needed */
+        }
+        .section-vocab { background-color: #e3f2fd; border-left: 6px solid #2196f3; }
+        .section-vocab h2 { color: #1565c0; border-bottom-color: #1e88e5;}
+        .section-sentence { background-color: #e8f5e9; border-left: 6px solid #4caf50; }
+        .section-sentence h2 { color: #2e7d32; border-bottom-color: #388e3c;}
+        .section-dialogue { background-color: #fffde7; border-left: 6px solid #ffeb3b; }
+        .section-dialogue h2 { color: #f57f17; border-bottom-color: #fbc02d;}
+        .section-extension { background-color: #fce4ec; border-left: 6px solid #e91e63; }
+        .section-extension h2 { color: #ad1457; border-bottom-color: #c2185b;}
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #37474f;
+        }
+        input[type="text"], select {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 1px solid #b0bec5;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        input[type="text"]:focus, select:focus {
+            border-color: #1976d2;
+            box-shadow: 0 0 8px rgba(25,118,210,0.2);
+        }
+        .vocab-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .vocab-table th, .vocab-table td { border: 1px solid #b0bec5; padding: 12px; text-align: left; font-size: 1em; }
+        .vocab-table th { background-color: #cfd8dc; color: #37474f; }
+        .dialogue-pair { margin-bottom:15px; padding: 10px; border: 1px dashed #90a4ae; border-radius: 5px; }
+        .note { font-style: italic; color: #424242; font-size: 1em; text-align: center; margin-bottom: 25px; padding: 10px; background-color: #fafafa; border-left: 4px solid #1976d2; border-radius: 4px; }
+        .example-sentence { margin-left: 20px; padding: 10px; background-color: #f5f5f5; border-left: 4px solid #5e35b1; border-radius: 4px; font-style: italic; margin-top: 5px; }
+        
+        .global-button-container { /* Renamed for clarity */
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 30px; /* Increased bottom margin */
+        }
+        button#printButton {
+            background-color: #0277bd;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+        button#printButton:hover { background-color: #01579b; }
+
+        .toggle-section-pinyin-button {
+            background-color: #607d8b; /* Blue Grey */
+            color: white;
+            padding: 6px 12px; /* Smaller button */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+            margin-top: 5px; /* Space from h2 */
+            margin-bottom: 15px; /* Space before section content */
+            display: inline-block;
+        }
+        .toggle-section-pinyin-button:hover { background-color: #455a64; }
+
+
+        /* Pinyin Styles */
+        .char-pinyin-group {
+            display: inline-block;
+            line-height: 1.3;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .hanzi {
+            display: inline;
+            font-size: 1.1em;
+        }
+        .pinyin {
+            display: none; /* Quan trọng: Ban đầu ẩn Pinyin */
+            font-size: 0.85em;
+            color: #007bff;
+            line-height: 1.1;
+            /* Pinyin will be set to display:block by JS when visible */
+            margin-top: -2px;
+        }
+
+        @media print {
+            body { background-color: #fff; margin: 0; padding: 0; font-size: 12pt; }
+            .container { box-shadow: none; margin: 0; width: 100%; max-width: 100%; border-radius: 0; padding: 20px; }
+            #printButton, .toggle-section-pinyin-button, .global-button-container { display: none !important; }
+            .section { border-left: none; padding: 15px 0; page-break-inside: avoid; }
+            h1, h2, h3 { color: #000 !important; border-bottom-color: #ccc !important; }
+            .instructions, .note, .example-sentence { background-color: #f0f0f0 !important; border-left-color: #666 !important; }
+            .vocab-table th, .vocab-table td { border-color: #aaa; }
+            .vocab-table th { background-color: #e0e0e0 !important; }
+            .pinyin { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span class="char-pinyin-group">
+                <span class="hanzi">PHIẾU BÀI TẬP NÂNG CAO - BÀI 14</span>
+            </span>:
+            <span class="char-pinyin-group">
+                <span class="hanzi">你的车是新的还是旧的</span>
+                <span class="pinyin">Nǐ de chē shì xīn de háishì jiù de</span>
+            </span>
+        </h1>
+        <p class="note">Chào các bạn học viên! Hãy cùng nhau hoàn thành các bài tập thú vị dưới đây để củng cố kiến thức từ <span class="char-pinyin-group"><span class="hanzi">Bài 14</span><span class="pinyin">dì shísì kè</span></span>: "<span class="char-pinyin-group"><span class="hanzi">你的车是新的还是旧的</span><span class="pinyin">Nǐ de chē shì xīn de háishì jiù de</span></span>" và chuẩn bị thật tốt cho hoạt động giao tiếp "<span class="char-pinyin-group"><span class="hanzi">Một ngày của tôi và bạn</span><span class="pinyin">Wǒ de yī tiān, nǐ de yī tiān</span></span>" nhé!</p>
+
+        <div class="global-button-container">
+            <button id="printButton">🖨️ In Bài Tập ra PDF</button>
+        </div>
+
+        <div class="section section-vocab">
+            <h2><span class="char-pinyin-group"><span class="hanzi">Phần 1: Ôn Tập Từ Vựng</span><span class="pinyin">Dì yī bùfen: Cíhuì Fùxí</span></span></h2>
+            <button class="toggle-section-pinyin-button" data-pinyin-visible="false">🌗 Hiện Pinyin Phần này</button>
+            <h3><span class="char-pinyin-group"><span class="hanzi">Bài 1.1: Nối từ Tiếng Trung với nghĩa Tiếng Việt</span><span class="pinyin">Liànxí yī diǎn yī: Hàn-Yuè cíyǔ liánxiàn</span></span></h3>
+            <p class="instructions">Thử tài trí nhớ! Hãy nối các từ ở cột A (<span class="char-pinyin-group"><span class="hanzi">Tiếng Trung</span><span class="pinyin">Hànyǔ</span></span>) với nghĩa <span class="char-pinyin-group"><span class="hanzi">Tiếng Việt</span><span class="pinyin">Yuènányǔ</span></span> phù hợp nhất ở cột B.</p>
+            <table class="vocab-table">
+                <thead><tr><th>Cột A (<span class="char-pinyin-group"><span class="hanzi">Tiếng Trung</span><span class="pinyin">Hànyǔ</span></span>)</th><th>Cột B (<span class="char-pinyin-group"><span class="hanzi">Nghĩa Tiếng Việt</span><span class="pinyin">Yuènányǔ yìsi</span></span>)</th></tr></thead>
+                <tbody>
+                    <tr><td>1. <span class="char-pinyin-group"><span class="hanzi">自行车</span><span class="pinyin">zìxíngchē</span></span></td><td>A. Ô tô</td></tr>
+                    <tr><td>2. <span class="char-pinyin-group"><span class="hanzi">摩托车</span><span class="pinyin">mótuōchē</span></span></td><td>B. Xe đạp</td></tr>
+                    <tr><td>3. <span class="char-pinyin-group"><span class="hanzi">汽车</span><span class="pinyin">qìchē</span></span></td><td>C. Giám đốc</td></tr>
+                    <tr><td>4. <span class="char-pinyin-group"><span class="hanzi">公共汽车</span><span class="pinyin">gōnggòng qìchē</span></span></td><td>D. Màu sắc</td></tr>
+                    <tr><td>5. <span class="char-pinyin-group"><span class="hanzi">出租车</span><span class="pinyin">chūzūchē</span></span></td><td>E. Xe buýt</td></tr>
+                    <tr><td>6. <span class="char-pinyin-group"><span class="hanzi">经理</span><span class="pinyin">jīnglǐ</span></span></td><td>F. Vừa mới</td></tr>
+                    <tr><td>7. <span class="char-pinyin-group"><span class="hanzi">颜色</span><span class="pinyin">yánsè</span></span></td><td>G. Hơi, một chút</td></tr>
+                    <tr><td>8. <span class="char-pinyin-group"><span class="hanzi">刚</span><span class="pinyin">gāng</span></span></td><td>H. Tàm tạm, bình thường</td></tr>
+                    <tr><td>9. <span class="char-pinyin-group"><span class="hanzi">有点儿</span><span class="pinyin">yǒudiǎnr</span></span></td><td>I. Xe taxi</td></tr>
+                    <tr><td>10. <span class="char-pinyin-group"><span class="hanzi">马马虎虎</span><span class="pinyin">mǎmǎhūhū</span></span></td><td>J. Xe máy</td></tr>
+                </tbody>
+            </table>
+            <label for="answer1_1">Nhập đáp án của bạn (ví dụ: 1-B, 2-J,...):</label>
+            <input type="text" id="answer1_1" name="answer1_1" placeholder="Ví dụ: 1-B, 2-J, 3-A...">
+
+            <h3><span class="char-pinyin-group"><span class="hanzi">Bài 1.2: Chọn từ điền vào chỗ trống</span><span class="pinyin">Liànxí yī diǎn èr: Xuǎncí tiánkòng</span></span></h3>
+            <p class="instructions"><strong>Thử thách điền từ!</strong> <span class="char-pinyin-group"><span class="hanzi">Cho các từ sau</span><span class="pinyin">Gěi chū xiàliè cíyǔ</span></span>:
+                <strong>
+                    <span class="char-pinyin-group"><span class="hanzi">开</span><span class="pinyin">kāi</span></span>,
+                    <span class="char-pinyin-group"><span class="hanzi">骑</span><span class="pinyin">qí</span></span>,
+                    <span class="char-pinyin-group"><span class="hanzi">坐</span><span class="pinyin">zuò</span></span>,
+                    <span class="char-pinyin-group"><span class="hanzi">辆</span><span class="pinyin">liàng</span></span>,
+                    <span class="char-pinyin-group"><span class="hanzi">新的</span><span class="pinyin">xīn de</span></span>,
+                    <span class="char-pinyin-group"><span class="hanzi">旧的</span><span class="pinyin">jiù de</span></span>,
+                    <span class="char-pinyin-group"><span class="hanzi">蓝色</span><span class="pinyin">lán sè</span></span>,
+                    <span class="char-pinyin-group"><span class="hanzi">红色</span><span class="pinyin">hóng sè</span></span>
+                </strong>.
+                <span class="char-pinyin-group"><span class="hanzi">Hãy chọn từ thích hợp nhất để hoàn thành các câu dưới đây.</span><span class="pinyin">Qǐng xuǎnzé zuì héshì de cíyǔ wánchéng xiàliè jùzi.</span></span>
+            </p>
+            <ol>
+                <li><label for="fill_1"><span class="char-pinyin-group"><span class="hanzi">我每天</span><span class="pinyin">Wǒ měitiān</span></span> (______________) <span class="char-pinyin-group"><span class="hanzi">自行车上学</span><span class="pinyin">zìxíngchē shàngxué</span></span>。</label>
+                    <input type="text" id="fill_1" name="fill_1"></li>
+                <li><label for="fill_2"><span class="char-pinyin-group"><span class="hanzi">他爸爸</span><span class="pinyin">Tā bàba</span></span> (______________) <span class="char-pinyin-group"><span class="hanzi">汽车上班</span><span class="pinyin">qìchē shàngbān</span></span>。</label>
+                    <input type="text" id="fill_2" name="fill_2"></li>
+                <li><label for="fill_3a"><span class="char-pinyin-group"><span class="hanzi">这</span><span class="pinyin">Zhè</span></span> (______________)</label> <label for="fill_3b"><span class="char-pinyin-group"><span class="hanzi">自行车是</span><span class="pinyin">zìxíngchē shì</span></span> (______________)，</label> <label for="fill_3c"><span class="char-pinyin-group"><span class="hanzi">不是</span><span class="pinyin">bú shì</span></span> (______________)。</label>
+                    <input type="text" id="fill_3a" name="fill_3a" style="width:25%; display:inline-block;">
+                    <input type="text" id="fill_3b" name="fill_3b" style="width:25%; display:inline-block;">
+                    <input type="text" id="fill_3c" name="fill_3c" style="width:25%; display:inline-block;">
+                </li>
+                <li><label for="fill_4"><span class="char-pinyin-group"><span class="hanzi">我喜欢</span><span class="pinyin">Wǒ xǐhuan</span></span> (______________) <span class="char-pinyin-group"><span class="hanzi">的汽车</span><span class="pinyin">de qìchē</span></span>。</label>
+                    <input type="text" id="fill_4" name="fill_4"></li>
+            </ol>
+        </div>
+
+        <div class="section section-sentence">
+            <h2><span class="char-pinyin-group"><span class="hanzi">Phần 2: Mẫu Câu</span><span class="pinyin">Dì èr bùfen: Jùxíng Liànxí</span></span></h2>
+            <button class="toggle-section-pinyin-button" data-pinyin-visible="false">🌗 Hiện Pinyin Phần này</button>
+            <h3><span class="char-pinyin-group"><span class="hanzi">Bài 2.1: Sắp xếp các từ sau thành câu hoàn chỉnh</span><span class="pinyin">Liànxí èr diǎn yī: Zǔcí chéngjù</span></span></h3>
+            <p class="instructions"><strong>Trổ tài ghép câu!</strong> <span class="char-pinyin-group"><span class="hanzi">Hãy sắp xếp các từ/cụm từ bị xáo trộn dưới đây để tạo thành những câu tiếng Trung có nghĩa.</span><span class="pinyin">Qǐng jiāng xiàliè bèi dǎ luàn de cíyǔ/duǎnyǔ páiliè chéng yǒuyìyì de Hànyǔ jùzi.</span></span></p>
+            <ol>
+                <li><label for="sentence1">
+                    <span class="char-pinyin-group"><span class="hanzi">的</span><span class="pinyin">de</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">是</span><span class="pinyin">shì</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">车</span><span class="pinyin">chē</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">新的</span><span class="pinyin">xīn de</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">旧的</span><span class="pinyin">jiù de</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">还是</span><span class="pinyin">háishì</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">你</span><span class="pinyin">nǐ</span></span> ？
+                </label>
+                    <input type="text" id="sentence1" name="sentence1" placeholder="Viết câu hoàn chỉnh của bạn vào đây..."></li>
+                <li><label for="sentence2">
+                    <span class="char-pinyin-group"><span class="hanzi">颜色</span><span class="pinyin">yánsè</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">是</span><span class="pinyin">shì</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">车</span><span class="pinyin">chē</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">的</span><span class="pinyin">de</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">什么</span><span class="pinyin">shénme</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">你</span><span class="pinyin">nǐ</span></span> ？
+                </label>
+                    <input type="text" id="sentence2" name="sentence2" placeholder="Viết câu hoàn chỉnh của bạn vào đây..."></li>
+                <li><label for="sentence3">
+                    <span class="char-pinyin-group"><span class="hanzi">去</span><span class="pinyin">qù</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">怎么</span><span class="pinyin">zěnme</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">你</span><span class="pinyin">nǐ</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">学校</span><span class="pinyin">xuéxiào</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">每天</span><span class="pinyin">měitiān</span></span> ？
+                </label>
+                    <input type="text" id="sentence3" name="sentence3" placeholder="Viết câu hoàn chỉnh của bạn vào đây..."></li>
+                <li><label for="sentence4">
+                    <span class="char-pinyin-group"><span class="hanzi">有点儿</span><span class="pinyin">yǒudiǎnr</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">今天</span><span class="pinyin">jīntiān</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">忙</span><span class="pinyin">máng</span></span> /
+                    <span class="char-pinyin-group"><span class="hanzi">我</span><span class="pinyin">wǒ</span></span> / 。
+                </label>
+                    <input type="text" id="sentence4" name="sentence4" placeholder="Viết câu hoàn chỉnh của bạn vào đây..."></li>
+            </ol>
+
+            <h3><span class="char-pinyin-group"><span class="hanzi">Bài 2.2: Hoàn thành đoạn hội thoại ngắn sau</span><span class="pinyin">Liànxí èr diǎn èr: Wánchéng duǎnduìhuà</span></span></h3>
+            <p class="instructions"><strong>Thực hành hội thoại!</strong> <span class="char-pinyin-group"><span class="hanzi">Điền vào chỗ trống để hoàn thành đoạn đối thoại ngắn dưới đây.</span><span class="pinyin">Qǐng tiánkòng wánchéng xiàliè duǎnduìhuà.</span></span></p>
+            <div class="dialogue-pair">
+                <p>A: <span class="char-pinyin-group"><span class="hanzi">好久不见！你最近怎么样？</span><span class="pinyin">Hǎojiǔ bú jiàn! Nǐ zuìjìn zěnmeyàng?</span></span></p>
+                <p>B: <span class="char-pinyin-group"><span class="hanzi">我很好，谢谢。你呢？</span><span class="pinyin">Wǒ hěn hǎo, xièxie. Nǐ ne?</span></span></p>
+            </div>
+            <div class="dialogue-pair">
+                <p>A: <span class="char-pinyin-group"><span class="hanzi">我也还好。你每天</span><span class="pinyin">Wǒ yě hái hǎo. Nǐ měitiān</span></span> <input type="text" name="dialogue1" placeholder=" (gợi ý: hỏi cách đi lại)"> <span class="char-pinyin-group"><span class="hanzi">上班</span><span class="pinyin">shàngbān</span></span>？</p>
+                <p>B: <span class="char-pinyin-group"><span class="hanzi">我</span><span class="pinyin">Wǒ</span></span> <input type="text" name="dialogue2" placeholder=" (gợi ý: trả lời phương tiện)">。</p>
+            </div>
+            <div class="dialogue-pair">
+                <p>A: <span class="char-pinyin-group"><span class="hanzi">你的车是</span><span class="pinyin">Nǐ de chē shì</span></span> <input type="text" name="dialogue3" placeholder=" (gợi ý: hỏi màu sắc)">？</p>
+                <p>B: <input type="text" name="dialogue4" placeholder=" (gợi ý: trả lời màu sắc)">。</p>
+            </div>
+        </div>
+
+        <div class="section section-dialogue">
+            <h2><span class="char-pinyin-group"><span class="hanzi">Phần 3: Luyện Tập Hội Thoại</span><span class="pinyin">Dì sān bùfen: Huìhuà Zhǔnbèi</span></span></h2>
+            <button class="toggle-section-pinyin-button" data-pinyin-visible="false">🌗 Hiện Pinyin Phần này</button>
+            <p class="instructions"><strong>Sẵn sàng giao tiếp!</strong> <span class="char-pinyin-group"><span class="hanzi">Hãy chuẩn bị thật kỹ cho hoạt động "Một ngày của tôi và bạn". Dưới đây là một số câu hỏi và gợi ý để bạn xây dựng cuộc trò chuyện thật tự nhiên và thú vị với bạn của mình.</span><span class="pinyin">Qǐng chōngfèn zhǔnbèi "Wǒ de yī tiān, nǐ de yī tiān" huódòng. Xiàmiàn shì yīxiē wèntí hé jiànyì, bāngzhù nǐ yǔ péngyǒu jìnxíng zìrán érqiě yǒuqù de duìhuà.</span></span></p>
+
+            <h3><span class="char-pinyin-group"><span class="hanzi">Câu hỏi bạn có thể dùng để hỏi bạn mình:</span><span class="pinyin">Nǐ kěyǐ yòng lái wèn péngyǒu de wèntí:</span></span></h3>
+            <ul>
+                <li><span class="char-pinyin-group"><span class="hanzi">你好！好久不见，最近身体怎么样？</span><span class="pinyin">Nǐ hǎo! Hǎojiǔ bú jiàn, zuìjìn shēntǐ zěnmeyàng?</span></span></li>
+                <li><span class="char-pinyin-group"><span class="hanzi">你最近工作/学习忙不忙？</span><span class="pinyin">Nǐ zuìjìn gōngzuò/xuéxí máng bu máng?</span></span></li>
+                <li><span class="char-pinyin-group"><span class="hanzi">你每天怎么去公司/学校？</span><span class="pinyin">Nǐ měitiān zěnme qù gōngsī/xuéxiào?</span></span></li>
+                <li><span class="char-pinyin-group"><span class="hanzi">如果骑自行车/开车</span><span class="pinyin">Rúguǒ qí zìxíngchē/kāichē</span></span>: <span class="char-pinyin-group"><span class="hanzi">你的自行车/车是什么颜色的？是新的还是旧的？</span><span class="pinyin">Nǐ de zìxíngchē/chē shì shénme yánsè de? Shì xīn de háishì jiù de?</span></span></li>
+                <li><em>(<span class="char-pinyin-group"><span class="hanzi">Hãy tự do sáng tạo thêm các câu hỏi khác mà bạn quan tâm!</span><span class="pinyin">Qǐng zìyóu chuàngzào qítā nǐ gǎn xìngqù de wèntí!</span></span>)</em></li>
+            </ul>
+            <label for="my_questions"><span class="char-pinyin-group"><span class="hanzi">Viết ra 1-2 câu hỏi khác bạn muốn hỏi bạn mình:</span><span class="pinyin">Xiě chū 1-2 gè nǐ xiǎng wèn péngyǒu de qítā wèntí:</span></span></label>
+            <input type="text" id="my_questions" name="my_questions" placeholder="Câu hỏi thêm của bạn...">
+
+            <h3><span class="char-pinyin-group"><span class="hanzi">Những điều bạn có thể chia sẻ về bản thân:</span><span class="pinyin">Nǐ kěyǐ fēnxiǎng de guānyú zìjǐ de shìqing:</span></span></h3>
+            <ul>
+                <li><span class="char-pinyin-group"><span class="hanzi">我的身体</span><span class="pinyin">Wǒ de shēntǐ</span></span> (<span class="char-pinyin-group"><span class="hanzi">很好</span><span class="pinyin">hěn hǎo</span></span>/<span class="char-pinyin-group"><span class="hanzi">马马虎虎</span><span class="pinyin">mǎmǎhūhū</span></span>).</li>
+                <li><span class="char-pinyin-group"><span class="hanzi">我的工作/学习</span><span class="pinyin">Wǒ de gōngzuò/xuéxí</span></span> (<span class="char-pinyin-group"><span class="hanzi">刚开学，有点儿忙</span><span class="pinyin">gāng kāixué, yǒudiǎnr máng</span></span> / <span class="char-pinyin-group"><span class="hanzi">不太忙</span><span class="pinyin">bú tài máng</span></span>).</li>
+                <li><span class="char-pinyin-group"><span class="hanzi">我</span><span class="pinyin">Wǒ</span></span> <span class="char-pinyin-group"><span class="hanzi">去上班/上学</span><span class="pinyin">qù shàngbān/shàngxué</span></span> <span class="char-pinyin-group"><span class="hanzi">用</span><span class="pinyin">yòng</span></span>...(<span class="char-pinyin-group"><span class="hanzi">骑自行车</span><span class="pinyin">qí zìxíngchē</span></span> / <span class="char-pinyin-group"><span class="hanzi">坐公共汽车</span><span class="pinyin">zuò gōnggòng qìchē</span></span> / <span class="char-pinyin-group"><span class="hanzi">开车</span><span class="pinyin">kāichē</span></span> / <span class="char-pinyin-group"><span class="hanzi">走路</span><span class="pinyin">zǒulù</span></span>...).</li>
+                <li><span class="char-pinyin-group"><span class="hanzi">我的车颜色是</span><span class="pinyin">Wǒ de chē yánsè shì</span></span>..., (<span class="char-pinyin-group"><span class="hanzi">新的/旧的</span><span class="pinyin">xīn de/jiù de</span></span>).</li>
+                <li><em>(<span class="char-pinyin-group"><span class="hanzi">Đừng ngần ngại chia sẻ thêm những điều thú vị khác về bạn!</span><span class="pinyin">Búyào yóuyù fēnxiǎng guānyú nǐ de qítā yǒuqù de shìqing!</span></span>)</em></li>
+            </ul>
+            <label for="my_sharing"><span class="char-pinyin-group"><span class="hanzi">Viết ra 1-2 điều bạn muốn chia sẻ thêm về mình:</span><span class="pinyin">Xiě chū 1-2 jiàn nǐ xiǎng fēnxiǎng de guānyú zìjǐ de qítā shìqing:</span></span></label>
+            <input type="text" id="my_sharing" name="my_sharing" placeholder="Chia sẻ thêm của bạn...">
+        </div>
+
+        <div class="section section-extension">
+            <h2><span class="char-pinyin-group"><span class="hanzi">Phần 4: Mở Rộng</span><span class="pinyin">Dì sì bùfen: Xuǎn Zuò</span></span></h2>
+            <button class="toggle-section-pinyin-button" data-pinyin-visible="false">🌗 Hiện Pinyin Phần này</button>
+            <p class="instructions"><strong>Khám phá thêm!</strong> <span class="char-pinyin-group"><span class="hanzi">Đây là phần không bắt buộc, nhưng sẽ rất thú vị nếu bạn thử sức.</span><span class="pinyin">Zhè shì fēi bìxuǎn bùfen, dàn rúguǒ nǐ chángshì yíxià huì hěn yǒuqù.</span></span></p>
+            <ol>
+                <li><label for="ext_gongxiangdanche"><span class="char-pinyin-group"><span class="hanzi">Bạn có biết</span><span class="pinyin">Nǐ zhīdào</span></span> "<span class="char-pinyin-group"><span class="hanzi">共享单车</span><span class="pinyin">gòngxiǎng dānchē</span></span>" (<span class="char-pinyin-group"><span class="hanzi">xe đạp chia sẻ</span><span class="pinyin">xiēdào fēnxiǎng</span></span>) <span class="char-pinyin-group"><span class="hanzi">là gì không? Bạn đã bao giờ sử dụng loại xe này ở Trung Quốc hoặc Việt Nam chưa? Hãy viết 1-2 câu chia sẻ trải nghiệm của bạn (nếu có).</span><span class="pinyin">shì shénme ma? Nǐ zài Zhōngguó huò Yuènán céngjīng shǐyòngguo zhè zhǒng chē ma? Qǐng xiě 1-2 jù fēnxiǎng nǐ de tǐyàn (rúguǒ yǒu).</span></span></label>
+                    <input type="text" id="ext_gongxiangdanche" name="ext_gongxiangdanche" placeholder="Chia sẻ của bạn về xe đạp chia sẻ..."></li>
+                <li><label for="ext_mamahuhu"><span class="char-pinyin-group"><span class="hanzi">Hãy đặt một câu với thành ngữ</span><span class="pinyin">Qǐng yòng chéngyǔ</span></span> "<span class="char-pinyin-group"><span class="hanzi">马马虎虎</span><span class="pinyin">mǎmǎhūhū</span></span>" <span class="char-pinyin-group"><span class="hanzi">để nói về một việc gì đó hoặc tình trạng nào đó.</span><span class="pinyin">zào yíge jùzi, miáoshù mǒu jiàn shìqíng huò mǒu zhǒng zhuàngkuàng.</span></span></label>
+                    <div class="example-sentence"><span class="char-pinyin-group"><span class="hanzi">Ví dụ</span><span class="pinyin">Lìrú</span></span>: <span class="char-pinyin-group"><span class="hanzi">这次考试我考得马马虎虎。</span><span class="pinyin">Zhè cì kǎoshì wǒ kǎo de mǎmǎhūhū.</span></span> (<span class="char-pinyin-group"><span class="hanzi">Kỳ thi này tôi làm bài cũng tàm tạm.</span><span class="pinyin">Kỳ thi này tôi làm bài cũng tàm tạm.</span></span>)</div>
+                    <input type="text" id="ext_mamahuhu" name="ext_mamahuhu" placeholder="Câu của bạn với '马马虎虎'..."></li>
+            </ol>
+        </div>
+
+        <p style="text-align:center; margin-top: 40px; font-size:1.1em; color: #004d40;"><span class="char-pinyin-group"><span class="hanzi">Chúc bạn học thật vui và hiệu quả!</span><span class="pinyin">Zhù nǐ xuéxí yúkuài érqiě yǒuxiào!</span></span></p>
+    </div>
+
+    <script>
+        document.getElementById('printButton').addEventListener('click', function() {
+            window.print();
+        });
+
+        const sectionPinyinToggleButtons = document.querySelectorAll('.toggle-section-pinyin-button');
+
+        sectionPinyinToggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const section = this.closest('.section');
+                if (!section) return;
+
+                const pinyinElementsInSection = section.querySelectorAll('.pinyin');
+                let pinyinVisible = this.dataset.pinyinVisible === 'true'; // Get current state from data attribute
+
+                pinyinVisible = !pinyinVisible; // Toggle the state
+
+                if (pinyinVisible) {
+                    pinyinElementsInSection.forEach(el => el.style.display = 'block');
+                    this.textContent = '🌗 Ẩn Pinyin Phần này';
+                } else {
+                    pinyinElementsInSection.forEach(el => el.style.display = 'none');
+                    this.textContent = '🌗 Hiện Pinyin Phần này';
+                }
+                this.dataset.pinyinVisible = pinyinVisible; // Store the new state
+            });
+        });
+    </script>
+</body>
+</html>
