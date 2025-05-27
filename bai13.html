@@ -103,6 +103,7 @@
             border: 1px solid #E0E0E0;
             padding: 10px 12px; 
             text-align: left;
+            vertical-align: middle;
         }
         .matching-game th {
             background-color: #F5F5F5;
@@ -119,26 +120,37 @@
             box-sizing: border-box;
             font-size: 1em;
         }
-        .pinyin-column span.pinyin-text { display: none; } /* Ẩn pinyin ban đầu */
-        .pinyin-column span.pinyin-text.visible { display: inline; } /* Hiện khi có class visible */
+        .pinyin-column .pinyin-text { display: none; } /* Ẩn pinyin ban đầu */
+        .pinyin-column .pinyin-text.visible { display: inline; background-color: var(--cute-yellow); padding: 2px 4px; border-radius: 3px;} /* Hiện khi có class visible */
 
 
         /* Phần 2: Từ vựng và Lượng từ */
-        .image-vocab-item { margin-bottom: 15px; text-align: center;}
-        .image-vocab-item img { max-width: 120px; max-height: 90px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 8px; }
-        .image-vocab-item input[type="text"] { width: 150px; text-align: center; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
-        .image-vocab-item .pinyin-hint { font-size: 0.9em; color: #777; display: none; } /* Ẩn pinyin hint ban đầu */
-        .image-vocab-item .pinyin-hint.visible { display: block; margin-top: 5px; }
+        .image-vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsive grid */
+            gap: 20px;
+        }
+        .image-vocab-item { 
+            margin-bottom: 15px; text-align: center;
+            padding: 10px; border: 1px solid #eee; border-radius: 8px;
+        }
+        .image-vocab-item img { max-width: 120px; max-height: 90px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 8px; display: block; margin-left:auto; margin-right:auto;}
+        .image-vocab-item input[type="text"] { width: 150px; text-align: center; padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-bottom:5px;}
+        .image-vocab-item .pinyin-hint { font-size: 0.9em; color: #777; display: none; } 
+        .image-vocab-item .pinyin-hint.visible { display: block; margin-top: 5px; background-color: var(--cute-yellow); padding: 2px; border-radius: 3px;}
 
 
-        .quantifier-fill-item { margin-bottom: 10px; display: flex; align-items: center; }
+        .quantifier-fill-item { margin-bottom: 10px; display: flex; align-items: center; flex-wrap: wrap; gap: 5px;}
         .quantifier-fill-item input[type="text"], .quantifier-fill-item select {
-            width: 70px; text-align: center; margin: 0 8px; padding: 6px;
+            width: 70px; text-align: center; margin: 0 5px; padding: 6px;
             border: 1px solid #ccc; border-radius: 5px;
         }
+        .quantifier-fill-item span { white-space: nowrap;}
+
 
         /* Phần 3: Mẫu câu */
-        .sentence-fill-item { margin-bottom: 15px; }
+        .sentence-fill-item { margin-bottom: 20px; }
+        .sentence-fill-item p { margin-bottom: 10px; }
         .sentence-fill-item .options-inline button {
             margin: 0 5px 5px 0; padding: 6px 10px; font-size: 0.95em;
             border: 1px solid var(--primary-color); background-color: white; color: var(--primary-color);
@@ -146,9 +158,11 @@
         }
         .sentence-fill-item .options-inline button.selected { background-color: var(--secondary-color); color: white; border-color: var(--secondary-color); }
         .sentence-fill-item .blank {
-            display: inline-block; width: 80px; height: 20px;
+            display: inline-block; width: 80px; 
             border-bottom: 2px solid var(--primary-color); margin: 0 5px;
             text-align: center; font-weight: bold; color: var(--danger-color);
+            min-height: 20px; /* ensure height even if empty */
+            padding: 2px 0;
         }
         .qna-item textarea { width: 95%; min-height: 40px; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
         .youmeiyou-item { margin-bottom: 10px; }
@@ -163,8 +177,8 @@
         .reading-comprehension .question-item textarea { width: 95%; min-height: 30px; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
 
         /* Phần 5: Miêu tả */
-        .describe-luggage-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .describe-luggage-item label { min-width: 50px; }
+        .describe-luggage-item { display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; margin-bottom: 10px; align-items: center; }
+        .describe-luggage-item label { text-align: right; font-weight: 500;}
         .describe-luggage-item input[type="text"] { flex-grow: 1; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
 
 
@@ -234,10 +248,10 @@
             <h2>I. 认汉字 (Rèn Hànzì - Nhận biết chữ Hán)</h2>
             <div id="hanzi-matching">
                 <h3>1. 把汉字和拼音连起来 (Nối chữ Hán và phiên âm):</h3>
-                <p class="instruction-text">💡 Hãy chọn phiên âm (Pinyin) chính xác cho mỗi chữ Hán trong bảng dưới đây. Nhấn nút "💡 Hiện/Ẩn Pinyin" để xem hoặc ẩn gợi ý Pinyin cho các lựa chọn nhé!</p>
+                <p class="instruction-text">💡 Hãy chọn phiên âm (Pinyin) chính xác cho mỗi chữ Hán trong bảng dưới đây. Nhấn nút "💡 Hiện/Ẩn Pinyin" để xem hoặc ẩn gợi ý Pinyin (đáp án) cho các chữ Hán nhé!</p>
                 <button class="toggle-pinyin-btn" onclick="togglePinyinVisibility('hanzi-matching-body', 'pinyin-text')">💡 Hiện/Ẩn Pinyin Đáp Án</button>
                 <table class="matching-game">
-                    <thead><tr><th>汉字 (Hànzì)</th><th class="pinyin-column">拼音 (Pīnyīn) - Chọn</th><th>Kết quả</th></tr></thead>
+                    <thead><tr><th>汉字 & Pinyin (ẩn)</th><th class="pinyin-column">Chọn Pīnyīn</th><th>Kết quả</th></tr></thead>
                     <tbody id="hanzi-matching-body"></tbody>
                 </table>
                 <button onclick="checkHanziMatching_B13()" class="action-button" style="background-image: linear-gradient(to right, var(--warning-color), #F0AD4E); margin-top:15px;">Kiểm tra Nối Từ</button>
@@ -250,7 +264,9 @@
                 <h3>1. 看图写词语 (Nhìn hình viết từ):</h3>
                 <p class="instruction-text">🖼️ (老师 sẽ sớm thêm hình ảnh minh họa nhé!) Hãy viết từ tiếng Trung (Hán tự) tương ứng với gợi ý Pinyin bên dưới. Nhấn "💡 Hiện/Ẩn Pinyin Gợi Ý" nếu cần!</p>
                 <button class="toggle-pinyin-btn" onclick="togglePinyinVisibility('image-vocab-writing', 'pinyin-hint')">💡 Hiện/Ẩn Pinyin Gợi Ý</button>
-                </div>
+                <div class="image-vocab-grid">
+                    </div>
+            </div>
             <div id="quantifier-fill" style="margin-top: 25px;">
                 <h3>2. 用正确的量词填空 (Dùng lượng từ đúng điền vào chỗ trống):</h3>
                 <p class="instruction-text">📏 Chọn hoặc điền lượng từ (measure word) phù hợp vào mỗi chỗ trống.</p>
@@ -287,7 +303,9 @@
                 </div>
                 <h3>根据课文回答问题 (Dựa vào đoạn văn trả lời câu hỏi):</h3>
                 <p class="instruction-text">📖 Đọc kỹ đoạn hội thoại và trả lời các câu hỏi bằng tiếng Trung. (Phần này 老师 sẽ xem và góp ý cho em sau nhé!)</p>
-                </div>
+                <div id="reading-questions-container">
+                    </div>
+            </div>
         </div>
 
         <div id="section-describe-luggage" class="game-section hidden">
@@ -314,19 +332,12 @@
     <script>
         // --- Dữ liệu cho trò chơi Bài 13 ---
         const hanziMatchingData_B13 = [
-            { id: 1, hanzi: "药", pinyin: "yào" },
-            { id: 2, hanzi: "箱子", pinyin: "xiāngzi" },
-            { id: 3, hanzi: "重", pinyin: "zhòng" },
-            { id: 4, hanzi: "轻", pinyin: "qīng" },
-            { id: 5, hanzi: "新", pinyin: "xīn" },
-            { id: 6, hanzi: "旧", pinyin: "jiù" },
-            { id: 7, hanzi: "舒服", pinyin: "shūfu" },
-            { id: 8, hanzi: "衣服", pinyin: "yīfu" },
-            { id: 9, hanzi: "颜色", pinyin: "yánsè" },
-            { id: 10, hanzi: "里边", pinyin: "lǐbian" }
+            { id: 1, hanzi: "药", pinyin: "yào" }, { id: 2, hanzi: "箱子", pinyin: "xiāngzi" },
+            { id: 3, hanzi: "重", pinyin: "zhòng" }, { id: 4, hanzi: "轻", pinyin: "qīng" },
+            { id: 5, hanzi: "新", pinyin: "xīn" }, { id: 6, hanzi: "旧", pinyin: "jiù" },
+            { id: 7, hanzi: "舒服", pinyin: "shūfu" }, { id: 8, hanzi: "衣服", pinyin: "yīfu" },
+            { id: 9, hanzi: "颜色", pinyin: "yánsè" }, { id: 10, hanzi: "里边", pinyin: "lǐbian" }
         ];
-
-        // Dữ liệu cho "Nhìn nghĩa, viết chữ Hán và phiên âm" đã được bỏ
 
         const imageVocabData_B13 = [
             { id: 'iv1', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgb65KdoGb8eBIT0dyjodODL-fsDnGbRr2MhGmbcAZXp8Q6plo5I7s-KZ2-szmUW6B9rZeqOMAvAvCRvsF5Y1Fx8XXHaHQLapYQzA_eQ', answer: "中药", pinyin_hint: "zhōngyào" },
@@ -359,7 +370,7 @@
             { id: 'sf2', sentence_parts: ["这件衣服是 ", " 的，那件是 ", " 的。"], options: ["新", "旧"], answers: ["新", "旧"] },
             { id: 'sf3', sentence_parts: ["我喜欢 ", " 蓝色的，不喜欢 ", " 蓝色的。"], options: ["深", "浅"], answers: ["深", "浅"] },
             { id: 'sf4', sentence_parts: ["我生病了，觉得很 ", "。"], options: ["舒服", "不舒服"], answers: ["不舒服"] },
-            { id: 'sf5', sentence_parts: ["你喜欢吃 ", " 还是 ", "？"], options: ["中药", "西药"], answers: ["中药", "西药"] },
+            { id: 'sf5', sentence_parts: ["你喜欢吃 ", " 还是 ", "？"], options: ["中药", "西药"], answers: ["中药", "西药"] }, // User can choose either order
             { id: 'sf6', sentence_parts: ["我的手机在箱子", "。"], options: ["里边", "上面", "旁边"], answers: ["里边"] }
         ];
 
@@ -441,22 +452,22 @@
             const nextButton = document.getElementById('next-section-button');
             const finishButton = document.getElementById('finish-game-button');
 
-            // UPDATED: Correctly hide "Next" button and show "Finish" button on the last section
             if (index >= sections_B13.length - 1) {
-                if(nextButton) nextButton.style.display = 'none'; // Use style.display for more reliable hiding
+                if(nextButton) nextButton.style.display = 'none';
                 if(finishButton) finishButton.classList.remove('hidden');
+                if(finishButton) finishButton.style.display = 'block'; // or 'inline-block'
             } else {
-                if(nextButton) nextButton.style.display = 'block'; // Or 'inline-block' or 'flex' depending on original display
+                if(nextButton) nextButton.style.display = 'block'; // or 'inline-block'
                 if(finishButton) finishButton.classList.add('hidden');
             }
         }
+
 
         function nextSection() {
             currentSectionIndex_B13++;
             if (currentSectionIndex_B13 < sections_B13.length) {
                 showSection_B13(currentSectionIndex_B13);
             }
-            // No longer calls showFinalSummary_B13 here
         }
          function restartGame() {
             currentSectionIndex_B13 = 0;
@@ -471,14 +482,15 @@
                 if(input.style) input.style.borderColor = '#ccc';
             });
             document.querySelectorAll('.feedback').forEach(fb => {fb.textContent = ''; fb.className = 'feedback';});
-            document.querySelectorAll('.correct-hanzi').forEach(ch => ch.textContent = '');
-             document.querySelectorAll('.pinyin-text.visible').forEach(p => p.classList.remove('visible'));
-             document.querySelectorAll('.pinyin-hint.visible').forEach(p => p.classList.remove('visible'));
+            document.querySelectorAll('.pinyin-text.visible').forEach(p => p.classList.remove('visible'));
+            document.querySelectorAll('.pinyin-hint.visible').forEach(p => p.classList.remove('visible'));
+            document.querySelectorAll('.blank').forEach(b => { b.textContent = '(chọn)'; delete b.dataset.filled; b.style.color = 'var(--danger-color)';});
 
 
-            document.querySelectorAll('.action-button, .show-answer-btn, .toggle-pinyin-btn').forEach(btn => btn.disabled = false);
+            document.querySelectorAll('.action-button, .toggle-pinyin-btn').forEach(btn => btn.disabled = false);
             const hanziMatchingButton = document.querySelector('#hanzi-matching button.action-button');
              if(hanziMatchingButton) hanziMatchingButton.disabled = false;
+            // TODO: Reset other specific check buttons if needed in their populate functions.
 
             document.getElementById('final-summary').classList.add('hidden');
             showSection_B13(currentSectionIndex_B13);
@@ -501,9 +513,8 @@
 
             hanziMatchingData_B13.forEach(item => {
                 const row = tbody.insertRow();
-                // Pinyin is now part of the first cell, initially hidden
                 row.innerHTML = `
-                    <td>${item.id}. ${item.hanzi} (<span class="pinyin-text">${item.pinyin}</span>)</td>
+                    <td class="pinyin-column">${item.id}. ${item.hanzi} (<span class="pinyin-text">${item.pinyin}</span>)</td>
                     <td>
                         <select id="b13-pinyin-select-${item.id}">
                             <option value="">Chọn Pinyin</option>
@@ -524,19 +535,32 @@
 
         function populateImageVocabWriting_B13() {
             const container = document.getElementById('image-vocab-writing');
-            // Clear previous content and add title/button
-            container.innerHTML = '<h3>1. 看图写词语 (Nhìn hình viết từ):</h3> <p class="instruction-text">🖼️ Hãy viết từ tiếng Trung (Hán tự) tương ứng với gợi ý Pinyin bên dưới. Nhấn "💡 Hiện/Ẩn Pinyin Gợi Ý" nếu cần!</p> <button class="toggle-pinyin-btn" onclick="togglePinyinVisibility(\'image-vocab-writing\', \'pinyin-hint\')">💡 Hiện/Ẩn Pinyin Gợi Ý</button>';
+            const gridContainer = container.querySelector('.image-vocab-grid') || document.createElement('div');
+            if (!container.querySelector('.image-vocab-grid')) { // Only add grid if not exists
+                gridContainer.className = 'image-vocab-grid';
+                // Insert grid after the toggle pinyin button
+                const toggleBtn = container.querySelector('.toggle-pinyin-btn');
+                if (toggleBtn) {
+                    toggleBtn.after(gridContainer);
+                } else { // Or after instruction if no toggle button (fallback)
+                     const instruction = container.querySelector('.instruction-text');
+                     if(instruction) instruction.after(gridContainer);
+                     else container.appendChild(gridContainer); // Append if nothing else
+                }
+            }
+            gridContainer.innerHTML = ''; // Clear previous items in grid
+
             imageVocabData_B13.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'image-vocab-item';
                 div.innerHTML = `
-                    <img src="https://placehold.co/120x90/E8DDCB/000000?text=${encodeURIComponent(item.image_placeholder)}" alt="${item.image_placeholder}">
+                    <img src="${item.image}" alt="Hình ảnh cho ${item.answer}">
                     <input type="text" id="b13-iv-${item.id}" placeholder="汉字">
                     <div><small class="pinyin-hint">${item.pinyin_hint}</small></div>
                     <button class="action-button" style="font-size:0.9em; padding: 6px 12px; margin-top:5px;" onclick="checkImageVocab_B13('${item.id}', '${item.answer}', this)">Kiểm tra</button>
                     <div id="b13-iv-feedback-${item.id}" class="feedback"></div>
                 `;
-                container.appendChild(div);
+                gridContainer.appendChild(div);
             });
         }
 
@@ -589,7 +613,7 @@
                     <div id="b13-sf-feedback-${item.id}" class="feedback"></div>
                 `;
                 container.appendChild(div);
-                userAnswers_B13[`sentenceFill_${item.id}`] = { selected: Array(item.answers.length).fill(null) }; // Initialize based on number of blanks
+                userAnswers_B13[`sentenceFill_${item.id}`] = { selected: Array(item.answers.length).fill(null) };
             });
         }
 
@@ -624,7 +648,7 @@
                     sentenceHtml += `<span>${item.parts[partIndex++]}</span>`;
                     sentenceHtml += `<input type="text" id="b13-ym-${item.id}-${i}" class="youmeiyou-blank" placeholder="有/没有">`;
                 }
-                if (partIndex < item.parts.length) { // Add remaining part if any
+                if (partIndex < item.parts.length) {
                     sentenceHtml += `<span>${item.parts[partIndex]}</span>`;
                 }
 
@@ -638,22 +662,8 @@
         }
 
         function populateReadingQuestions_B13(){
-            const container = document.querySelector('#section-reading .reading-comprehension');
-            const h3Questions = container.querySelector('h3:nth-of-type(2)');
-            // Clear previous questions if any, except for the h3 and p
-            let currentElement = h3Questions.nextSibling;
-            while(currentElement && currentElement.tagName !== 'P') { // Remove elements until the instruction P
-                currentElement = currentElement.nextSibling;
-            }
-            if(currentElement && currentElement.tagName === 'P') currentElement = currentElement.nextSibling; // Move past the P
-
-            while(currentElement) {
-                let next = currentElement.nextSibling;
-                currentElement.parentNode.removeChild(currentElement);
-                currentElement = next;
-            }
-
-
+            const container = document.getElementById('reading-questions-container');
+            container.innerHTML = ''; // Clear previous questions
             readingQuestions_B13.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'question-item';
@@ -662,7 +672,7 @@
                     <textarea id="b13-rq-${item.id}" placeholder="Trả lời bằng tiếng Trung..."></textarea>
                     <div class="feedback">Đáp án của em sẽ được 老师 xem sau.</div>
                 `;
-                container.appendChild(div); // Append after all existing content within .reading-comprehension
+                container.appendChild(div);
                  document.getElementById(`b13-rq-${item.id}`).addEventListener('change', (e) => {
                     userAnswers_B13[`readingQuestion_${item.id}`] = { question: item.question, userAnswer: e.target.value, isSelfAssessed: true };
                 });
@@ -694,7 +704,6 @@
         }
 
 
-        // --- Check Functions for Bai 13 (Examples) ---
         function checkHanziMatching_B13() {
             let sectionScore = 0;
             userAnswers_B13['hanziMatching_B13'] = [];
@@ -779,7 +788,7 @@
             for (let i = 0; i < blanks.length; i++) {
                 if (blanks[i].textContent === '(chọn)' || blanks[i].dataset.filled !== 'true') {
                     blanks[i].textContent = selectedOption;
-                    blanks[i].style.color = 'var(--primary-color)'; // Change color of filled blank
+                    blanks[i].style.color = 'var(--primary-color)';
                     blanks[i].dataset.filled = 'true';
                     selectedSentenceFillOptions[itemId][i] = selectedOption;
                     filled = true;
@@ -827,7 +836,8 @@
             let userAnswersArray = [];
             let scoreForThis = 0;
 
-            const numBlanks = Array.isArray(itemData.answers) ? itemData.answers.length : 1;
+            const numBlanks = Array.isArray(itemData.answers) ? itemData.answers.length : (itemData.answer ? 1 : 0);
+
 
             for (let i = 0; i < numBlanks; i++) {
                 const inputEl = document.getElementById(`b13-ym-${itemId}-${i}`);
@@ -842,13 +852,15 @@
                 inputEl.disabled = true;
             }
 
-            if (allCorrectInItem) {
+            if (allCorrectInItem && numBlanks > 0) { // Ensure there was something to check
                 feedbackEl.textContent = '👍 Chính xác!';
                 feedbackEl.className = 'feedback correct';
-            } else {
+            } else if (numBlanks > 0) {
                 const correctAnswersText = Array.isArray(itemData.answers) ? itemData.answers.join(' / ') : itemData.answer;
                 feedbackEl.textContent = `🤔 Chưa đúng. Đáp án: ${correctAnswersText}`;
                 feedbackEl.className = 'feedback incorrect';
+            } else {
+                 feedbackEl.textContent = `Không có đáp án để kiểm tra cho mục này.`;
             }
             updateScore_B13(scoreForThis);
             buttonElement.disabled = true;
