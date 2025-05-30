@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hoạt Động Giao Tiếp: Đi Chợ Mua Hoa Quả (Theo Phách)</title>
+    <title>Hoạt Động Giao Tiếp: Đi Chợ Mua Hoa Quả (Chọn Nhân Vật & Theo Phách)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -72,7 +72,7 @@
             margin-bottom: 0.75rem; 
             color: #374151; /* Gray-700 */
         }
-        .phach-section {
+        .phach-section, .action-buttons-section {
             background-color: #e0f2fe; /* Sky-100 */
             padding: 1rem;
             border-radius: 8px;
@@ -87,17 +87,33 @@
             margin-right: 0.5rem;
             width: 80px;
         }
-        .phach-section button {
+        .phach-section button, .action-buttons-section button, #character-selection-view button {
             background-color: #38bdf8; /* Sky-500 */
             color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-weight: 500;
+            padding: 0.75rem 1.5rem; /* Increased padding for bigger buttons */
+            border-radius: 8px; /* More rounded */
+            font-weight: 600; /* Bolder text */
+            font-size: 1.1rem; /* Larger font */
             border: none;
             cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .phach-section button:hover {
+        .phach-section button:hover, .action-buttons-section button:hover, #character-selection-view button:hover {
             background-color: #0ea5e9; /* Sky-600 */
+            transform: translateY(-1px);
+        }
+         #character-selection-view button.buyer-btn {
+            background-color: #3b82f6; /* Blue-500 */
+        }
+        #character-selection-view button.buyer-btn:hover {
+            background-color: #2563eb; /* Blue-600 */
+        }
+        #character-selection-view button.seller-btn {
+            background-color: #16a34a; /* Green-600 */
+        }
+        #character-selection-view button.seller-btn:hover {
+            background-color: #15803d; /* Green-700 */
         }
         .toggle-pinyin-btn {
             background-color: #eab308; /* Yellow-500 */
@@ -113,13 +129,33 @@
         .toggle-pinyin-btn:hover {
             background-color: #ca8a04; /* Yellow-600 */
         }
+        .hidden {
+            display: none !important;
+        }
+        #character-selection-view {
+            text-align: center;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        #character-selection-view h2 {
+            font-size: 2rem;
+            color: #1f2937; /* Gray-800 */
+            margin-bottom: 1.5rem;
+        }
+        #character-selection-view .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem; /* Space between buttons */
+        }
 
         @media print {
             body { background-color: white; font-size: 12pt; }
             .role-card { box-shadow: none; border: 1px solid #ccc; margin-bottom: 1.5rem; padding: 1rem; page-break-inside: avoid; }
             .no-print { display: none; }
             .printable-area { max-width: 100%; }
-            .phach-section { display: none; }
+            .phach-section, .action-buttons-section, #character-selection-view { display: none; }
             .toggle-pinyin-btn { display: none; }
             .pinyin-text { display: inline !important; }
         }
@@ -132,81 +168,86 @@
             <p class="text-md text-gray-500">去市场买水果 <span class="pinyin-text">(qù shìchǎng mǎi shuǐguǒ)</span></p>
         </header>
 
-        <div class="phach-section no-print text-center">
-            <h3 class="text-xl font-semibold text-sky-700 mt-0 mb-3">🏷️ Khu Vực Đồng Bộ Phách</h3>
-            <p class="mb-2 text-gray-700">
-                Bộ đề hiện tại (Phách số): <strong id="current-phach-display" class="text-sky-600 text-lg">1</strong>
-            </p>
-            <div>
-                <label for="phach-input" class="text-gray-700">Nhập số phách (1-10):</label>
-                <input type="number" id="phach-input" min="1" max="10" value="1">
-                <button onclick="handleMatchPhach()">✔️ Khớp Phách</button>
+        <div id="character-selection-view">
+            <h2>👋 Bạn là ai hôm nay?</h2>
+            <div class="button-container">
+                <button onclick="selectRole('buyer')" class="buyer-btn">Tôi là Người Mua 🧑‍🌾</button>
+                <button onclick="selectRole('seller')" class="seller-btn">Tôi là Người Bán 🏪</button>
             </div>
         </div>
 
-        <div class="role-card buyer-card">
-            <button class="toggle-pinyin-btn no-print" onclick="togglePinyin(this)">👁️ Hiện Pinyin</button>
-            <h2 class="role-title buyer-title">PHIẾU A: NGƯỜI MUA <span class="chinese-text">(买东西的人)</span> <span class="pinyin-text">(mǎi dōngxi de rén)</span> 🧑‍🌾</h2>
+        <div id="role-play-view" class="hidden">
+            <div class="text-center mb-4 no-print">
+                 <button onclick="showCharacterSelection()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow-md text-sm">
+                    ↩️ Quay lại chọn nhân vật
+                </button>
+            </div>
+            <div class="phach-section no-print text-center">
+                <h3 class="text-xl font-semibold text-sky-700 mt-0 mb-3">🏷️ Khu Vực Đồng Bộ Phách</h3>
+                <p class="mb-2 text-gray-700">
+                    Bộ đề hiện tại (Phách số): <strong id="current-phach-display" class="text-sky-600 text-lg">1</strong>
+                </p>
+                <div>
+                    <label for="phach-input" class="text-gray-700">Nhập số phách (1-10):</label>
+                    <input type="number" id="phach-input" min="1" max="10" value="1">
+                    <button onclick="handleMatchPhach()">✔️ Khớp Phách</button>
+                </div>
+            </div>
+
+            <div id="buyer-role-card" class="role-card buyer-card hidden">
+                <button class="toggle-pinyin-btn no-print" onclick="togglePinyin(this)">👁️ Hiện Pinyin</button>
+                <h2 class="role-title buyer-title">PHIẾU A: NGƯỜI MUA <span class="chinese-text">(买东西的人)</span> <span class="pinyin-text">(mǎi dōngxi de rén)</span> 🧑‍🌾</h2>
+                <h3>📝 Nhiệm vụ của bạn:</h3>
+                <p class="mb-3 text-gray-700">Bạn đến một cửa hàng hoa quả. Hãy hỏi giá và mua những thứ có trong "Danh sách cần mua" của bạn. Bạn chỉ có <strong class="text-red-600">30 đồng (三十块钱 <span class="pinyin-text">sānshí kuài qián</span>)</strong>, hãy chắc chắn bạn đủ tiền trả nhé!</p>
+                <h3>🛍️ Danh sách cần mua <span class="chinese-text">(购物单</span> <span class="pinyin-text">gòuwù dān</span>):</h3>
+                <ul id="shopping-list-buyer" class="shopping-list list-none p-0"></ul>
+                <p class="mt-2 text-sm text-gray-600">Và hỏi giá thêm một loại quả khác mà bạn thích (ví dụ: <span class="chinese-text">西瓜</span> <span class="pinyin-text">xīguā</span> hoặc <span class="chinese-text">葡萄</span> <span class="pinyin-text">pútao</span>).</p>
+                <div class="suggestion mt-6">
+                    <h3 class="mt-0 text-amber-700">💡 Gợi ý cho bạn:</h3>
+                    <p class="text-gray-700">Nếu thấy đắt, bạn có thể thử mặc cả bằng cách nói:</p>
+                    <p class="chinese-text text-lg">太贵了！便宜一点儿吧！</p>
+                    <p class="pinyin-text">(Tài guì le! Piányi yìdiǎnr ba!)</p>
+                    <p class="mt-3 text-gray-700">Các mẫu câu hữu ích khác:</p>
+                    <ul class="list-disc pl-5 text-sm text-gray-600">
+                        <li><span class="chinese-text">...一斤多少钱？</span> <span class="pinyin-text">(...yì jīn duōshao qián?)</span></li>
+                        <li><span class="chinese-text">一共多少钱？</span> <span class="pinyin-text">(yígòng duōshao qián?)</span></li>
+                        <li><span class="chinese-text">给你钱。</span> <span class="pinyin-text">(gěi nǐ qián.)</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="seller-role-card" class="role-card seller-card hidden">
+                <button class="toggle-pinyin-btn no-print" onclick="togglePinyin(this)">👁️ Hiện Pinyin</button>
+                <h2 class="role-title seller-title">PHIẾU B: NGƯỜI BÁN <span class="chinese-text">(卖东西的人)</span> <span class="pinyin-text">(mài dōngxi de rén)</span> 🏪</h2>
+                <h3>📝 Nhiệm vụ của bạn:</h3>
+                <p class="mb-3 text-gray-700">Bạn là chủ một cửa hàng hoa quả. Hãy trả lời câu hỏi của khách hàng và tính tổng số tiền họ phải trả.</p>
+                <h3>🏷️ Bảng giá của bạn <span class="chinese-text">(你的价格单</span> <span class="pinyin-text">nǐ de jiàgé dān</span>):</h3>
+                <ul id="price-list-seller" class="price-list list-none p-0"></ul>
+                <div class="suggestion mt-6">
+                    <h3 class="mt-0 text-amber-700">💡 Gợi ý cho bạn:</h3>
+                    <p class="text-gray-700">Khi khách hàng trả tiền, hãy dùng các mẫu câu sau:</p>
+                    <ul class="list-disc pl-5 text-sm text-gray-600">
+                        <li><span class="chinese-text">一共...块...毛。</span> <span class="pinyin-text">(yígòng...kuài...máo.)</span></li>
+                        <li><span class="chinese-text">收你...块。</span> <span class="pinyin-text">(shōu nǐ...kuài.)</span></li>
+                        <li><span class="chinese-text">找你...块...毛。</span> <span class="pinyin-text">(zhǎo nǐ...kuài...máo.)</span></li>
+                    </ul>
+                    <p class="mt-3 text-gray-700">Các mẫu câu hữu ích khác:</p>
+                    <ul class="list-disc pl-5 text-sm text-gray-600">
+                        <li><span class="chinese-text">你要几斤？</span> <span class="pinyin-text">(nǐ yào jǐ jīn?)</span></li>
+                        <li><span class="chinese-text">还要别的吗？</span> <span class="pinyin-text">(hái yào bié de ma?)</span></li>
+                        <li><span class="chinese-text">好的。/ 行。</span> <span class="pinyin-text">(hǎo de. / xíng.)</span></li>
+                    </ul>
+                </div>
+            </div>
             
-            <h3>📝 Nhiệm vụ của bạn:</h3>
-            <p class="mb-3 text-gray-700">Bạn đến một cửa hàng hoa quả. Hãy hỏi giá và mua những thứ có trong "Danh sách cần mua" của bạn. Bạn chỉ có <strong class="text-red-600">30 đồng (三十块钱 <span class="pinyin-text">sānshí kuài qián</span>)</strong>, hãy chắc chắn bạn đủ tiền trả nhé!</p>
-
-            <h3>🛍️ Danh sách cần mua <span class="chinese-text">(购物单</span> <span class="pinyin-text">gòuwù dān</span>):</h3>
-            <ul id="shopping-list-buyer" class="shopping-list list-none p-0">
-                </ul>
-            <p class="mt-2 text-sm text-gray-600">Và hỏi giá thêm một loại quả khác mà bạn thích (ví dụ: <span class="chinese-text">西瓜</span> <span class="pinyin-text">xīguā</span> hoặc <span class="chinese-text">葡萄</span> <span class="pinyin-text">pútao</span>).</p>
-
-            <div class="suggestion mt-6">
-                <h3 class="mt-0 text-amber-700">💡 Gợi ý cho bạn:</h3>
-                <p class="text-gray-700">Nếu thấy đắt, bạn có thể thử mặc cả bằng cách nói:</p>
-                <p class="chinese-text text-lg">太贵了！便宜一点儿吧！</p>
-                <p class="pinyin-text">(Tài guì le! Piányi yìdiǎnr ba! - Đắt quá! Rẻ một chút đi!)</p>
-                <p class="mt-3 text-gray-700">Các mẫu câu hữu ích khác:</p>
-                <ul class="list-disc pl-5 text-sm text-gray-600">
-                    <li><span class="chinese-text">...一斤多少钱？</span> <span class="pinyin-text">(...yì jīn duōshao qián?)</span></li>
-                    <li><span class="chinese-text">一共多少钱？</span> <span class="pinyin-text">(yígòng duōshao qián?)</span></li>
-                    <li><span class="chinese-text">给你钱。</span> <span class="pinyin-text">(gěi nǐ qián.)</span></li>
-                </ul>
+            <div class="action-buttons-section text-center mt-8 mb-4 no-print">
+                <button onclick="window.print()" class="bg-blue-500 hover:bg-blue-700">
+                    🖨️ In Phiếu
+                </button>
+                <button onclick="handleChangeScenario()" class="bg-green-500 hover:bg-green-700 ml-2">
+                    🔄 Đổi Bộ Đề (Phách)
+                </button>
             </div>
-        </div>
-
-        <hr class="no-print">
-
-        <div class="role-card seller-card">
-            <button class="toggle-pinyin-btn no-print" onclick="togglePinyin(this)">👁️ Hiện Pinyin</button>
-            <h2 class="role-title seller-title">PHIẾU B: NGƯỜI BÁN <span class="chinese-text">(卖东西的人)</span> <span class="pinyin-text">(mài dōngxi de rén)</span> 🏪</h2>
-
-            <h3>📝 Nhiệm vụ của bạn:</h3>
-            <p class="mb-3 text-gray-700">Bạn là chủ một cửa hàng hoa quả. Hãy trả lời câu hỏi của khách hàng và tính tổng số tiền họ phải trả.</p>
-
-            <h3>🏷️ Bảng giá của bạn <span class="chinese-text">(你的价格单</span> <span class="pinyin-text">nǐ de jiàgé dān</span>):</h3>
-            <ul id="price-list-seller" class="price-list list-none p-0">
-                 </ul>
-
-            <div class="suggestion mt-6">
-                <h3 class="mt-0 text-amber-700">💡 Gợi ý cho bạn:</h3>
-                <p class="text-gray-700">Khi khách hàng trả tiền, hãy dùng các mẫu câu sau:</p>
-                <ul class="list-disc pl-5 text-sm text-gray-600">
-                    <li><span class="chinese-text">一共...块...毛。</span> <span class="pinyin-text">(yígòng...kuài...máo.)</span></li>
-                    <li><span class="chinese-text">收你...块。</span> <span class="pinyin-text">(shōu nǐ...kuài.)</span></li>
-                    <li><span class="chinese-text">找你...块...毛。</span> <span class="pinyin-text">(zhǎo nǐ...kuài...máo.)</span></li>
-                </ul>
-                 <p class="mt-3 text-gray-700">Các mẫu câu hữu ích khác:</p>
-                <ul class="list-disc pl-5 text-sm text-gray-600">
-                     <li><span class="chinese-text">你要几斤？</span> <span class="pinyin-text">(nǐ yào jǐ jīn?)</span></li>
-                     <li><span class="chinese-text">还要别的吗？</span> <span class="pinyin-text">(hái yào bié de ma?)</span></li>
-                     <li><span class="chinese-text">好的。/ 行。</span> <span class="pinyin-text">(hǎo de. / xíng.)</span></li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="text-center mt-8 mb-4 no-print">
-            <button onclick="window.print()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out">
-                🖨️ In Phiếu
-            </button>
-             <button onclick="handleChangeScenario()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out ml-2">
-                🔄 Đổi Bộ Đề (Phách)
-            </button>
         </div>
     </div>
 
@@ -237,6 +278,18 @@
         const MAX_SCENARIOS = 10;
         let allScenarios = [];
         let currentScenarioId = 1;
+        let selectedRole = null; // 'buyer' or 'seller'
+
+        // DOM Elements
+        const characterSelectionView = document.getElementById('character-selection-view');
+        const rolePlayView = document.getElementById('role-play-view');
+        const buyerRoleCard = document.getElementById('buyer-role-card');
+        const sellerRoleCard = document.getElementById('seller-role-card');
+        const currentPhachDisplay = document.getElementById('current-phach-display');
+        const phachInput = document.getElementById('phach-input');
+        const shoppingListBuyerContainer = document.getElementById('shopping-list-buyer');
+        const priceListSellerContainer = document.getElementById('price-list-seller');
+
 
         function getRandomElement(arr) {
             return arr[Math.floor(Math.random() * arr.length)];
@@ -252,7 +305,7 @@
             const kuai = getRandomInt(Math.floor(minKuai), Math.floor(maxKuai -1 < minKuai ? minKuai : maxKuai -1));
             const mao = getRandomInt(0, 9);
             let priceValue = kuai + (mao / 10);
-            priceValue = Math.max(minKuai, Math.min(maxKuai, priceValue)); // Ensure price is within bounds
+            priceValue = Math.max(minKuai, Math.min(maxKuai, priceValue));
 
             const finalKuai = Math.floor(priceValue);
             const finalMao = Math.round((priceValue - finalKuai) * 10);
@@ -280,12 +333,10 @@
             return (num >=0 && num <=9) ? pinyinMap[num] : String(num);
         }
 
-        // --- Functions to generate data for scenarios ---
         function generateRandomShoppingListItems() {
             let numItemsToBuy = getRandomInt(2, 3);
             let shoppingList = [];
             let availableFruits = [...allFruitsData];
-
             for (let i = 0; i < numItemsToBuy; i++) {
                 if (availableFruits.length === 0) break;
                 const fruitIndex = Math.floor(Math.random() * availableFruits.length);
@@ -297,18 +348,13 @@
         }
 
         function generateRandomPriceListItems(shoppingListForBuyer) {
-            let priceList = [];
-            let sellerFruitsSet = new Map(); // Use Map to ensure unique fruits by Chinese name
-
-            // Add fruits from buyer's shopping list
+            let sellerFruitsSet = new Map();
             shoppingListForBuyer.forEach(item => {
                 const price = generateRandomPrice(item.basePriceMin, item.basePriceMax);
                 sellerFruitsSet.set(item.chinese, {...item, price});
             });
-            
             let availableForSeller = allFruitsData.filter(f => !sellerFruitsSet.has(f.chinese));
-            let numExtraFruits = getRandomInt(2, 4); // Seller has more variety
-
+            let numExtraFruits = getRandomInt(2, 4);
             for (let i = 0; i < numExtraFruits; i++) {
                 if (availableForSeller.length === 0) break;
                 const fruitIndex = Math.floor(Math.random() * availableForSeller.length);
@@ -316,9 +362,8 @@
                 const price = generateRandomPrice(extraFruit.basePriceMin, extraFruit.basePriceMax);
                 sellerFruitsSet.set(extraFruit.chinese, {...extraFruit, price});
             }
-            
-            priceList = Array.from(sellerFruitsSet.values());
-            priceList.sort((a,b) => a.name.localeCompare(b.name)); // Sort for consistent display
+            let priceList = Array.from(sellerFruitsSet.values());
+            priceList.sort((a,b) => a.name.localeCompare(b.name));
             return priceList;
         }
 
@@ -335,61 +380,86 @@
             }
         }
 
-        // --- Functions to display data on the page ---
         function displayShoppingList(shoppingListItems) {
-            const container = document.getElementById('shopping-list-buyer');
-            container.innerHTML = '';
+            shoppingListBuyerContainer.innerHTML = '';
             shoppingListItems.forEach(item => {
                 const li = document.createElement('li');
                 li.innerHTML = `<strong>${item.name} (<span class="chinese-text">${item.chinese}</span> <span class="pinyin-text">${item.pinyin}</span>):</strong> ${item.quantity.amount} cân <span class="chinese-text">(${item.quantity.chinese})</span> <span class="pinyin-text">(${item.quantity.pinyin})</span>`;
-                container.appendChild(li);
+                shoppingListBuyerContainer.appendChild(li);
             });
         }
 
         function displayPriceList(priceListItems) {
-            const container = document.getElementById('price-list-seller');
-            container.innerHTML = '';
+            priceListSellerContainer.innerHTML = '';
             priceListItems.forEach(item => {
                 const li = document.createElement('li');
                 const priceStringForChinese = item.price.string.replace('块', '块一斤').replace(/(\d)毛$/, '$1毛一斤');
                 li.innerHTML = `<strong>${item.name} (<span class="chinese-text">${item.chinese}</span> <span class="pinyin-text">${item.pinyin}</span>):</strong> ${item.price.string}/cân <span class="chinese-text">(${priceStringForChinese})</span> <span class="pinyin-text">(${item.price.pinyin} yì jīn)</span>`;
-                container.appendChild(li);
+                priceListSellerContainer.appendChild(li);
             });
+        }
+        
+        function resetPinyinVisibility() {
+            document.querySelectorAll('.pinyin-text').forEach(el => el.classList.remove('visible'));
+            document.querySelectorAll('.toggle-pinyin-btn').forEach(btn => btn.textContent = '👁️ Hiện Pinyin');
         }
 
         function loadScenario(scenarioId) {
             const scenario = allScenarios.find(s => s.id === scenarioId);
             if (scenario) {
                 currentScenarioId = scenario.id;
-                document.getElementById('current-phach-display').textContent = currentScenarioId;
-                document.getElementById('phach-input').value = currentScenarioId;
+                currentPhachDisplay.textContent = currentScenarioId;
+                phachInput.value = currentScenarioId;
 
                 displayShoppingList(scenario.shoppingList);
                 displayPriceList(scenario.priceList);
-
-                // Reset Pinyin visibility for the newly loaded content
-                document.querySelectorAll('.pinyin-text').forEach(el => el.classList.remove('visible'));
-                document.querySelectorAll('.toggle-pinyin-btn').forEach(btn => btn.textContent = '👁️ Hiện Pinyin');
+                resetPinyinVisibility();
             } else {
-                // Simple alert for now, can be improved with a custom modal
                 alert("Số phách không hợp lệ! Vui lòng chọn số từ 1 đến " + MAX_SCENARIOS + ".");
             }
         }
         
-        window.handleChangeScenario = function() { // Changed name from generateNewCards
+        window.selectRole = function(role) {
+            selectedRole = role;
+            characterSelectionView.classList.add('hidden');
+            rolePlayView.classList.remove('hidden');
+
+            if (role === 'buyer') {
+                buyerRoleCard.classList.remove('hidden');
+                sellerRoleCard.classList.add('hidden');
+            } else if (role === 'seller') {
+                sellerRoleCard.classList.remove('hidden');
+                buyerRoleCard.classList.add('hidden');
+            }
+            // Ensure scenarios are generated if not already
+            if(allScenarios.length === 0) {
+                generateAllScenarios();
+            }
+            loadScenario(currentScenarioId); // Load current or default scenario
+        }
+
+        window.showCharacterSelection = function() {
+            rolePlayView.classList.add('hidden');
+            buyerRoleCard.classList.add('hidden');
+            sellerRoleCard.classList.add('hidden');
+            characterSelectionView.classList.remove('hidden');
+            selectedRole = null;
+        }
+        
+        window.handleChangeScenario = function() {
             let randomId;
             if (allScenarios.length <= 1) {
                 randomId = 1;
             } else {
                 do {
                     randomId = getRandomInt(1, MAX_SCENARIOS);
-                } while (randomId === currentScenarioId);
+                } while (randomId === currentScenarioId && allScenarios.length > 1);
             }
             loadScenario(randomId);
         }
 
         window.handleMatchPhach = function() {
-            const inputPhach = parseInt(document.getElementById('phach-input').value);
+            const inputPhach = parseInt(phachInput.value);
             if (!isNaN(inputPhach) && inputPhach >= 1 && inputPhach <= MAX_SCENARIOS) {
                 loadScenario(inputPhach);
             } else {
@@ -399,19 +469,23 @@
 
         window.togglePinyin = function(buttonElement) {
             const card = buttonElement.closest('.role-card');
+            if (!card) return; // Should not happen if button is inside a card
             const pinyinTexts = card.querySelectorAll('.pinyin-text');
             let isCurrentlyVisible = pinyinTexts.length > 0 && pinyinTexts[0].classList.contains('visible');
 
-            pinyinTexts.forEach(el => el.classList.toggle('visible'));
-
+            pinyinTexts.forEach(el => {
+                el.classList.toggle('visible');
+            });
             buttonElement.textContent = isCurrentlyVisible ? '👁️ Hiện Pinyin' : '🙈 Ẩn Pinyin';
         }
         
         // Initialize
-        window.onload = () => {
-            generateAllScenarios();
-            loadScenario(currentScenarioId); // Load the first scenario by default
-        };
+        function initializeApp() {
+            generateAllScenarios(); // Generate scenarios once
+            showCharacterSelection(); // Start with character selection
+        }
+
+        window.onload = initializeApp;
 
     </script>
 </body>
