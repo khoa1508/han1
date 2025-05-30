@@ -16,7 +16,7 @@
             --font-family: 'Arial', sans-serif;
             --cute-pink: #ff69b4;
             --cute-blue: #87ceeb;
-            --info-color: #17a2b8; /* Added for consistency if used */
+            --info-color: #17a2b8;
         }
 
         body {
@@ -82,70 +82,27 @@
         }
         #timer, #score-display { font-weight: bold; }
 
-        /* Nối chữ Hán */
-        .matching-game table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .matching-game th, .matching-game td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
+        .matching-game table { width: 100%; border-collapse: collapse; }
+        .matching-game th, .matching-game td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         .matching-game th { background-color: #f0f0f0; }
         .matching-game select { padding: 5px; border-radius: 4px; min-width: 100px;}
-        .matching-item { margin-bottom: 10px; }
 
-        /* Tập viết chữ Hán */
         .writing-practice-item { margin-bottom: 15px; }
         .writing-practice-item label { display: block; margin-bottom: 5px; font-weight: bold;}
-        .writing-practice-item input[type="text"] {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 200px;
-            margin-right: 10px;
-        }
-        .writing-practice-item .show-answer-btn {
-            padding: 6px 10px;
-            background-color: var(--info-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+        .writing-practice-item input[type="text"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px; margin-right: 10px; }
+        .writing-practice-item .show-answer-btn { padding: 6px 10px; background-color: var(--info-color); color: white; border: none; border-radius: 4px; cursor: pointer; }
         .writing-practice-item .correct-hanzi { color: var(--success-color); font-weight: bold; margin-left: 10px; }
 
-        /* Từ vựng - Hoàn thành bảng */
         .vocab-table-fill td input { width: 90%; padding: 5px; }
-        .vocab-table-fill .instruction-text {
-            font-size: 0.95em;
-            color: #555;
-            margin-bottom: 10px;
-            background-color: #e6f7ff;
-            padding: 8px;
-            border-radius: 4px;
-            border-left: 3px solid var(--info-color);
-        }
+        .vocab-table-fill .instruction-text { font-size: 0.95em; color: #555; margin-bottom: 10px; background-color: #e6f7ff; padding: 8px; border-radius: 4px; border-left: 3px solid var(--info-color); }
 
-        /* Chọn từ đúng */
         .multiple-choice-item { margin-bottom: 20px; }
         .multiple-choice-item img { max-width: 150px; max-height: 100px; display: block; margin-bottom: 10px; border: 1px solid #eee; border-radius: 4px;}
-        .multiple-choice-item .options button {
-            margin: 5px;
-            padding: 8px 12px;
-            border: 1px solid var(--primary-color);
-            background-color: white;
-            color: var(--primary-color);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: background-color 0.2s, color 0.2s;
-        }
+        .multiple-choice-item .options button { margin: 5px; padding: 8px 12px; border: 1px solid var(--primary-color); background-color: white; color: var(--primary-color); border-radius: 20px; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
         .multiple-choice-item .options button:hover { background-color: var(--primary-color); color: white; }
         .multiple-choice-item .options button.selected { background-color: var(--cute-pink); color: white; border-color: var(--cute-pink); }
 
-
-        /* Sắp xếp câu */
+        /* Sắp xếp câu - Kiểu dáng cho từ và khu vực */
         .sentence-scramble-item { margin-bottom: 20px; }
         .word-bank, .sentence-dropzone {
             padding: 10px;
@@ -158,78 +115,38 @@
             background-color: #f9f9f9;
             border-radius: 4px;
         }
-        .draggable-word {
+        .draggable-word { /* Giữ tên class hoặc đổi thành clickable-word nếu muốn */
             padding: 5px 10px;
             background-color: var(--cute-blue);
             color: white;
             border-radius: 15px;
-            cursor: grab;
-            user-select: none; /* Standard */
-            -webkit-user-select: none; /* Safari */
-            -moz-user-select: none; /* Firefox */
-            -ms-user-select: none; /* IE10+/Edge */
-            touch-action: manipulation; /* Improve touch interaction */
-            -webkit-touch-callout: none; /* Disable callout menu on iOS */
-        }
-        .draggable-word:active { cursor: grabbing; }
-        .draggable-word.dragging {
-            opacity: 0.7;
-            /* Add other visual cues if desired */
+            cursor: pointer; /* THAY ĐỔI: Con trỏ chuột thành pointer */
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            display: inline-block; /* Cho các từ nằm trên một hàng nếu đủ chỗ */
+            margin: 2px; /* Khoảng cách nhỏ giữa các từ */
         }
 
-
-        /* Dịch câu */
         .translation-item textarea { width: 95%; min-height: 50px; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-
-        /* Ngữ âm */
         .tone-practice-item { margin-bottom: 10px; display: flex; align-items: center; gap: 10px;}
         .tone-practice-item select { padding: 5px; }
-
-        /* Hoàn thành hội thoại */
-        .dialogue-fill input[type="text"] {
-            border: none;
-            border-bottom: 1px solid var(--primary-color);
-            padding: 3px;
-            margin: 0 3px;
-            width: 100px;
-            text-align: center;
-        }
-
-        /* Viết đoạn văn */
+        .dialogue-fill input[type="text"] { border: none; border-bottom: 1px solid var(--primary-color); padding: 3px; margin: 0 3px; width: 100px; text-align: center; }
         #short-paragraph { width: 98%; min-height: 100px; padding: 10px; border-radius: 4px; border: 1px solid #ccc;}
 
-        /* Chung */
         .feedback { margin-top: 5px; font-style: italic; }
         .feedback.correct { color: var(--success-color); }
         .feedback.incorrect { color: var(--danger-color); }
 
-        .action-button {
-            padding: 12px 25px;
-            font-size: 1.1em;
-            background-color: var(--success-color);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            display: block;
-            margin: 20px auto;
-        }
-        .action-button:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
-        }
+        .action-button { padding: 12px 25px; font-size: 1.1em; background-color: var(--success-color); color: white; border: none; border-radius: 25px; cursor: pointer; transition: background-color 0.3s, transform 0.2s; display: block; margin: 20px auto; }
+        .action-button:hover { background-color: #218838; transform: translateY(-2px); }
         .action-button.next-section-btn { background-color: var(--primary-color); }
         .action-button.next-section-btn:hover { background-color: #0056b3; }
 
-
-        #final-summary {
-            padding: 20px;
-            background-color: var(--light-color);
-            border: 2px solid var(--cute-pink);
-            border-radius: 10px;
-            margin-top: 30px;
-        }
+        #final-summary { padding: 20px; background-color: var(--light-color); border: 2px solid var(--cute-pink); border-radius: 10px; margin-top: 30px; }
         #final-summary h2 { color: var(--cute-pink); }
         #final-summary ul { list-style-type: none; padding-left: 0; }
         #final-summary li { margin-bottom: 8px; padding: 5px; border-radius: 4px; }
@@ -238,46 +155,10 @@
         #final-summary li.incorrect-ans .user-answer { text-decoration: line-through; margin-right: 5px;}
         #final-summary li .correct-value { font-weight: bold; }
 
-        .new-word-highlight {
-            color: var(--danger-color);
-            font-weight: bold;
-            cursor: help;
-            position: relative;
-            border-bottom: 1px dotted var(--danger-color);
-        }
-        .tooltip-text {
-            visibility: hidden;
-            width: max-content;
-            max-width: 200px;
-            background-color: var(--dark-color);
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px 8px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.9em;
-        }
-        .tooltip-text::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: var(--dark-color) transparent transparent transparent;
-        }
-        .new-word-highlight:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-
+        .new-word-highlight { color: var(--danger-color); font-weight: bold; cursor: help; position: relative; border-bottom: 1px dotted var(--danger-color); }
+        .tooltip-text { visibility: hidden; width: max-content; max-width: 200px; background-color: var(--dark-color); color: #fff; text-align: center; border-radius: 6px; padding: 5px 8px; position: absolute; z-index: 1; bottom: 125%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; font-size: 0.9em; }
+        .tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: var(--dark-color) transparent transparent transparent; }
+        .new-word-highlight:hover .tooltip-text { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body>
@@ -349,20 +230,20 @@
             <h2>III. Mẫu Câu (句型) 🗣️</h2>
             <div id="sentence-scramble">
                 <h3>1. Sắp xếp từ thành câu hoàn chỉnh:</h3>
-                <p class="instruction-text">🧩 Kéo và thả các từ/cụm từ vào ô bên dưới để tạo thành một câu tiếng Trung hoàn chỉnh và có nghĩa nhé!</p>
-                </div>
+                <p class="instruction-text">🧩 Chọn vào các từ/cụm từ để di chuyển chúng vào ô câu trả lời và sắp xếp thành câu hoàn chỉnh nhé!</p> {/* Thay đổi hướng dẫn */}
+            </div>
             <div id="sentence-translation" style="margin-top: 20px;">
                 <h3>2. Dịch câu sang tiếng Trung:</h3>
                 <p class="instruction-text">✍️ Mình cùng vận dụng kiến thức để dịch những câu này sang tiếng Trung thật chuẩn nào!</p>
-                </div>
+            </div>
             <div id="sentence-qna" style="margin-top: 20px;">
                 <h3>3. Trả lời câu hỏi (dựa vào bản thân):</h3>
                 <p class="instruction-text">💬 Hãy trả lời các câu hỏi sau bằng tiếng Trung theo suy nghĩ và tình hình thực tế của em nhé! (Phần này không chấm điểm tự động, em có thể nhờ 老师 xem giúp nha 💖)</p>
-                </div>
+            </div>
             <div id="sentence-creation" style="margin-top: 20px;">
                 <h3>4. Đặt câu với từ/cấu trúc cho sẵn:</h3>
                 <p class="instruction-text">💡 Thỏa sức sáng tạo và đặt những câu thật hay với các từ và cấu trúc được gợi ý! (Phần này cũng để em tự do thể hiện, 老师 sẽ xem sau nhé 😊)</p>
-                </div>
+            </div>
         </div>
 
         <div id="section-pronunciation" class="game-section hidden">
@@ -370,7 +251,7 @@
             <div id="tone-practice">
                 <h3>1. Em hãy chọn thanh điệu đúng của "一" trong các từ sau:</h3>
                 <p class="instruction-text">👂 Lắng nghe (tưởng tượng 😉) và chọn thanh điệu chính xác cho chữ "一" trong mỗi từ.</p>
-                </div>
+            </div>
             <div id="tone-rules" style="margin-top: 20px;">
                 <h3>2. Giải thích quy tắc biến điệu của "一" (yī):</h3>
                 <p>Khi "一" đứng một mình, ở cuối từ hoặc biểu thị số thứ tự, nó mang thanh 1 (yī).</p>
@@ -399,6 +280,7 @@
                 <textarea id="short-paragraph" placeholder="Viết đoạn văn của em vào đây..."></textarea>
             </div>
         </div>
+
 
         <button id="next-section-button" class="action-button next-section-btn" onclick="nextSection()">Tiếp tục phần sau 🚀</button>
         <button id="finish-game-button" class="action-button hidden" onclick="showFinalSummary()">Hoàn Thành & Xem Kết Quả 🎉</button>
@@ -429,61 +311,36 @@
             { id: 10, hanzi: "起床", pinyin: "qǐchuáng", meaning: "Thức dậy", optionsPinyin: ["xiǎng", "shénme", "chī", "shuìjiào", "zuò fàn", "hē", "fàn", "cài", "qǐchuáng", "huí jiā", "shàngwǔ"], optionsMeaning: ["Ngủ", "Nấu cơm", "Ăn", "Cái gì, gì", "Cơm", "Muốn, nhớ, nghĩ", "Uống", "Món ăn, rau", "Về nhà", "Buổi sáng", "Thức dậy"] },
             { id: 11, hanzi: "回家", pinyin: "huí jiā", meaning: "Về nhà", optionsPinyin: ["xiǎng", "shénme", "chī", "shuìjiào", "zuò fàn", "hē", "fàn", "cài", "qǐchuáng", "huí jiā", "shàngwǔ"], optionsMeaning: ["Ngủ", "Nấu cơm", "Ăn", "Cái gì, gì", "Cơm", "Muốn, nhớ, nghĩ", "Uống", "Món ăn, rau", "Về nhà", "Buổi sáng", "Thức dậy"] }
         ];
-
         const hanziWritingData = [
-            { pinyin: "shàngwǔ", meaning: "buổi sáng", hanzi: "上午" },
-            { pinyin: "qǐchuáng", meaning: "thức dậy", hanzi: "起床" },
-            { pinyin: "huí jiā", meaning: "về nhà", hanzi: "回家" },
-            { pinyin: "shuìjiào", meaning: "ngủ", hanzi: "睡觉" },
-            { pinyin: "zuò fàn", meaning: "nấu cơm", hanzi: "做饭" },
-            { pinyin: "jīdàn", meaning: "trứng gà", hanzi: "鸡蛋" },
-            { pinyin: "miàntiáo", meaning: "mì sợi", hanzi: "面条" },
-            { pinyin: "bāozi", meaning: "bánh bao", hanzi: "包子" },
-            { pinyin: "jiǎozi", meaning: "sủi cảo", hanzi: "饺子" },
-            { pinyin: "píjiǔ", meaning: "bia", hanzi: "啤酒" }
+            { pinyin: "shàngwǔ", meaning: "buổi sáng", hanzi: "上午" }, { pinyin: "qǐchuáng", meaning: "thức dậy", hanzi: "起床" },
+            { pinyin: "huí jiā", meaning: "về nhà", hanzi: "回家" }, { pinyin: "shuìjiào", meaning: "ngủ", hanzi: "睡觉" },
+            { pinyin: "zuò fàn", meaning: "nấu cơm", hanzi: "做饭" }, { pinyin: "jīdàn", meaning: "trứng gà", hanzi: "鸡蛋" },
+            { pinyin: "miàntiáo", meaning: "mì sợi", hanzi: "面条" }, { pinyin: "bāozi", meaning: "bánh bao", hanzi: "包子" },
+            { pinyin: "jiǎozi", meaning: "sủi cảo", hanzi: "饺子" }, { pinyin: "píjiǔ", meaning: "bia", hanzi: "啤酒" }
         ];
-
         const vocabFillData = [
-            { hanzi: "上午", pinyin: "shàngwǔ", meaning: "Buổi sáng" },
-            { hanzi: "起床", pinyin: "qǐchuáng", meaning: "Thức dậy" },
-            { hanzi: "回家", pinyin: "huí jiā", meaning: "Về nhà" },
-            { hanzi: "睡觉", pinyin: "shuìjiào", meaning: "Ngủ" },
-            { hanzi: "晚上", pinyin: "wǎnshang", meaning: "Buổi tối" },
-            { hanzi: "点", pinyin: "diǎn", meaning: "Giờ" },
-            { hanzi: "现在", pinyin: "xiànzài", meaning: "Bây giờ, hiện tại" },
-            { hanzi: "做饭", pinyin: "zuò fàn", meaning: "Nấu cơm" },
-            { hanzi: "虾饺", pinyin: "xiā jiǎo", meaning: "Bánh cảo tôm/Há cảo" },
-            { hanzi: "鸡蛋", pinyin: "jīdàn", meaning: "Trứng gà" },
-            { hanzi: "北京烤鸭", pinyin: "Běijīng kǎoyā", meaning: "Vịt quay Bắc Kinh" },
-            { hanzi: "汤", pinyin: "tāng", meaning: "Canh, súp" },
-            { hanzi: "糖葫芦", pinyin: "tánghúlu", meaning: "Kẹo hồ lô" },
-            { hanzi: "臭豆腐", pinyin: "chòu dòufu", meaning: "Đậu hũ thối" },
-            { hanzi: "糯米饭", pinyin: "nuòmǐ fàn", meaning: "Cơm nếp" },
-            { hanzi: "餐厅", pinyin: "cāntīng", meaning: "Nhà hàng (sang trọng hơn)" },
-            { hanzi: "饭馆", pinyin: "fànguǎn", meaning: "Quán cơm, tiệm ăn" },
-            { hanzi: "方便面", pinyin: "fāngbiànmiàn", meaning: "Mì ăn liền, mì gói" },
-            { hanzi: "面条", pinyin: "miàntiáo", meaning: "Mì sợi (tươi)" },
-            { hanzi: "一般", pinyin: "yìbān", meaning: "Bình thường, tàm tạm" }
+            { hanzi: "上午", pinyin: "shàngwǔ", meaning: "Buổi sáng" }, { hanzi: "起床", pinyin: "qǐchuáng", meaning: "Thức dậy" },
+            { hanzi: "回家", pinyin: "huí jiā", meaning: "Về nhà" }, { hanzi: "睡觉", pinyin: "shuìjiào", meaning: "Ngủ" },
+            { hanzi: "晚上", pinyin: "wǎnshang", meaning: "Buổi tối" }, { hanzi: "点", pinyin: "diǎn", meaning: "Giờ" },
+            { hanzi: "现在", pinyin: "xiànzài", meaning: "Bây giờ, hiện tại" }, { hanzi: "做饭", pinyin: "zuò fàn", meaning: "Nấu cơm" },
+            { hanzi: "虾饺", pinyin: "xiā jiǎo", meaning: "Bánh cảo tôm/Há cảo" }, { hanzi: "鸡蛋", pinyin: "jīdàn", meaning: "Trứng gà" },
+            { hanzi: "北京烤鸭", pinyin: "Běijīng kǎoyā", meaning: "Vịt quay Bắc Kinh" }, { hanzi: "汤", pinyin: "tāng", meaning: "Canh, súp" },
+            { hanzi: "糖葫芦", pinyin: "tánghúlu", meaning: "Kẹo hồ lô" }, { hanzi: "臭豆腐", pinyin: "chòu dòufu", meaning: "Đậu hũ thối" },
+            { hanzi: "糯米饭", pinyin: "nuòmǐ fàn", meaning: "Cơm nếp" }, { hanzi: "餐厅", pinyin: "cāntīng", meaning: "Nhà hàng (sang trọng hơn)" },
+            { hanzi: "饭馆", pinyin: "fànguǎn", meaning: "Quán cơm, tiệm ăn" }, { hanzi: "方便面", pinyin: "fāngbiànmiàn", meaning: "Mì ăn liền, mì gói" },
+            { hanzi: "面条", pinyin: "miàntiáo", meaning: "Mì sợi (tươi)" }, { hanzi: "一般", pinyin: "yìbān", meaning: "Bình thường, tàm tạm" }
         ];
-
         const vocabMcqData = [
             { id: 'mcq1', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgDhK_qsabdbBUNMAZF-2jVI9LrwAmH4Tosw&s', question: '(Hình ảnh bát cơm)', options: ['面条', '米饭', '包子'], answer: '米饭' },
             { id: 'mcq2', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7kRj2Fkh4FtTtmUmQwS8JGAWFu3Gbmd1ejQ&s', question: '(Hình ảnh cốc bia)', options: ['汤', '水', '啤酒'], answer: '啤酒' },
             { id: 'mcq3', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShXaUhHzSOn8IHS1rsBtCAu5knQ1yevyYQKw&s', question: '(Mô tả: một món ăn nổi tiếng của Bắc Kinh)', options: ['臭豆腐', '北京烤鸭', '虾饺'], answer: '北京烤鸭' },
             { id: 'mcq4', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvGEusVMyBbrLSbkevRgi-5BpD0AHZF1mbcw&s', question: '(Mô tả: hành động chuẩn bị bữa ăn)', options: ['睡觉', '起床', '做饭'], answer: '做饭' }
         ];
-
         const vocabTranslationData = [
-            { viet: "Buổi sáng", chinese: "上午" },
-            { viet: "Thức dậy", chinese: "起床" },
-            { viet: "Về nhà", chinese: "回家" },
-            { viet: "Ngủ", chinese: "睡觉" },
-            { viet: "Nấu ăn", chinese: "做饭" },
-            { viet: "Mì gói", chinese: "方便面" },
-            { viet: "Nhà hàng", chinese: "餐厅" },
-            { viet: "Quán ăn", chinese: "饭馆" }
+            { viet: "Buổi sáng", chinese: "上午" }, { viet: "Thức dậy", chinese: "起床" }, { viet: "Về nhà", chinese: "回家" },
+            { viet: "Ngủ", chinese: "睡觉" }, { viet: "Nấu ăn", chinese: "做饭" }, { viet: "Mì gói", chinese: "方便面" },
+            { viet: "Nhà hàng", chinese: "餐厅" }, { viet: "Quán ăn", chinese: "饭馆" }
         ];
-
         const sentenceScrambleData = [
             { id: 'sc1', words: ['我', '吃', '包子', '想', '。'], correctAnswer: '我想吃包子。' },
             { id: 'sc2', words: ['早上', '我', '七点', '起床', '。'], correctAnswer: '我早上七点起床。' },
@@ -491,33 +348,23 @@
             { id: 'sc4', words: ['几点', '现在', '？'], correctAnswer: '现在几点？' },
             { id: 'sc5', words: ['很', '北京烤鸭', '好吃', '。'], correctAnswer: '北京烤鸭很好吃。' }
         ];
-
         const sentenceTranslationData = [
-            { viet: "Tôi muốn ăn cơm.", chinese: "我想吃饭。" },
-            { viet: "Bây giờ là 10 giờ tối.", chinese: "现在晚上十点。" },
+            { viet: "Tôi muốn ăn cơm.", chinese: "我想吃饭。" }, { viet: "Bây giờ là 10 giờ tối.", chinese: "现在晚上十点。" },
             { viet: "Mẹ tôi không thích ăn mì gói, bà ấy thích ăn mì tươi.", chinese: "我妈妈不喜欢吃方便面，她喜欢吃面条。" },
-            { viet: "Hôm nay tôi đi nhà hàng ăn cơm.", chinese: "今天我去餐厅吃饭。" },
-            { viet: "Món súp này rất ngon.", chinese: "这个汤很好喝。" }
+            { viet: "Hôm nay tôi đi nhà hàng ăn cơm.", chinese: "今天我去餐厅吃饭。" }, { viet: "Món súp này rất ngon.", chinese: "这个汤很好喝。" }
         ];
-         const sentenceQnAData = [
-            { id: 'qna1', question: "你喜欢吃什么？", exampleAnswer: "我喜欢吃..." },
-            { id: 'qna2', question: "你喜欢喝什么？", exampleAnswer: "我喜欢喝..." },
-            { id: 'qna3', question: "你几点起床？", exampleAnswer: "我早上...点起床。" },
-            { id: 'qna4', question: "你晚上几点睡觉？", exampleAnswer: "我晚上...点睡觉。" },
+        const sentenceQnAData = [
+            { id: 'qna1', question: "你喜欢吃什么？", exampleAnswer: "我喜欢吃..." }, { id: 'qna2', question: "你喜欢喝什么？", exampleAnswer: "我喜欢喝..." },
+            { id: 'qna3', question: "你几点起床？", exampleAnswer: "我早上...点起床。" }, { id: 'qna4', question: "你晚上几点睡觉？", exampleAnswer: "我晚上...点睡觉。" },
             { id: 'qna5', question: "你喜欢吃方便面还是吃面条？", exampleAnswer: "我喜欢吃..." }
         ];
         const sentenceCreationData = [
-            { id: 'scd1', prompt: "想 (xiǎng - muốn)", example: "" },
-            { id: 'scd2', prompt: "在家 (zài jiā - ở nhà)", example: "我晚上8点在家学习汉语。" },
-            { id: 'scd3', prompt: "还是 (háishi - hay là)", example: "" },
-            { id: 'scd4', prompt: "好吃 (hǎochī - ngon)", example: "" }
+            { id: 'scd1', prompt: "想 (xiǎng - muốn)", example: "" }, { id: 'scd2', prompt: "在家 (zài jiā - ở nhà)", example: "我晚上8点在家学习汉语。" },
+            { id: 'scd3', prompt: "还是 (háishi - hay là)", example: "" }, { id: 'scd4', prompt: "好吃 (hǎochī - ngon)", example: "" }
         ];
-
         const tonePracticeData = [
-            { id: 'tp1', word: "一个", context: "y _ gè", pinyin: "yī", correctAnswer: "í" },
-            { id: 'tp2', word: "一天", context: "y _ tiān", pinyin: "yī", correctAnswer: "ì" },
-            { id: 'tp3', word: "一年", context: "y _ nián", pinyin: "yī", correctAnswer: "ì" },
-            { id: 'tp4', word: "一本", context: "y _ běn", pinyin: "yī", correctAnswer: "ì" },
+            { id: 'tp1', word: "一个", context: "y _ gè", pinyin: "yī", correctAnswer: "í" }, { id: 'tp2', word: "一天", context: "y _ tiān", pinyin: "yī", correctAnswer: "ì" },
+            { id: 'tp3', word: "一年", context: "y _ nián", pinyin: "yī", correctAnswer: "ì" }, { id: 'tp4', word: "一本", context: "y _ běn", pinyin: "yī", correctAnswer: "ì" },
             { id: 'tp5', word: "第一", context: "dì y _", pinyin: "yī", correctAnswer: "ī" }
         ];
 
@@ -528,10 +375,10 @@
         let secondsElapsed = 0;
         let userAnswers = {};
 
-        // Global variables for touch drag-and-drop
-        let currentDraggingTouchElement = null;
-        let touchEndListenerAdded = false;
-
+        // Đối tượng lưu trữ các hàm lắng nghe sự kiện cho các mục sắp xếp câu
+        if (!window.activeScrambleListeners) {
+            window.activeScrambleListeners = {};
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             populateHanziMatching();
@@ -539,7 +386,7 @@
             populateVocabFill();
             populateVocabMCQ();
             populateVocabTranslation();
-            populateSentenceScramble();
+            populateSentenceScramble(); // Sẽ gọi setupClickToMoveWords
             populateSentenceTranslation();
             populateSentenceQnA();
             populateSentenceCreation();
@@ -548,32 +395,28 @@
             startTimer();
         });
 
-        function startTimer() {
+        function startTimer() { /* ... Giữ nguyên ... */ 
             timerInterval = setInterval(() => {
                 secondsElapsed++;
                 document.getElementById('timer').textContent = `⏳ Thời gian: ${formatTime(secondsElapsed)}`;
             }, 1000);
         }
-
-        function formatTime(totalSeconds) {
+        function formatTime(totalSeconds) { /* ... Giữ nguyên ... */ 
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             const seconds = totalSeconds % 60;
             return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
-
-        function updateScore(points) {
+        function updateScore(points) { /* ... Giữ nguyên ... */ 
             score += points;
             document.getElementById('score-display').textContent = `Điểm: ${score}`;
         }
-
-        function showSection(index) {
+        function showSection(index) { /* ... Giữ nguyên ... */ 
             document.querySelectorAll('.game-section').forEach(sec => sec.classList.add('hidden'));
             const currentSection = document.getElementById(sections[index]);
             if (currentSection) {
                 currentSection.classList.remove('hidden');
             }
-
             const nextButton = document.getElementById('next-section-button');
             const finishButton = document.getElementById('finish-game-button');
             if (index >= sections.length - 1) {
@@ -584,8 +427,7 @@
                 if(finishButton) finishButton.classList.add('hidden');
             }
         }
-
-        function nextSection() {
+        function nextSection() { /* ... Giữ nguyên ... */ 
             currentSectionIndex++;
             if (currentSectionIndex < sections.length) {
                 showSection(currentSectionIndex);
@@ -593,8 +435,7 @@
                 showFinalSummary();
             }
         }
-        
-        function shuffleArray(array) {
+        function shuffleArray(array) { /* ... Giữ nguyên ... */ 
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
@@ -602,34 +443,21 @@
             return array;
         }
 
-        function populateHanziMatching() {
+        function populateHanziMatching() { /* ... Giữ nguyên ... */ 
             const tbody = document.getElementById('hanzi-matching-body');
             tbody.innerHTML = '';
             const allPinyins = shuffleArray([...new Set(hanziData.flatMap(item => item.optionsPinyin))]);
             const allMeanings = shuffleArray([...new Set(hanziData.flatMap(item => item.optionsMeaning))]);
-
             hanziData.forEach(item => {
                 const row = tbody.insertRow();
                 row.innerHTML = `
                     <td>${item.id}. ${item.hanzi}</td>
-                    <td>
-                        <select id="pinyin-select-${item.id}">
-                            <option value="">Chọn Pinyin</option>
-                            ${allPinyins.map(p => `<option value="${p}">${p}</option>`).join('')}
-                        </select>
-                    </td>
-                    <td>
-                        <select id="meaning-select-${item.id}">
-                            <option value="">Chọn Nghĩa</option>
-                            ${allMeanings.map(m => `<option value="${m}">${m}</option>`).join('')}
-                        </select>
-                    </td>
-                    <td id="match-feedback-${item.id}" class="feedback"></td>
-                `;
+                    <td><select id="pinyin-select-${item.id}"><option value="">Chọn Pinyin</option>${allPinyins.map(p => `<option value="${p}">${p}</option>`).join('')}</select></td>
+                    <td><select id="meaning-select-${item.id}"><option value="">Chọn Nghĩa</option>${allMeanings.map(m => `<option value="${m}">${m}</option>`).join('')}</select></td>
+                    <td id="match-feedback-${item.id}" class="feedback"></td>`;
             });
         }
-
-        function checkHanziMatching() {
+        function checkHanziMatching() { /* ... Giữ nguyên ... */ 
             let sectionScore = 0;
             userAnswers['hanziMatching'] = [];
             hanziData.forEach(item => {
@@ -639,258 +467,135 @@
                 const userPinyin = pinyinSelect.value;
                 const userMeaning = meaningSelect.value;
                 let isCorrect = false;
-
                 if (userPinyin === item.pinyin && userMeaning === item.meaning) {
-                    feedbackEl.textContent = '🎉 Chính xác!';
-                    feedbackEl.className = 'feedback correct';
-                    sectionScore++;
-                    isCorrect = true;
+                    feedbackEl.textContent = '🎉 Chính xác!'; feedbackEl.className = 'feedback correct'; sectionScore++; isCorrect = true;
                 } else {
-                    feedbackEl.textContent = `😢 Chưa đúng. Pinyin: ${item.pinyin}, Nghĩa: ${item.meaning}`;
-                    feedbackEl.className = 'feedback incorrect';
+                    feedbackEl.textContent = `😢 Chưa đúng. Pinyin: ${item.pinyin}, Nghĩa: ${item.meaning}`; feedbackEl.className = 'feedback incorrect';
                 }
-                pinyinSelect.disabled = true;
-                meaningSelect.disabled = true;
-                userAnswers['hanziMatching'].push({
-                    id: item.id,
-                    hanzi: item.hanzi,
-                    userPinyin: userPinyin,
-                    userMeaning: userMeaning,
-                    correctPinyin: item.pinyin,
-                    correctMeaning: item.meaning,
-                    isCorrect: isCorrect
-                });
+                pinyinSelect.disabled = true; meaningSelect.disabled = true;
+                userAnswers['hanziMatching'].push({ id: item.id, hanzi: item.hanzi, userPinyin, userMeaning, correctPinyin: item.pinyin, correctMeaning: item.meaning, isCorrect });
             });
-            updateScore(sectionScore);
-            document.querySelector('#hanzi-matching button').disabled = true;
+            updateScore(sectionScore); document.querySelector('#hanzi-matching button').disabled = true;
         }
-
-        function populateHanziWriting() {
+        function populateHanziWriting() { /* ... Giữ nguyên ... */ 
             const container = document.getElementById('hanzi-writing');
             container.innerHTML = '<h3>2. Tập viết chữ Hán:</h3> <p class="instruction-text">✏️ Giờ mình cùng thử tài nhớ mặt chữ nào! Hãy gõ chữ Hán dựa vào phiên âm và nghĩa cho sẵn. Em có thể nhấn "Xem đáp án" để tự kiểm tra nhé! ❤️</p>';
             hanziWritingData.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'writing-practice-item';
-                div.innerHTML = `
-                    <label for="hanzi-input-${index}">${item.pinyin} (${item.meaning}):</label>
-                    <input type="text" id="hanzi-input-${index}" placeholder="Gõ chữ Hán">
-                    <button class="show-answer-btn" onclick="showHanziAnswer(${index}, this)">Xem đáp án</button>
-                    <span id="correct-hanzi-${index}" class="correct-hanzi"></span>
-                    <div id="write-feedback-${index}" class="feedback"></div>
-                `;
+                div.innerHTML = `<label for="hanzi-input-${index}">${item.pinyin} (${item.meaning}):</label> <input type="text" id="hanzi-input-${index}" placeholder="Gõ chữ Hán"> <button class="show-answer-btn" onclick="showHanziAnswer(${index}, this)">Xem đáp án</button> <span id="correct-hanzi-${index}" class="correct-hanzi"></span> <div id="write-feedback-${index}" class="feedback"></div>`;
                 container.appendChild(div);
             });
         }
-
-        function showHanziAnswer(index, buttonElement) {
+        function showHanziAnswer(index, buttonElement) { /* ... Giữ nguyên ... */ 
             const correctHanziEl = document.getElementById(`correct-hanzi-${index}`);
             correctHanziEl.textContent = hanziWritingData[index].hanzi;
-            const userInput = document.getElementById(`hanzi-input-${index}`).value;
+            const userInputEl = document.getElementById(`hanzi-input-${index}`);
+            const userInput = userInputEl.value;
             const feedbackEl = document.getElementById(`write-feedback-${index}`);
-            userAnswers[`hanziWriting_${index}`] = {
-                prompt: `${hanziWritingData[index].pinyin} (${hanziWritingData[index].meaning})`,
-                userAnswer: userInput,
-                correctAnswer: hanziWritingData[index].hanzi,
-                isCorrect: userInput === hanziWritingData[index].hanzi
-            };
+            userAnswers[`hanziWriting_${index}`] = { prompt: `${hanziWritingData[index].pinyin} (${hanziWritingData[index].meaning})`, userAnswer: userInput, correctAnswer: hanziWritingData[index].hanzi, isCorrect: userInput === hanziWritingData[index].hanzi };
             if (userInput === hanziWritingData[index].hanzi) {
-                feedbackEl.textContent = '🎉 Giỏi quá!';
-                feedbackEl.className = 'feedback correct';
-                 // updateScore(1); // Optionally score this if desired
+                feedbackEl.textContent = '🎉 Giỏi quá!'; feedbackEl.className = 'feedback correct';
             } else if (userInput !== "") {
-                feedbackEl.textContent = '🤔 Thử lại xem sao!';
-                feedbackEl.className = 'feedback incorrect';
+                feedbackEl.textContent = '🤔 Thử lại xem sao!'; feedbackEl.className = 'feedback incorrect';
             }
-            buttonElement.disabled = true;
-            document.getElementById(`hanzi-input-${index}`).disabled = true;
+            buttonElement.disabled = true; userInputEl.disabled = true;
         }
-
-        function normalizePinyin(pinyin) {
+        function normalizePinyin(pinyin) { /* ... Giữ nguyên ... */ 
             if (!pinyin) return "";
             let str = pinyin.toLowerCase();
-            str = str.replace(/[āáǎà]/g, 'a');
-            str = str.replace(/[ēéěè]/g, 'e');
-            str = str.replace(/[īíǐì]/g, 'i');
-            str = str.replace(/[ōóǒò]/g, 'o');
-            str = str.replace(/[ūúǔùüǖǘǚǜ]/g, 'u');
-            str = str.replace(/\s+/g, '');
+            str = str.replace(/[āáǎà]/g, 'a').replace(/[ēéěè]/g, 'e').replace(/[īíǐì]/g, 'i').replace(/[ōóǒò]/g, 'o').replace(/[ūúǔùüǖǘǚǜ]/g, 'u').replace(/\s+/g, '');
             return str;
         }
-
-        function populateVocabFill() {
+        function populateVocabFill() { /* ... Giữ nguyên ... */ 
             const tbody = document.getElementById('vocab-fill-body');
             tbody.innerHTML = '';
             vocabFillData.forEach((item, index) => {
                 const row = tbody.insertRow();
                 const hidePinyin = Math.random() < 0.5;
-                row.innerHTML = `
-                    <td>${item.hanzi}</td>
-                    <td>${hidePinyin ? `<input type="text" id="vocab-pinyin-${index}" placeholder="Điền Pinyin (không cần dấu)">` : item.pinyin}</td>
-                    <td>${!hidePinyin ? `<input type="text" id="vocab-meaning-${index}" placeholder="Điền Nghĩa">` : item.meaning}</td>
-                    <td id="vocab-fill-feedback-${index}" class="feedback"></td>
-                `;
+                row.innerHTML = `<td>${item.hanzi}</td><td>${hidePinyin ? `<input type="text" id="vocab-pinyin-${index}" placeholder="Điền Pinyin (không cần dấu)">` : item.pinyin}</td><td>${!hidePinyin ? `<input type="text" id="vocab-meaning-${index}" placeholder="Điền Nghĩa">` : item.meaning}</td><td id="vocab-fill-feedback-${index}" class="feedback"></td>`;
                 if (hidePinyin) row.querySelector(`#vocab-pinyin-${index}`).dataset.answer = item.pinyin;
                 else row.querySelector(`#vocab-meaning-${index}`).dataset.answer = item.meaning;
             });
         }
-        function checkVocabFill() {
-            let sectionScore = 0;
-            userAnswers['vocabFill'] = [];
+        function checkVocabFill() { /* ... Giữ nguyên ... */ 
+            let sectionScore = 0; userAnswers['vocabFill'] = [];
             vocabFillData.forEach((item, index) => {
-                const pinyinInput = document.getElementById(`vocab-pinyin-${index}`);
-                const meaningInput = document.getElementById(`vocab-meaning-${index}`);
-                const feedbackEl = document.getElementById(`vocab-fill-feedback-${index}`);
-                let isCorrect = false;
-
-                let userAnswerPinyinNormalized = "";
-                let correctAnswerPinyinNormalized = normalizePinyin(item.pinyin);
-                let userAnswerMeaning = "";
-
+                const pinyinInput = document.getElementById(`vocab-pinyin-${index}`); const meaningInput = document.getElementById(`vocab-meaning-${index}`);
+                const feedbackEl = document.getElementById(`vocab-fill-feedback-${index}`); let isCorrect = false;
+                let userAnswerPinyinNormalized = "", correctAnswerPinyinNormalized = normalizePinyin(item.pinyin), userAnswerMeaning = "";
                 if (pinyinInput) {
-                    userAnswerPinyinNormalized = normalizePinyin(pinyinInput.value.trim());
-                    if (userAnswerPinyinNormalized === correctAnswerPinyinNormalized) {
-                        sectionScore++;
-                        isCorrect = true;
-                    }
-                     pinyinInput.disabled = true;
+                    userAnswerPinyinNormalized = normalizePinyin(pinyinInput.value.trim()); if (userAnswerPinyinNormalized === correctAnswerPinyinNormalized) { sectionScore++; isCorrect = true; } pinyinInput.disabled = true;
                 } else if (meaningInput) {
-                    userAnswerMeaning = meaningInput.value.trim();
-                    if (userAnswerMeaning.toLowerCase() === item.meaning.toLowerCase()) {
-                        sectionScore++;
-                        isCorrect = true;
-                    }
-                    meaningInput.disabled = true;
+                    userAnswerMeaning = meaningInput.value.trim(); if (userAnswerMeaning.toLowerCase() === item.meaning.toLowerCase()) { sectionScore++; isCorrect = true; } meaningInput.disabled = true;
                 }
-
-                if (isCorrect) {
-                    feedbackEl.textContent = '👍 Đúng rồi!';
-                    feedbackEl.className = 'feedback correct';
-                } else {
-                    feedbackEl.textContent = `🤔 Sai rồi. Pinyin: ${item.pinyin}, Nghĩa: ${item.meaning}`;
-                    feedbackEl.className = 'feedback incorrect';
-                }
-                 userAnswers['vocabFill'].push({
-                    hanzi: item.hanzi,
-                    userPinyin: pinyinInput ? pinyinInput.value.trim() : "N/A",
-                    userMeaning: meaningInput ? userAnswerMeaning : "N/A",
-                    correctPinyin: item.pinyin,
-                    correctMeaning: item.meaning,
-                    isCorrect: isCorrect
-                });
+                if (isCorrect) { feedbackEl.textContent = '👍 Đúng rồi!'; feedbackEl.className = 'feedback correct'; } 
+                else { feedbackEl.textContent = `🤔 Sai rồi. Pinyin: ${item.pinyin}, Nghĩa: ${item.meaning}`; feedbackEl.className = 'feedback incorrect'; }
+                userAnswers['vocabFill'].push({ hanzi: item.hanzi, userPinyin: pinyinInput ? pinyinInput.value.trim() : "N/A", userMeaning: meaningInput ? userAnswerMeaning : "N/A", correctPinyin: item.pinyin, correctMeaning: item.meaning, isCorrect });
             });
-            updateScore(sectionScore);
-            document.querySelector('#vocab-table-fill button').disabled = true;
+            updateScore(sectionScore); document.querySelector('#vocab-table-fill button').disabled = true;
         }
-
-        function populateVocabMCQ() {
+        function populateVocabMCQ() { /* ... Giữ nguyên ... */ 
             const container = document.getElementById('vocab-multiple-choice');
             container.innerHTML = '<h3>2. Chọn từ đúng:</h3> <p class="instruction-text">🤔 Hãy chọn đáp án đúng nhất cho mỗi hình ảnh hoặc mô tả. (老师 sẽ sớm cập nhật hình ảnh thật sinh động nhé! 😉)</p>';
             vocabMcqData.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'multiple-choice-item';
-                div.id = `mcq-item-${item.id}`;
+                const div = document.createElement('div'); div.className = 'multiple-choice-item'; div.id = `mcq-item-${item.id}`;
                 let imageHtml = item.image ? `<img src="${item.image}" alt="${item.question}">` : '';
-                div.innerHTML = `
-                    ${imageHtml}
-                    <p><strong>${item.question}</strong></p>
-                    <div class="options">
-                        ${item.options.map(opt => `<button onclick="selectMCQOption(this, '${item.id}', '${opt}')">${opt}</button>`).join('')}
-                    </div>
-                    <div id="mcq-feedback-${item.id}" class="feedback"></div>
-                `;
+                div.innerHTML = `${imageHtml}<p><strong>${item.question}</strong></p><div class="options">${item.options.map(opt => `<button onclick="selectMCQOption(this, '${item.id}', '${opt}')">${opt}</button>`).join('')}</div><div id="mcq-feedback-${item.id}" class="feedback"></div>`;
                 container.appendChild(div);
             });
         }
-        function selectMCQOption(buttonEl, itemId, selectedOption) {
-            const itemContainer = document.getElementById(`mcq-item-${itemId}`);
-            const questionData = vocabMcqData.find(q => q.id === itemId);
-            if (!questionData || buttonEl.dataset.scored) return; // Already answered or data missing
-
-            itemContainer.querySelectorAll('.options button').forEach(btn => btn.classList.remove('selected'));
-            buttonEl.classList.add('selected');
-            
-            const feedbackEl = document.getElementById(`mcq-feedback-${itemId}`);
-            let isCorrect = false;
-
-            if (selectedOption === questionData.answer) {
-                feedbackEl.textContent = '🎉 Tuyệt vời!';
-                feedbackEl.className = 'feedback correct';
-                updateScore(1);
-                isCorrect = true;
-            } else {
-                feedbackEl.textContent = `🤔 Chưa đúng rồi. Đáp án là: ${questionData.answer}`;
-                feedbackEl.className = 'feedback incorrect';
-            }
-            userAnswers[`vocabMCQ_${itemId}`] = {
-                question: questionData.question,
-                userAnswer: selectedOption,
-                correctAnswer: questionData.answer,
-                isCorrect: isCorrect
-            };
-            
-            itemContainer.querySelectorAll('.options button').forEach(btn => {
-                btn.disabled = true;
-                btn.dataset.scored = true; // Mark as scored to prevent re-scoring
-            });
+        function selectMCQOption(buttonEl, itemId, selectedOption) { /* ... Giữ nguyên ... */ 
+            const itemContainer = document.getElementById(`mcq-item-${itemId}`); const questionData = vocabMcqData.find(q => q.id === itemId);
+            if (!questionData || buttonEl.dataset.scored) return;
+            itemContainer.querySelectorAll('.options button').forEach(btn => btn.classList.remove('selected')); buttonEl.classList.add('selected');
+            const feedbackEl = document.getElementById(`mcq-feedback-${itemId}`); let isCorrect = false;
+            if (selectedOption === questionData.answer) { feedbackEl.textContent = '🎉 Tuyệt vời!'; feedbackEl.className = 'feedback correct'; updateScore(1); isCorrect = true; } 
+            else { feedbackEl.textContent = `🤔 Chưa đúng rồi. Đáp án là: ${questionData.answer}`; feedbackEl.className = 'feedback incorrect'; }
+            userAnswers[`vocabMCQ_${itemId}`] = { question: questionData.question, userAnswer: selectedOption, correctAnswer: questionData.answer, isCorrect };
+            itemContainer.querySelectorAll('.options button').forEach(btn => { btn.disabled = true; btn.dataset.scored = true; });
         }
-
-        function populateVocabTranslation() {
+        function populateVocabTranslation() { /* ... Giữ nguyên ... */ 
             const container = document.getElementById('vocab-translation');
             container.innerHTML = '<h3>3. Dịch từ Việt sang Trung:</h3> <p class="instruction-text">🔄 Thử thách dịch các từ sau từ tiếng Việt sang tiếng Trung nào!</p>';
             vocabTranslationData.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'writing-practice-item';
-                div.innerHTML = `
-                    <label for="vocab-trans-${index}">${item.viet}:</label>
-                    <input type="text" id="vocab-trans-${index}" placeholder="Gõ tiếng Trung">
-                    <button class="show-answer-btn" onclick="checkVocabTranslation(${index}, this)">Kiểm tra</button>
-                    <span id="correct-vocab-trans-${index}" class="correct-hanzi"></span>
-                    <div id="vocab-trans-feedback-${index}" class="feedback"></div>
-                `;
+                const div = document.createElement('div'); div.className = 'writing-practice-item';
+                div.innerHTML = `<label for="vocab-trans-${index}">${item.viet}:</label><input type="text" id="vocab-trans-${index}" placeholder="Gõ tiếng Trung"><button class="show-answer-btn" onclick="checkVocabTranslation(${index}, this)">Kiểm tra</button><span id="correct-vocab-trans-${index}" class="correct-hanzi"></span><div id="vocab-trans-feedback-${index}" class="feedback"></div>`;
                 container.appendChild(div);
             });
         }
-        function checkVocabTranslation(index, buttonElement) {
-            const userInputEl = document.getElementById(`vocab-trans-${index}`);
-            const userInput = userInputEl.value.trim();
-            const correctAnswer = vocabTranslationData[index].chinese;
-            const feedbackEl = document.getElementById(`vocab-trans-feedback-${index}`);
-            const correctDisplayEl = document.getElementById(`correct-vocab-trans-${index}`);
-            let isCorrect = false;
-
-            if (userInput === correctAnswer) {
-                feedbackEl.textContent = '👍 Rất tốt!';
-                feedbackEl.className = 'feedback correct';
-                updateScore(1);
-                isCorrect = true;
-            } else {
-                feedbackEl.textContent = '🤔 Sai rồi. Đáp án đúng là:';
-                feedbackEl.className = 'feedback incorrect';
-                correctDisplayEl.textContent = correctAnswer;
-            }
-            userInputEl.disabled = true;
-            buttonElement.disabled = true;
-            userAnswers[`vocabTrans_${index}`] = {
-                prompt: vocabTranslationData[index].viet,
-                userAnswer: userInput,
-                correctAnswer: correctAnswer,
-                isCorrect: isCorrect
-            };
+        function checkVocabTranslation(index, buttonElement) { /* ... Giữ nguyên ... */ 
+            const userInputEl = document.getElementById(`vocab-trans-${index}`); const userInput = userInputEl.value.trim();
+            const correctAnswer = vocabTranslationData[index].chinese; const feedbackEl = document.getElementById(`vocab-trans-feedback-${index}`);
+            const correctDisplayEl = document.getElementById(`correct-vocab-trans-${index}`); let isCorrect = false;
+            if (userInput === correctAnswer) { feedbackEl.textContent = '👍 Rất tốt!'; feedbackEl.className = 'feedback correct'; updateScore(1); isCorrect = true; } 
+            else { feedbackEl.textContent = '🤔 Sai rồi. Đáp án đúng là:'; feedbackEl.className = 'feedback incorrect'; correctDisplayEl.textContent = correctAnswer; }
+            userInputEl.disabled = true; buttonElement.disabled = true;
+            userAnswers[`vocabTrans_${index}`] = { prompt: vocabTranslationData[index].viet, userAnswer: userInput, correctAnswer, isCorrect };
         }
 
+        // --- BẮT ĐẦU PHẦN SỬA ĐỔI CHO SẮP XẾP CÂU ---
         function populateSentenceScramble() {
             const container = document.getElementById('sentence-scramble');
-            container.innerHTML = '<h3>1. Sắp xếp từ thành câu hoàn chỉnh:</h3> <p class="instruction-text">🧩 Kéo và thả các từ/cụm từ vào ô bên dưới để tạo thành một câu tiếng Trung hoàn chỉnh và có nghĩa nhé!</p>';
+            // Cập nhật HTML một chút cho rõ ràng hơn, giữ nguyên cấu trúc div chính
+            const instructionText = container.querySelector('.instruction-text');
+            if (instructionText) {
+                instructionText.innerHTML = '🧩 Chọn vào các từ/cụm từ để di chuyển chúng và sắp xếp thành câu hoàn chỉnh nhé!';
+            }
+            // Xóa các sentence-scramble-item cũ nếu có (quan trọng khi restart game)
+            container.querySelectorAll('.sentence-scramble-item').forEach(item => item.remove());
+
             sentenceScrambleData.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'sentence-scramble-item';
                 const bankId = `word-bank-${item.id}`;
                 const dropzoneId = `dropzone-${item.id}`;
 
+                // Tạo từ không có draggable="true"
                 div.innerHTML = `
                     <p><strong>Câu ${index + 1}:</strong> Sắp xếp các từ sau:</p>
                     <div id="${bankId}" class="word-bank">
-                        ${shuffleArray([...item.words]).map(word => `<div class="draggable-word" draggable="true">${word}</div>`).join('')}
+                        ${shuffleArray([...item.words]).map(word => `<div class="draggable-word">${word}</div>`).join('')}
                     </div>
                     <p>Câu của bạn:</p>
                     <div id="${dropzoneId}" class="sentence-dropzone"></div>
@@ -898,101 +603,58 @@
                     <div id="scramble-feedback-${item.id}" class="feedback"></div>
                 `;
                 container.appendChild(div);
-                makeDraggable(item.id);
+                setupClickToMoveWords(item.id); // Gọi hàm mới
             });
         }
 
-        function makeDraggable(itemId) {
+        function setupClickToMoveWords(itemId) {
             const bank = document.getElementById(`word-bank-${itemId}`);
             const dropzone = document.getElementById(`dropzone-${itemId}`);
+
             if (!bank || !dropzone) {
+                console.error("Bank or Dropzone not found for itemID:", itemId);
                 return;
             }
 
-            const allDraggableWords = Array.from(bank.querySelectorAll('.draggable-word'));
+            const bankListener = (event) => {
+                // Chỉ xử lý nếu click vào một 'draggable-word' và từ đó đang nằm trong bank
+                if (event.target.classList.contains('draggable-word') && bank.contains(event.target)) {
+                    dropzone.appendChild(event.target); // Di chuyển từ bank sang dropzone
+                }
+            };
 
-            allDraggableWords.forEach(draggable => {
-                // STANDARD MOUSE DRAG EVENTS
-                draggable.addEventListener('dragstart', () => {
-                    draggable.classList.add('dragging');
-                });
+            const dropzoneListener = (event) => {
+                // Chỉ xử lý nếu click vào một 'draggable-word' và từ đó đang nằm trong dropzone
+                if (event.target.classList.contains('draggable-word') && dropzone.contains(event.target)) {
+                    bank.appendChild(event.target); // Di chuyển từ dropzone về bank
+                }
+            };
 
-                draggable.addEventListener('dragend', () => {
-                    draggable.classList.remove('dragging');
-                });
+            bank.addEventListener('click', bankListener);
+            dropzone.addEventListener('click', dropzoneListener);
 
-                // TOUCH EVENTS
-                draggable.addEventListener('touchstart', (e) => {
-                    currentDraggingTouchElement = e.target.closest('.draggable-word');
-                    if (!currentDraggingTouchElement) return;
-                    currentDraggingTouchElement.classList.add('dragging');
-                }, { passive: true }); 
-            });
+            // Lưu trữ listeners để có thể xóa sau khi kiểm tra
+            if (!window.activeScrambleListeners) window.activeScrambleListeners = {};
+            window.activeScrambleListeners[itemId] = {
+                bankElement: bank,
+                dropzoneElement: dropzone,
+                bankListenerFunc: bankListener,
+                dropzoneListenerFunc: dropzoneListener
+            };
+        }
 
-            [bank, dropzone].forEach(zone => {
-                // MOUSE DRAGOVER
-                zone.addEventListener('dragover', e => {
-                    e.preventDefault(); 
-                    const draggingEl = document.querySelector('.draggable-word.dragging'); 
-                    if (!draggingEl || draggingEl === currentDraggingTouchElement) return; 
-
-                    const afterElement = getDragAfterElement(zone, e.clientY);
-                    if (afterElement == null) {
-                        zone.appendChild(draggingEl);
-                    } else {
-                        zone.insertBefore(draggingEl, afterElement);
-                    }
-                });
-
-                // TOUCHMOVE
-                zone.addEventListener('touchmove', e => {
-                    if (!currentDraggingTouchElement) return; 
-                    e.preventDefault(); 
-
-                    const touch = e.touches[0];
-                    const afterElement = getDragAfterElement(zone, touch.clientY);
-                    
-                    let alreadyInPlace = false;
-                    if (afterElement) {
-                        if (currentDraggingTouchElement.nextSibling === afterElement) alreadyInPlace = true;
-                    } else {
-                         if (zone.lastChild === currentDraggingTouchElement) alreadyInPlace = true;
-                    }
-
-                    if (!alreadyInPlace) {
-                         if (afterElement == null) {
-                            zone.appendChild(currentDraggingTouchElement);
-                        } else {
-                            zone.insertBefore(currentDraggingTouchElement, afterElement);
-                        }
-                    }
-                }, { passive: false }); 
-            });
-
-            if (!touchEndListenerAdded) {
-                document.addEventListener('touchend', (e) => {
-                    if (currentDraggingTouchElement) {
-                        currentDraggingTouchElement.classList.remove('dragging');
-                        currentDraggingTouchElement = null;
-                    }
-                });
-                touchEndListenerAdded = true;
+        function disableClickToMoveWords(itemId) {
+            if (window.activeScrambleListeners && window.activeScrambleListeners[itemId]) {
+                const listenersInfo = window.activeScrambleListeners[itemId];
+                if (listenersInfo.bankElement && listenersInfo.bankListenerFunc) {
+                    listenersInfo.bankElement.removeEventListener('click', listenersInfo.bankListenerFunc);
+                }
+                if (listenersInfo.dropzoneElement && listenersInfo.dropzoneListenerFunc) {
+                    listenersInfo.dropzoneElement.removeEventListener('click', listenersInfo.dropzoneListenerFunc);
+                }
+                delete window.activeScrambleListeners[itemId]; // Xóa khỏi đối tượng lưu trữ
             }
         }
-
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('.draggable-word:not(.dragging)')];
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2; 
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
-        }
-
 
         function checkSentenceScramble(itemId, correctAnswer, buttonElement) {
             const dropzone = document.getElementById(`dropzone-${itemId}`);
@@ -1010,10 +672,7 @@
                 feedbackEl.className = 'feedback incorrect';
             }
             
-            const allWordsInItem = document.querySelectorAll(`#word-bank-${itemId} .draggable-word, #dropzone-${itemId} .draggable-word`);
-            allWordsInItem.forEach(w => {
-                w.setAttribute('draggable', 'false');
-            });
+            disableClickToMoveWords(itemId); // Vô hiệu hóa việc di chuyển từ sau khi kiểm tra
             buttonElement.disabled = true;
 
             userAnswers[`sentenceScramble_${itemId}`] = {
@@ -1023,166 +682,85 @@
                 isCorrect: isCorrect
             };
         }
+        // --- KẾT THÚC PHẦN SỬA ĐỔI CHO SẮP XẾP CÂU ---
 
-        function populateSentenceTranslation() {
-            const container = document.getElementById('sentence-translation');
+
+        function populateSentenceTranslation() { /* ... Giữ nguyên ... */ 
+             const container = document.getElementById('sentence-translation');
             container.innerHTML = '<h3>2. Dịch câu sang tiếng Trung:</h3> <p class="instruction-text">✍️ Mình cùng vận dụng kiến thức để dịch những câu này sang tiếng Trung thật chuẩn nào!</p>';
-            sentenceTranslationData.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'translation-item';
-                div.innerHTML = `
-                    <p><strong>${index + 1}. ${item.viet}</strong></p>
-                    <textarea id="sent-trans-${index}" placeholder="Dịch sang tiếng Trung..."></textarea>
-                    <button onclick="checkSentenceTranslation(${index}, this)" class="action-button" style="font-size:0.9em; padding: 8px 15px; background-color:var(--cute-pink); margin-top:5px;">Kiểm tra</button>
-                    <div id="sent-trans-feedback-${index}" class="feedback"></div>
-                `;
+             sentenceTranslationData.forEach((item, index) => {
+                const div = document.createElement('div'); div.className = 'translation-item';
+                div.innerHTML = `<p><strong>${index + 1}. ${item.viet}</strong></p><textarea id="sent-trans-${index}" placeholder="Dịch sang tiếng Trung..."></textarea><button onclick="checkSentenceTranslation(${index}, this)" class="action-button" style="font-size:0.9em; padding: 8px 15px; background-color:var(--cute-pink); margin-top:5px;">Kiểm tra</button><div id="sent-trans-feedback-${index}" class="feedback"></div>`;
                 container.appendChild(div);
             });
         }
-        function checkSentenceTranslation(index, buttonElement) {
-            const textarea = document.getElementById(`sent-trans-${index}`);
-            const userAnswer = textarea.value.trim();
-            const correctAnswer = sentenceTranslationData[index].chinese;
-            const feedbackEl = document.getElementById(`sent-trans-feedback-${index}`);
+        function checkSentenceTranslation(index, buttonElement) { /* ... Giữ nguyên ... */ 
+            const textarea = document.getElementById(`sent-trans-${index}`); const userAnswer = textarea.value.trim();
+            const correctAnswer = sentenceTranslationData[index].chinese; const feedbackEl = document.getElementById(`sent-trans-feedback-${index}`);
             let isCorrect = false;
             if (userAnswer.replace(/[？。！，]/g, '') === correctAnswer.replace(/[？。！，]/g, '')) {
-                feedbackEl.textContent = '🌟 Rất chuẩn!';
-                feedbackEl.className = 'feedback correct';
-                updateScore(2);
-                isCorrect = true;
+                feedbackEl.textContent = '🌟 Rất chuẩn!'; feedbackEl.className = 'feedback correct'; updateScore(2); isCorrect = true;
             } else {
-                feedbackEl.textContent = `🤔 Gần đúng rồi! Đáp án gợi ý: ${correctAnswer}`;
-                feedbackEl.className = 'feedback incorrect';
+                feedbackEl.textContent = `🤔 Gần đúng rồi! Đáp án gợi ý: ${correctAnswer}`; feedbackEl.className = 'feedback incorrect';
             }
-            textarea.disabled = true;
-            buttonElement.disabled = true;
-             userAnswers[`sentenceTrans_${index}`] = {
-                prompt: sentenceTranslationData[index].viet,
-                userAnswer: userAnswer,
-                correctAnswer: correctAnswer,
-                isCorrect: isCorrect
-            };
+            textarea.disabled = true; buttonElement.disabled = true;
+            userAnswers[`sentenceTrans_${index}`] = { prompt: sentenceTranslationData[index].viet, userAnswer, correctAnswer, isCorrect };
         }
-
-        function populateSentenceQnA() {
+        function populateSentenceQnA() { /* ... Giữ nguyên ... */ 
             const container = document.getElementById('sentence-qna');
             container.innerHTML = '<h3>3. Trả lời câu hỏi (dựa vào bản thân):</h3> <p class="instruction-text">💬 Hãy trả lời các câu hỏi sau bằng tiếng Trung theo suy nghĩ và tình hình thực tế của em nhé! (Phần này không chấm điểm tự động, em có thể nhờ 老师 xem giúp nha 💖)</p>';
             sentenceQnAData.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'translation-item';
-                div.innerHTML = `
-                    <p><strong>${index + 1}. ${item.question}</strong></p>
-                    <textarea id="qna-ans-${item.id}" placeholder="${item.exampleAnswer}"></textarea>
-                    <div class="feedback">Phần này em tự đánh giá hoặc nhờ 老师 xem giúp nhé! ❤️</div>
-                `;
+                const div = document.createElement('div'); div.className = 'translation-item';
+                div.innerHTML = `<p><strong>${index + 1}. ${item.question}</strong></p><textarea id="qna-ans-${item.id}" placeholder="${item.exampleAnswer}"></textarea><div class="feedback">Phần này em tự đánh giá hoặc nhờ 老师 xem giúp nhé! ❤️</div>`;
                 container.appendChild(div);
-                document.getElementById(`qna-ans-${item.id}`).addEventListener('change', (e) => {
-                    userAnswers[`sentenceQnA_${item.id}`] = {
-                        question: item.question,
-                        userAnswer: e.target.value,
-                        isSelfAssessed: true
-                    };
-                });
+                document.getElementById(`qna-ans-${item.id}`).addEventListener('change', (e) => { userAnswers[`sentenceQnA_${item.id}`] = { question: item.question, userAnswer: e.target.value, isSelfAssessed: true }; });
             });
         }
-        function populateSentenceCreation() {
+        function populateSentenceCreation() { /* ... Giữ nguyên ... */ 
             const container = document.getElementById('sentence-creation');
             container.innerHTML = '<h3>4. Đặt câu với từ/cấu trúc cho sẵn:</h3> <p class="instruction-text">💡 Thỏa sức sáng tạo và đặt những câu thật hay với các từ và cấu trúc được gợi ý! (Phần này cũng để em tự do thể hiện, 老师 sẽ xem sau nhé 😊)</p>';
             sentenceCreationData.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'translation-item';
-                div.innerHTML = `
-                    <p><strong>${index + 1}. Đặt câu với: ${item.prompt}</strong></p>
-                    ${item.example ? `<p><i>Ví dụ: ${item.example}</i></p>` : ''}
-                    <textarea id="scd-ans-${item.id}" placeholder="Viết câu của em..."></textarea>
-                    <div class="feedback">Phần này em tự do sáng tạo và nhờ 老师 nhận xét nha! 💖</div>
-                `;
+                const div = document.createElement('div'); div.className = 'translation-item';
+                div.innerHTML = `<p><strong>${index + 1}. Đặt câu với: ${item.prompt}</strong></p>${item.example ? `<p><i>Ví dụ: ${item.example}</i></p>` : ''}<textarea id="scd-ans-${item.id}" placeholder="Viết câu của em..."></textarea><div class="feedback">Phần này em tự do sáng tạo và nhờ 老师 nhận xét nha! 💖</div>`;
                 container.appendChild(div);
-                document.getElementById(`scd-ans-${item.id}`).addEventListener('change', (e) => {
-                    userAnswers[`sentenceCreation_${item.id}`] = {
-                        prompt: item.prompt,
-                        userAnswer: e.target.value,
-                        isSelfAssessed: true
-                    };
-                });
+                document.getElementById(`scd-ans-${item.id}`).addEventListener('change', (e) => { userAnswers[`sentenceCreation_${item.id}`] = { prompt: item.prompt, userAnswer: e.target.value, isSelfAssessed: true }; });
             });
         }
-
-        function populateTonePractice() {
+        function populateTonePractice() { /* ... Giữ nguyên ... */ 
             const container = document.getElementById('tone-practice');
             container.innerHTML = '<h3>1. Em hãy chọn thanh điệu đúng của "一" trong các từ sau:</h3> <p class="instruction-text">👂 Lắng nghe (tưởng tượng 😉) và chọn thanh điệu chính xác cho chữ "一" trong mỗi từ.</p>';
             tonePracticeData.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'tone-practice-item';
-                div.innerHTML = `
-                    <span>${item.word} (${item.context.replace('_', `<select id="tone-select-${item.id}"><option value="">?</option><option value="ī">ㄧ (Thanh 1)</option><option value="í">ˊ (Thanh 2)</option><option value="ǐ">ˇ (Thanh 3)</option><option value="ì">ˋ (Thanh 4)</option></select>`)})</span>
-                    <button onclick="checkTone('${item.id}', '${item.correctAnswer}', this)">Kiểm tra</button>
-                    <span id="tone-feedback-${item.id}" class="feedback"></span>
-                `;
+                const div = document.createElement('div'); div.className = 'tone-practice-item';
+                div.innerHTML = `<span>${item.word} (${item.context.replace('_', `<select id="tone-select-${item.id}"><option value="">?</option><option value="ī">ㄧ (Thanh 1)</option><option value="í">ˊ (Thanh 2)</option><option value="ǐ">ˇ (Thanh 3)</option><option value="ì">ˋ (Thanh 4)</option></select>`)})</span><button onclick="checkTone('${item.id}', '${item.correctAnswer}', this)">Kiểm tra</button><span id="tone-feedback-${item.id}" class="feedback"></span>`;
                 container.appendChild(div);
             });
         }
-        function checkTone(itemId, correctAnswer, buttonElement) {
-            const selectEl = document.getElementById(`tone-select-${itemId}`);
-            const userAnswer = selectEl.value;
-            const feedbackEl = document.getElementById(`tone-feedback-${itemId}`);
-            let isCorrect = false;
-            if (userAnswer === correctAnswer) {
-                feedbackEl.textContent = '🎶 Chuẩn rồi!';
-                feedbackEl.className = 'feedback correct';
-                updateScore(1);
-                isCorrect = true;
-            } else {
-                feedbackEl.textContent = `🤔 Chưa đúng. Đáp án: ${correctAnswer.replace('ī','thanh 1').replace('í','thanh 2').replace('ǐ','thanh 3').replace('ì','thanh 4')}`;
-                feedbackEl.className = 'feedback incorrect';
-            }
-            selectEl.disabled = true;
-            buttonElement.disabled = true;
-            userAnswers[`tonePractice_${itemId}`] = {
-                word: tonePracticeData.find(i => i.id === itemId).word,
-                userAnswer: userAnswer,
-                correctAnswer: correctAnswer,
-                isCorrect: isCorrect
-            };
+        function checkTone(itemId, correctAnswer, buttonElement) { /* ... Giữ nguyên ... */ 
+            const selectEl = document.getElementById(`tone-select-${itemId}`); const userAnswer = selectEl.value;
+            const feedbackEl = document.getElementById(`tone-feedback-${itemId}`); let isCorrect = false;
+            if (userAnswer === correctAnswer) { feedbackEl.textContent = '🎶 Chuẩn rồi!'; feedbackEl.className = 'feedback correct'; updateScore(1); isCorrect = true; } 
+            else { feedbackEl.textContent = `🤔 Chưa đúng. Đáp án: ${correctAnswer.replace('ī','thanh 1').replace('í','thanh 2').replace('ǐ','thanh 3').replace('ì','thanh 4')}`; feedbackEl.className = 'feedback incorrect'; }
+            selectEl.disabled = true; buttonElement.disabled = true;
+            userAnswers[`tonePractice_${itemId}`] = { word: tonePracticeData.find(i => i.id === itemId).word, userAnswer, correctAnswer, isCorrect };
         }
-
-        function checkDialogue() {
-            let sectionScore = 0;
-            userAnswers['dialogue'] = [];
+        function checkDialogue() { /* ... Giữ nguyên ... */ 
+            let sectionScore = 0; userAnswers['dialogue'] = [];
             for (let i = 1; i <= 5; i++) {
-                const inputEl = document.getElementById(`dialogue-blank-${i}`);
-                const userAnswer = inputEl.value.trim();
-                const correctAnswer = inputEl.dataset.answer;
-                let isCorrect = false;
-                if (userAnswer === correctAnswer) {
-                    sectionScore++;
-                    inputEl.style.borderColor = 'var(--success-color)';
-                    isCorrect = true;
-                } else {
-                    inputEl.style.borderColor = 'var(--danger-color)';
-                }
-                userAnswers['dialogue'].push({
-                    blank: i,
-                    userAnswer: userAnswer,
-                    correctAnswer: correctAnswer,
-                    isCorrect: isCorrect
-                });
-                inputEl.disabled = true;
+                const inputEl = document.getElementById(`dialogue-blank-${i}`); const userAnswer = inputEl.value.trim();
+                const correctAnswer = inputEl.dataset.answer; let isCorrect = false;
+                if (userAnswer === correctAnswer) { sectionScore++; inputEl.style.borderColor = 'var(--success-color)'; isCorrect = true; } 
+                else { inputEl.style.borderColor = 'var(--danger-color)'; }
+                userAnswers['dialogue'].push({ blank: i, userAnswer, correctAnswer, isCorrect }); inputEl.disabled = true;
             }
-            updateScore(sectionScore);
-            const feedbackEl = document.getElementById('dialogue-feedback');
+            updateScore(sectionScore); const feedbackEl = document.getElementById('dialogue-feedback');
             feedbackEl.textContent = `Hội thoại: Bạn đúng ${sectionScore}/5 chỗ trống.`;
             feedbackEl.className = sectionScore === 5 ? 'feedback correct' : 'feedback incorrect';
             document.querySelector('#dialogue-completion button').disabled = true;
         }
-        document.getElementById('short-paragraph').addEventListener('change', (e) => {
-            userAnswers['paragraphWriting'] = {
-                userText: e.target.value,
-                isSelfAssessed: true
-            };
+        document.getElementById('short-paragraph').addEventListener('change', (e) => { /* ... Giữ nguyên ... */ 
+            userAnswers['paragraphWriting'] = { userText: e.target.value, isSelfAssessed: true };
         });
-
-        function showFinalSummary() {
+        function showFinalSummary() { /* ... Giữ nguyên, không thay đổi cách hiển thị kết quả ... */ 
             clearInterval(timerInterval);
             document.querySelectorAll('.game-section').forEach(sec => sec.classList.add('hidden'));
             document.getElementById('next-section-button').classList.add('hidden');
@@ -1267,7 +845,7 @@
                 }
             });
 
-            sentenceScrambleData.forEach(item => {
+            sentenceScrambleData.forEach(item => { // Cập nhật để hiển thị kết quả của click-to-move
                 if (userAnswers[`sentenceScramble_${item.id}`]) {
                     const ans = userAnswers[`sentenceScramble_${item.id}`];
                     const li = document.createElement('li');
@@ -1338,53 +916,42 @@
             window.scrollTo(0, document.getElementById('final-summary').offsetTop - 20);
         }
 
-        function restartGame() {
-            currentSectionIndex = 0;
-            score = 0;
-            secondsElapsed = 0;
-            userAnswers = {};
+        function restartGame() { /* ... Giữ nguyên ... */ 
+            currentSectionIndex = 0; score = 0; secondsElapsed = 0; userAnswers = {};
             document.getElementById('score-display').textContent = `Điểm: 0`;
             document.getElementById('timer').textContent = `⏳ Thời gian: 00:00:00`;
-
             document.querySelectorAll('input[type="text"], textarea, select').forEach(input => {
-                if(input.tagName === 'SELECT') input.selectedIndex = 0;
-                else input.value = '';
-                input.disabled = false;
-                if(input.style.borderColor) input.style.borderColor = '#ccc';
+                if(input.tagName === 'SELECT') input.selectedIndex = 0; else input.value = '';
+                input.disabled = false; if(input.style.borderColor) input.style.borderColor = '#ccc';
             });
             document.querySelectorAll('.feedback').forEach(fb => {fb.textContent = ''; fb.className = 'feedback';});
             document.querySelectorAll('.correct-hanzi').forEach(ch => ch.textContent = '');
             document.querySelectorAll('.options button').forEach(btn => { btn.classList.remove('selected'); btn.disabled = false; delete btn.dataset.scored;});
             
-            sentenceScrambleData.forEach(item => {
-                const bank = document.getElementById(`word-bank-${item.id}`);
-                const dropzone = document.getElementById(`dropzone-${item.id}`);
-                if(dropzone) dropzone.innerHTML = '';
-                if(bank) {
-                    bank.innerHTML = shuffleArray([...item.words])
-                                     .map(word => `<div class="draggable-word" draggable="true">${word}</div>`)
-                                     .join('');
-                }
-                makeDraggable(item.id); 
-                const scrambleButton = document.querySelector(`button[onclick="checkSentenceScramble('${item.id}', \`${item.correctAnswer}\`, this)"]`);
-                if(scrambleButton) scrambleButton.disabled = false;
+            // Quan trọng: Gọi lại populateSentenceScramble để tạo lại các mục sắp xếp câu với logic mới
+            populateSentenceScramble(); // Điều này sẽ tự động gọi setupClickToMoveWords cho mỗi mục
+
+            // Kích hoạt lại các nút kiểm tra khác
+            sentenceScrambleData.forEach(item => { // Đảm bảo nút kiểm tra cho scramble được kích hoạt lại
+                 const scrambleButton = document.querySelector(`button[onclick="checkSentenceScramble('${item.id}', \`${item.correctAnswer}\`, this)"]`);
+                 if(scrambleButton) scrambleButton.disabled = false;
             });
 
-             document.querySelectorAll('.action-button, .show-answer-btn').forEach(btn => btn.disabled = false);
-             const hanziMatchingButton = document.querySelector('#hanzi-matching button');
-             if(hanziMatchingButton) hanziMatchingButton.disabled = false;
-             const vocabFillButton = document.querySelector('#vocab-table-fill button');
-             if(vocabFillButton) vocabFillButton.disabled = false;
-             const dialogueButton = document.querySelector('#dialogue-completion button');
-             if(dialogueButton) dialogueButton.disabled = false;
-
+            document.querySelectorAll('.action-button, .show-answer-btn').forEach(btn => {
+                 // Không disable lại nút kiểm tra của scramble ở đây vì đã làm ở trên
+                if (!btn.closest('.sentence-scramble-item')) { // Chỉ disable các nút không thuộc scramble item
+                    btn.disabled = false;
+                }
+            });
+            const hanziMatchingButton = document.querySelector('#hanzi-matching button'); if(hanziMatchingButton) hanziMatchingButton.disabled = false;
+            const vocabFillButton = document.querySelector('#vocab-table-fill button'); if(vocabFillButton) vocabFillButton.disabled = false;
+            const dialogueButton = document.querySelector('#dialogue-completion button'); if(dialogueButton) dialogueButton.disabled = false;
 
             document.getElementById('final-summary').classList.add('hidden');
             showSection(currentSectionIndex);
             if (timerInterval) clearInterval(timerInterval);
             startTimer();
         }
-
     </script>
 </body>
 </html>
