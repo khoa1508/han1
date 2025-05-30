@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoạt Động Giao Tiếp: Đi Chợ Mua Hoa Quả</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Gray-100 background */
+        }
+        .role-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            padding: 1.5rem; /* 24px */
+            border-left-width: 8px;
+        }
+        .buyer-card {
+            border-left-color: #3b82f6; /* Blue-500 */
+        }
+        .seller-card {
+            border-left-color: #16a34a; /* Green-600 */
+        }
+        .role-title {
+            font-size: 1.75rem; /* 28px */
+            font-weight: 700;
+            margin-bottom: 1rem; /* 16px */
+        }
+        .buyer-title {
+            color: #2563eb; /* Blue-600 */
+        }
+        .seller-title {
+            color: #15803d; /* Green-700 */
+        }
+        .task-list, .price-list, .shopping-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .task-list li, .price-list li, .shopping-list li {
+            background-color: #f9fafb; /* Gray-50 */
+            padding: 0.75rem; /* 12px */
+            border-radius: 6px;
+            margin-bottom: 0.5rem; /* 8px */
+            border: 1px solid #e5e7eb; /* Gray-200 */
+        }
+        .task-list li::before {
+            content: '🛒';
+            margin-right: 0.5rem;
+        }
+        .price-list li strong, .shopping-list li strong {
+            color: #4b5563; /* Gray-600 */
+        }
+        .suggestion {
+            background-color: #fffbeb; /* Amber-50 */
+            border: 1px dashed #f59e0b; /* Amber-500 */
+            padding: 1rem; /* 16px */
+            border-radius: 8px;
+            margin-top: 1rem; /* 16px */
+        }
+        .suggestion p {
+            margin-bottom: 0.5rem; /* 8px */
+        }
+        .chinese-text {
+            font-style: italic;
+            color: #57534e; /* Stone-600 */
+        }
+        .pinyin-text {
+            font-size: 0.9em;
+            color: #78716c; /* Stone-500 */
+            display: none; /* Ẩn Pinyin theo mặc định */
+        }
+        .pinyin-text.visible {
+            display: inline; /* Hiện Pinyin khi có class 'visible' */
+        }
+        h3 {
+            font-size: 1.25rem; /* 20px */
+            font-weight: 600;
+            margin-top: 1.25rem; /* 20px */
+            margin-bottom: 0.75rem; /* 12px */
+            color: #374151; /* Gray-700 */
+        }
+        hr {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            border-top-width: 2px;
+            border-color: #e5e7eb; /* Gray-200 */
+        }
+        .printable-area {
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .toggle-pinyin-btn {
+            background-color: #eab308; /* Yellow-500 */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 1rem;
+            border: none;
+        }
+        .toggle-pinyin-btn:hover {
+            background-color: #ca8a04; /* Yellow-600 */
+        }
+        @media print {
+            body {
+                background-color: white;
+                font-size: 12pt;
+            }
+            .role-card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                margin-bottom: 1.5rem;
+                padding: 1rem;
+                page-break-inside: avoid;
+            }
+            .no-print {
+                display: none;
+            }
+            .printable-area {
+                max-width: 100%;
+            }
+            .role-title {
+                font-size: 1.5rem;
+            }
+            h3 {
+                font-size: 1.1rem;
+            }
+            .toggle-pinyin-btn {
+                display: none; /* Không in nút bật/tắt pinyin */
+            }
+            .pinyin-text { /* Luôn hiển thị pinyin khi in, hoặc bạn có thể quyết định ẩn đi */
+                display: inline !important; 
+            }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    <div class="printable-area">
+        <header class="text-center mb-8 no-print">
+            <h1 class="text-3xl font-bold text-gray-700">🛒 Hoạt Động Giao Tiếp: Đi Chợ Mua Hoa Quả 🍓</h1>
+            <p class="text-md text-gray-500">去市场买水果 <span class="pinyin-text">(qù shìchǎng mǎi shuǐguǒ)</span></p>
+        </header>
+
+        <div class="role-card buyer-card">
+            <button class="toggle-pinyin-btn no-print" onclick="togglePinyin(this)">👁️ Hiện Pinyin</button>
+            <h2 class="role-title buyer-title">PHIẾU A: NGƯỜI MUA <span class="chinese-text">(买东西的人)</span> <span class="pinyin-text">(mǎi dōngxi de rén)</span> 🧑‍🌾</h2>
+            
+            <h3>📝 Nhiệm vụ của bạn:</h3>
+            <p class="mb-3 text-gray-700">Bạn đến một cửa hàng hoa quả. Hãy hỏi giá và mua những thứ có trong "Danh sách cần mua" của bạn. Bạn chỉ có <strong class="text-red-600">30 đồng (三十块钱 <span class="pinyin-text">sānshí kuài qián</span>)</strong>, hãy chắc chắn bạn đủ tiền trả nhé!</p>
+
+            <h3>🛍️ Danh sách cần mua <span class="chinese-text">(购物单</span> <span class="pinyin-text">gòuwù dān</span>):</h3>
+            <ul id="shopping-list-buyer" class="shopping-list">
+                </ul>
+            <p class="mt-2 text-sm text-gray-600">Và hỏi giá thêm một loại quả khác mà bạn thích (ví dụ: <span class="chinese-text">西瓜</span> <span class="pinyin-text">xīguā</span> hoặc <span class="chinese-text">葡萄</span> <span class="pinyin-text">pútao</span>).</p>
+
+            <div class="suggestion mt-6">
+                <h3 class="mt-0 text-amber-700">💡 Gợi ý cho bạn:</h3>
+                <p class="text-gray-700">Nếu thấy đắt, bạn có thể thử mặc cả bằng cách nói:</p>
+                <p class="chinese-text text-lg">太贵了！便宜一点儿吧！</p>
+                <p class="pinyin-text">(Tài guì le! Piányi yìdiǎnr ba! - Đắt quá! Rẻ một chút đi!)</p>
+                <p class="mt-3 text-gray-700">Các mẫu câu hữu ích khác:</p>
+                <ul class="list-disc pl-5 text-sm text-gray-600">
+                    <li><span class="chinese-text">...一斤多少钱？</span> <span class="pinyin-text">(...yì jīn duōshao qián?)</span> (... bao nhiêu tiền một cân?)</li>
+                    <li><span class="chinese-text">一共多少钱？</span> <span class="pinyin-text">(yígòng duōshao qián?)</span> (Tổng cộng bao nhiêu tiền?)</li>
+                    <li><span class="chinese-text">给你钱。</span> <span class="pinyin-text">(gěi nǐ qián.)</span> (Gửi bạn tiền.)</li>
+                </ul>
+            </div>
+        </div>
+
+        <hr class="no-print">
+
+        <div class="role-card seller-card">
+            <button class="toggle-pinyin-btn no-print" onclick="togglePinyin(this)">👁️ Hiện Pinyin</button>
+            <h2 class="role-title seller-title">PHIẾU B: NGƯỜI BÁN <span class="chinese-text">(卖东西的人)</span> <span class="pinyin-text">(mài dōngxi de rén)</span> 🏪</h2>
+
+            <h3>📝 Nhiệm vụ của bạn:</h3>
+            <p class="mb-3 text-gray-700">Bạn là chủ một cửa hàng hoa quả. Hãy trả lời câu hỏi của khách hàng và tính tổng số tiền họ phải trả.</p>
+
+            <h3>🏷️ Bảng giá của bạn <span class="chinese-text">(你的价格单</span> <span class="pinyin-text">nǐ de jiàgé dān</span>):</h3>
+            <ul id="price-list-seller" class="price-list">
+                </ul>
+
+            <div class="suggestion mt-6">
+                <h3 class="mt-0 text-amber-700">💡 Gợi ý cho bạn:</h3>
+                <p class="text-gray-700">Khi khách hàng trả tiền, hãy dùng các mẫu câu sau:</p>
+                <ul class="list-disc pl-5 text-sm text-gray-600">
+                    <li><span class="chinese-text">一共...块...毛。</span> <span class="pinyin-text">(yígòng...kuài...máo.)</span> (Tổng cộng... đồng... hào.)</li>
+                    <li><span class="chinese-text">收你...块。</span> <span class="pinyin-text">(shōu nǐ...kuài.)</span> (Nhận của bạn... đồng.)</li>
+                    <li><span class="chinese-text">找你...块...毛。</span> <span class="pinyin-text">(zhǎo nǐ...kuài...máo.)</span> (Thối lại bạn... đồng... hào.)</li>
+                </ul>
+                 <p class="mt-3 text-gray-700">Các mẫu câu hữu ích khác:</p>
+                <ul class="list-disc pl-5 text-sm text-gray-600">
+                     <li><span class="chinese-text">你要几斤？</span> <span class="pinyin-text">(nǐ yào jǐ jīn?)</span> (Bạn muốn mấy cân?)</li>
+                     <li><span class="chinese-text">还要别的吗？</span> <span class="pinyin-text">(hái yào bié de ma?)</span> (Còn cần gì khác không?)</li>
+                     <li><span class="chinese-text">好的。/ 行。</span> <span class="pinyin-text">(hǎo de. / xíng.)</span> (Được thôi. / Ok.)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="text-center mt-8 mb-4 no-print">
+            <button onclick="window.print()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out">
+                🖨️ In Phiếu
+            </button>
+             <button onclick="generateNewCards()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out ml-2">
+                🔄 Tạo Phiếu Mới
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const allFruits = [
+            { name: "Táo", chinese: "苹果", pinyin: "píngguǒ", basePriceMin: 2.5, basePriceMax: 6 },
+            { name: "Cam", chinese: "橘子", pinyin: "júzi", basePriceMin: 2, basePriceMax: 4.5 },
+            { name: "Chuối", chinese: "香蕉", pinyin: "xiāngjiāo", basePriceMin: 3, basePriceMax: 5 },
+            { name: "Dưa hấu", chinese: "西瓜", pinyin: "xīguā", basePriceMin: 1.5, basePriceMax: 3 },
+            { name: "Nho", chinese: "葡萄", pinyin: "pútao", basePriceMin: 6, basePriceMax: 12 },
+            { name: "Xoài", chinese: "芒果", pinyin: "mángguǒ", basePriceMin: 5, basePriceMax: 10 },
+            { name: "Lê", chinese: "梨", pinyin: "lí", basePriceMin: 3, basePriceMax: 5.5 },
+            { name: "Đào", chinese: "桃子", pinyin: "táozi", basePriceMin: 4, basePriceMax: 8 },
+            { name: "Vải", chinese: "荔枝", pinyin: "lìzhī", basePriceMin: 7, basePriceMax: 15 },
+            { name: "Dâu tây", chinese: "草莓", pinyin: "cǎoméi", basePriceMin: 10, basePriceMax: 20 },
+            { name: "Thanh long", chinese: "火龙果", pinyin: "huǒlóngguǒ", basePriceMin: 4, basePriceMax: 7 },
+            { name: "Dứa", chinese: "菠萝", pinyin: "bōluó", basePriceMin: 3, basePriceMax: 6 }
+        ];
+
+        const jinQuantities = [
+            { amount: 1, chinese: "一斤", pinyin: "yì jīn" },
+            { amount: 1.5, chinese: "一斤半", pinyin: "yì jīn bàn" },
+            { amount: 2, chinese: "两斤", pinyin: "liǎng jīn" },
+            { amount: 2.5, chinese: "两斤半", pinyin: "liǎng jīn bàn" },
+            { amount: 3, chinese: "三斤", pinyin: "sān jīn" }
+        ];
+
+        function getRandomElement(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function getRandomInt(min, max) { // Lấy số nguyên
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        function getRandomPrice(minKuai, maxKuai) {
+            const kuai = getRandomInt(Math.floor(minKuai), Math.floor(maxKuai -1)); // Để có chỗ cho hào
+            const mao = getRandomInt(0, 9); // 0 đến 9 hào
+            let price = kuai;
+            if (mao > 0) {
+                price += mao / 10;
+            }
+             // Đảm bảo giá không thấp hơn minKuai và không cao hơn maxKuai
+            price = Math.max(minKuai, price);
+            price = Math.min(maxKuai, price);
+
+            let priceString = `${kuai}块`;
+            if (mao > 0) {
+                priceString += `${mao}毛`;
+            }
+            return { value: parseFloat(price.toFixed(1)), string: priceString, pinyin: `${kuaiToPinyin(kuai)} kuài` + (mao > 0 ? ` ${maoToPinyin(mao)} máo` : "") };
+        }
+
+        function kuaiToPinyin(num) {
+            // Đơn giản hóa, có thể mở rộng cho số lớn hơn
+            const pinyinMap = ["líng", "yī", "èr", "sān", "sì", "wǔ", "liù", "qī", "bā", "jiǔ", "shí"];
+            if (num <=10) return pinyinMap[num];
+            if (num < 20) return `shí ${pinyinMap[num%10] || ''}`.trim();
+            // Thêm logic cho số lớn hơn nếu cần
+            return String(num); // Fallback
+        }
+         function maoToPinyin(num) {
+            const pinyinMap = ["líng", "yī", "èr", "sān", "sì", "wǔ", "liù", "qī", "bā", "jiǔ"];
+            return pinyinMap[num] || String(num);
+        }
+
+
+        function generateShoppingList() {
+            const shoppingListContainer = document.getElementById('shopping-list-buyer');
+            shoppingListContainer.innerHTML = ''; // Xóa danh sách cũ
+            
+            let numItemsToBuy = getRandomInt(2, 3); // Mua 2 hoặc 3 loại
+            let selectedFruitsForShopping = [];
+            let availableFruits = [...allFruits]; // Tạo bản sao để không làm thay đổi mảng gốc
+
+            for (let i = 0; i < numItemsToBuy; i++) {
+                if (availableFruits.length === 0) break;
+                const fruitIndex = Math.floor(Math.random() * availableFruits.length);
+                const fruit = availableFruits.splice(fruitIndex, 1)[0]; // Chọn và xóa khỏi danh sách tạm
+                const quantity = getRandomElement(jinQuantities);
+                selectedFruitsForShopping.push({ ...fruit, quantity });
+
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<strong>${fruit.name} (<span class="chinese-text">${fruit.chinese}</span> <span class="pinyin-text">${fruit.pinyin}</span>):</strong> ${quantity.amount} cân <span class="chinese-text">(${quantity.chinese})</span> <span class="pinyin-text">(${quantity.pinyin})</span>`;
+                shoppingListContainer.appendChild(listItem);
+            }
+            return selectedFruitsForShopping;
+        }
+
+        function generatePriceList(shoppingList) {
+            const priceListContainer = document.getElementById('price-list-seller');
+            priceListContainer.innerHTML = ''; // Xóa danh sách cũ
+
+            let sellerFruits = [...shoppingList]; // Bắt đầu với những gì người mua muốn
+            let availableFruitsForSeller = allFruits.filter(f => !shoppingList.some(sf => sf.chinese === f.chinese));
+
+            // Thêm 2-3 loại quả khác vào danh sách của người bán
+            let numExtraFruits = getRandomInt(2, 3);
+            for (let i = 0; i < numExtraFruits; i++) {
+                if (availableFruitsForSeller.length === 0) break;
+                const fruitIndex = Math.floor(Math.random() * availableFruitsForSeller.length);
+                const extraFruit = availableFruitsForSeller.splice(fruitIndex, 1)[0];
+                sellerFruits.push(extraFruit);
+            }
+            
+            // Sắp xếp lại cho đẹp mắt (tùy chọn)
+            sellerFruits.sort((a,b) => a.name.localeCompare(b.name));
+
+            sellerFruits.forEach(fruit => {
+                const price = getRandomPrice(fruit.basePriceMin, fruit.basePriceMax);
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<strong>${fruit.name} (<span class="chinese-text">${fruit.chinese}</span> <span class="pinyin-text">${fruit.pinyin}</span>):</strong> ${price.string}/cân <span class="chinese-text">(${price.string.replace('块', '块一斤').replace(/(\d)毛$/, '$1毛一斤')})</span> <span class="pinyin-text">(${price.pinyin} yì jīn)</span>`;
+                priceListContainer.appendChild(listItem);
+            });
+        }
+        
+        function generateNewCards() {
+            const shoppingList = generateShoppingList();
+            generatePriceList(shoppingList);
+            // Đảm bảo Pinyin được ẩn khi tạo thẻ mới
+            document.querySelectorAll('.pinyin-text').forEach(el => el.classList.remove('visible'));
+            document.querySelectorAll('.toggle-pinyin-btn').forEach(btn => btn.textContent = '👁️ Hiện Pinyin');
+        }
+
+        window.togglePinyin = function(buttonElement) {
+            const card = buttonElement.closest('.role-card');
+            const pinyinTexts = card.querySelectorAll('.pinyin-text');
+            let isCurrentlyVisible = pinyinTexts.length > 0 && pinyinTexts[0].classList.contains('visible');
+
+            pinyinTexts.forEach(el => {
+                el.classList.toggle('visible');
+            });
+
+            if (isCurrentlyVisible) {
+                buttonElement.textContent = '👁️ Hiện Pinyin';
+            } else {
+                buttonElement.textContent = '🙈 Ẩn Pinyin';
+            }
+        }
+        
+        // Khởi tạo khi tải trang
+        window.onload = generateNewCards;
+
+    </script>
+</body>
+</html>
