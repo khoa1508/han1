@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hoạt Động Giao Tiếp: Đi Chợ Mua Hoa Quả (Khớp Đề & Kịch Bản)</title>
+    <title>Hoạt Động Giao Tiếp: Đi Chợ Mua Hoa Quả (Đã Sửa Lỗi Khớp Đề)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -39,7 +39,7 @@
             border-radius: 8px;
             margin-top: 1rem; 
         }
-        .script-suggestion { background-color: #eff6ff; border-color: #60a5fa; } /* Light blue for script */
+        .script-suggestion { background-color: #eff6ff; border-color: #60a5fa; }
         .script-suggestion h4 { color: #1d4ed8; margin-top:0; font-size: 1.1rem; font-weight:600; }
 
         .chinese-text { font-style: italic; color: #57534e; }
@@ -219,10 +219,10 @@
         ];
 
         const MAX_SCENARIOS = 10;
-        let allScenarios = [];
-        let currentScenarioId = 1;
+        let currentScenarioId = 1; // Default scenario ID
         let selectedRole = null; 
 
+        // DOM Elements
         const characterSelectionView = document.getElementById('character-selection-view');
         const rolePlayView = document.getElementById('role-play-view');
         const buyerRoleCard = document.getElementById('buyer-role-card');
@@ -232,12 +232,34 @@
         const shoppingListBuyerContainer = document.getElementById('shopping-list-buyer');
         const priceListSellerContainer = document.getElementById('price-list-seller');
 
-        function getRandomElement(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-        function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        // Seeded Pseudo-Random Number Generator (Mulberry32)
+        let scenarioPrng; // Will be initialized for each scenario
+        function mulberry32(a) {
+            return function() {
+              var t = a += 0x6D2B79F5;
+              t = Math.imul(t ^ t >>> 15, t | 1);
+              t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+              return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+
+        // Helper for seeded random integer
+        function getSeededRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(scenarioPrng() * (max - min + 1)) + min;
+        }
+
+        // Helper for seeded random element from array
+        function getSeededRandomElement(arr) {
+            if (!arr || arr.length === 0) return undefined;
+            return arr[Math.floor(scenarioPrng() * arr.length)];
+        }
         
-        function generateRandomPrice(minKuai, maxKuai) {
-            const kuai = getRandomInt(Math.floor(minKuai), Math.floor(maxKuai -1 < minKuai ? minKuai : maxKuai -1));
-            const mao = getRandomInt(0, 9);
+        // Generates price using the current scenarioPrng
+        function generateSeededRandomPrice(minKuai, maxKuai) {
+            const kuai = getSeededRandomInt(Math.floor(minKuai), Math.floor(maxKuai -1 < minKuai ? minKuai : maxKuai -1));
+            const mao = getSeededRandomInt(0, 9);
             let priceValue = kuai + (mao / 10);
             priceValue = Math.max(minKuai, Math.min(maxKuai, priceValue));
             const finalKuai = Math.floor(priceValue);
@@ -252,7 +274,6 @@
         }
 
         function kuaiToPinyin(num) {
-            const pMap = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]; // Hanzi for pinyin generation
             const pinyinMap = ["líng", "yī", "èr", "sān", "sì", "wǔ", "liù", "qī", "bā", "jiǔ", "shí"];
             if (num >= 0 && num <= 10) return pinyinMap[num];
             if (num > 10 && num < 20) return `shí ${pinyinMap[num%10] || ''}`.trim();
@@ -265,49 +286,51 @@
             return (num >=0 && num <=9) ? pinyinMap[num] : String(num);
         }
 
-        function generateAllScenarios() {
-            allScenarios = [];
-            for (let i = 1; i <= MAX_SCENARIOS; i++) {
-                const marketDayOfferings = [];
-                let availableFruitsForThisScenario = [...allFruitsData];
-                const numFruitsInMarket = getRandomInt(Math.min(5, availableFruitsForThisScenario.length), Math.min(8, availableFruitsForThisScenario.length));
+        // Generates a specific scenario based on scenarioId (for determinism)
+        function generateSpecificScenario(scenarioId) {
+            scenarioPrng = mulberry32(scenarioId * 12345 + 67890); // Seed PRNG for this specific scenario
 
-                for (let j = 0; j < numFruitsInMarket; j++) {
-                    if (availableFruitsForThisScenario.length === 0) break;
-                    const fruitIndex = Math.floor(Math.random() * availableFruitsForThisScenario.length);
-                    const fruitData = availableFruitsForThisScenario.splice(fruitIndex, 1)[0];
-                    const price = generateRandomPrice(fruitData.basePriceMin, fruitData.basePriceMax);
-                    marketDayOfferings.push({
-                        name: fruitData.name,
-                        chinese: fruitData.chinese,
-                        pinyin: fruitData.pinyin,
-                        price: price 
-                    });
-                }
-                marketDayOfferings.sort((a, b) => a.name.localeCompare(b.name));
+            // 1. Generate Seller's Price List (marketDayOfferings)
+            const marketDayOfferings = [];
+            let availableFruitsForThisScenario = [...allFruitsData];
+            const numFruitsInMarket = getSeededRandomInt(Math.min(5, availableFruitsForThisScenario.length), Math.min(8, availableFruitsForThisScenario.length));
 
-                const buyerShoppingListItems = [];
-                let fruitsToChooseFromForBuyer = [...marketDayOfferings]; 
-                const numItemsToBuy = getRandomInt(Math.min(2, fruitsToChooseFromForBuyer.length), Math.min(3, fruitsToChooseFromForBuyer.length));
-
-                for (let k = 0; k < numItemsToBuy; k++) {
-                    if (fruitsToChooseFromForBuyer.length === 0) break;
-                    const itemIndex = Math.floor(Math.random() * fruitsToChooseFromForBuyer.length);
-                    const marketItem = fruitsToChooseFromForBuyer.splice(itemIndex, 1)[0];
-                    const quantity = getRandomElement(jinQuantitiesData);
-                    buyerShoppingListItems.push({
-                        name: marketItem.name,
-                        chinese: marketItem.chinese,
-                        pinyin: marketItem.pinyin,
-                        quantity: quantity 
-                    });
-                }
-                allScenarios.push({
-                    id: i,
-                    buyerShoppingList: buyerShoppingListItems, 
-                    sellerPriceList: marketDayOfferings      
+            for (let j = 0; j < numFruitsInMarket; j++) {
+                if (availableFruitsForThisScenario.length === 0) break;
+                const fruitIndex = Math.floor(scenarioPrng() * availableFruitsForThisScenario.length);
+                const fruitData = availableFruitsForThisScenario.splice(fruitIndex, 1)[0];
+                const price = generateSeededRandomPrice(fruitData.basePriceMin, fruitData.basePriceMax); // Uses scenarioPrng
+                marketDayOfferings.push({
+                    name: fruitData.name,
+                    chinese: fruitData.chinese,
+                    pinyin: fruitData.pinyin,
+                    price: price 
                 });
             }
+            marketDayOfferings.sort((a, b) => a.name.localeCompare(b.name));
+
+            // 2. Generate Buyer's Shopping List from the marketDayOfferings
+            const buyerShoppingListItems = [];
+            let fruitsToChooseFromForBuyer = [...marketDayOfferings]; 
+            const numItemsToBuy = getSeededRandomInt(Math.min(2, fruitsToChooseFromForBuyer.length), Math.min(3, fruitsToChooseFromForBuyer.length));
+
+            for (let k = 0; k < numItemsToBuy; k++) {
+                if (fruitsToChooseFromForBuyer.length === 0) break;
+                const itemIndex = Math.floor(scenarioPrng() * fruitsToChooseFromForBuyer.length);
+                const marketItem = fruitsToChooseFromForBuyer.splice(itemIndex, 1)[0]; // Remove to avoid duplicate items in shopping list
+                const quantity = getSeededRandomElement(jinQuantitiesData); // Uses scenarioPrng
+                buyerShoppingListItems.push({
+                    name: marketItem.name,
+                    chinese: marketItem.chinese,
+                    pinyin: marketItem.pinyin,
+                    quantity: quantity 
+                });
+            }
+            return {
+                id: scenarioId,
+                buyerShoppingList: buyerShoppingListItems, 
+                sellerPriceList: marketDayOfferings      
+            };
         }
 
         function displayShoppingList(shoppingListItems) {
@@ -335,16 +358,14 @@
             document.querySelectorAll('.pinyin-text').forEach(el => el.classList.remove('visible'));
             const pinyinToggleButtons = document.querySelectorAll('.toggle-pinyin-btn');
             pinyinToggleButtons.forEach(btn => {
-                // Only reset buttons that are currently visible (i.e., on the active role card)
                 if (btn.closest('.role-card:not(.hidden)')) {
                      btn.textContent = '👁️ Hiện Pinyin';
                 }
             });
         }
 
-
         function loadScenario(scenarioId) {
-            const scenario = allScenarios.find(s => s.id === scenarioId);
+            const scenario = generateSpecificScenario(scenarioId); // Generate deterministically
             if (scenario) {
                 currentScenarioId = scenario.id;
                 currentPhachDisplay.textContent = currentScenarioId;
@@ -352,8 +373,6 @@
                 displayShoppingList(scenario.buyerShoppingList);
                 displayPriceList(scenario.sellerPriceList);
                 resetPinyinVisibility();
-            } else {
-                alert("Số phách không hợp lệ! Vui lòng chọn số từ 1 đến " + MAX_SCENARIOS + ".");
             }
         }
         
@@ -367,8 +386,7 @@
             if (role === 'buyer') buyerRoleCard.classList.remove('hidden');
             else if (role === 'seller') sellerRoleCard.classList.remove('hidden');
             
-            if(allScenarios.length === 0) generateAllScenarios();
-            loadScenario(currentScenarioId); 
+            loadScenario(currentScenarioId); // Load current or default scenario (e.g., Phach 1)
         }
 
         window.showCharacterSelection = function() {
@@ -381,10 +399,12 @@
         
         window.handleChangeScenario = function() {
             let randomId;
-            if (allScenarios.length <= 1) randomId = 1;
+            if (MAX_SCENARIOS <= 1) randomId = 1;
             else {
-                do { randomId = getRandomInt(1, MAX_SCENARIOS); } 
-                while (randomId === currentScenarioId && allScenarios.length > 1);
+                // Use Math.random() for choosing which scenario ID to load next.
+                // The generation of that ID's content will still be deterministic.
+                do { randomId = Math.floor(Math.random() * MAX_SCENARIOS) + 1; } 
+                while (randomId === currentScenarioId && MAX_SCENARIOS > 1);
             }
             loadScenario(randomId);
         }
@@ -408,7 +428,7 @@
         }
         
         function initializeApp() {
-            generateAllScenarios(); 
+            // No need to pre-generate all scenarios. They are generated on demand.
             showCharacterSelection(); 
         }
         window.onload = initializeApp;
