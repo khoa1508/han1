@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hoạt Động Giao Tiếp: Đi Chợ Mua Hoa Quả (Đã Sửa Lỗi Khớp Đề)</title>
+    <title>Hoạt Động Giao Tiếp: Đi Chợ Mua Hoa Quả (Có Hình Ảnh)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -24,14 +24,42 @@
         .role-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 1rem; }
         .buyer-title { color: #2563eb; }
         .seller-title { color: #15803d; }
-        .price-list li, .shopping-list li, .script-suggestion-list li {
+        .fruit-list-item {
+            background-color: #f9fafb; 
+            padding: 0.75rem; 
+            border-radius: 8px;
+            margin-bottom: 0.75rem; 
+            border: 1px solid #e5e7eb; 
+            display: flex;
+            align-items: center;
+            gap: 1rem; /* Space between image and text */
+        }
+        .fruit-list-item img {
+            width: 5rem; /* 80px */
+            height: 5rem; /* 80px */
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        .fruit-list-item .info {
+            flex-grow: 1;
+        }
+        .fruit-list-item .info .name {
+            font-weight: 700;
+            font-size: 1.25rem; /* 20px */
+            color: #111827; /* Gray-900 */
+        }
+        .fruit-list-item .info .details {
+            font-size: 1rem; /* 16px */
+            color: #4b5563; /* Gray-600 */
+        }
+
+        .script-suggestion-list li {
             background-color: #f9fafb; 
             padding: 0.75rem; 
             border-radius: 6px;
             margin-bottom: 0.5rem; 
             border: 1px solid #e5e7eb; 
         }
-        .price-list li strong, .shopping-list li strong { color: #4b5563; }
         .suggestion, .script-suggestion {
             background-color: #fffbeb; 
             border: 1px dashed #f59e0b; 
@@ -135,7 +163,7 @@
                 <h3>📝 Nhiệm vụ của bạn:</h3>
                 <p class="mb-3 text-gray-700">Bạn đến một cửa hàng hoa quả. Hỏi giá và mua những thứ trong "Danh sách cần mua". Bạn có <strong class="text-red-600">30 đồng (三十块钱 <span class="pinyin-text">sānshí kuài qián</span>)</strong>, hãy tính toán cẩn thận nhé!</p>
                 <h3>🛍️ Danh sách cần mua <span class="chinese-text">(购物单</span> <span class="pinyin-text">gòuwù dān</span>):</h3>
-                <ul id="shopping-list-buyer" class="shopping-list list-none p-0"></ul>
+                <ul id="shopping-list-buyer" class="list-none p-0"></ul>
                 <p class="mt-2 text-sm text-gray-600">Và hỏi giá thêm một loại quả khác mà bạn thích.</p>
                 
                 <div class="script-suggestion mt-6">
@@ -146,15 +174,9 @@
                         <li><strong>Hỏi giá (ví dụ Táo):</strong> <span class="chinese-text">请问苹果一斤多少钱？</span> <span class="pinyin-text">(Qǐngwèn píngguǒ yì jīn duōshao qián?)</span></li>
                         <li><strong>Mặc cả (nếu cần):</strong> <span class="chinese-text">太贵了，便宜一点儿吧！</span> <span class="pinyin-text">(Tài guì le, piányi yìdiǎnr ba!)</span></li>
                         <li><strong>Nói số lượng (ví dụ 2 cân):</strong> <span class="chinese-text">我要两斤。</span> <span class="pinyin-text">(Wǒ yào liǎng jīn.)</span></li>
-                        <li><strong>Hỏi loại khác (ví dụ Cam):</strong> <span class="chinese-text">还要别的吗？橘子怎么卖？</span> <span class="pinyin-text">(Hái yào bié de ma? Júzi zěnme mài?)</span></li>
                         <li><strong>Hỏi tổng tiền:</strong> <span class="chinese-text">一共多少钱？</span> <span class="pinyin-text">(Yígòng duōshao qián?)</span></li>
                         <li><strong>Trả tiền:</strong> <span class="chinese-text">给你钱。</span> <span class="pinyin-text">(Gěi nǐ qián.)</span></li>
                     </ul>
-                </div>
-
-                <div class="suggestion mt-4">
-                    <h3 class="mt-0 text-amber-700">💡 Nhớ nhé:</h3>
-                    <p class="text-gray-700">Sử dụng các mẫu câu: <span class="chinese-text">...一斤多少钱？</span>, <span class="chinese-text">太贵了</span>, <span class="chinese-text">便宜一点吧</span>, <span class="chinese-text">一共多少钱？</span>, <span class="chinese-text">给你钱</span>.</p>
                 </div>
             </div>
 
@@ -164,7 +186,7 @@
                 <h3>📝 Nhiệm vụ của bạn:</h3>
                 <p class="mb-3 text-gray-700">Bạn là chủ cửa hàng hoa quả. Trả lời khách hàng và tính tiền cho họ.</p>
                 <h3>🏷️ Bảng giá của bạn hôm nay <span class="chinese-text">(今日价格单</span> <span class="pinyin-text">jīnrì jiàgé dān</span>):</h3>
-                <ul id="price-list-seller" class="price-list list-none p-0"></ul>
+                <ul id="price-list-seller" class="list-none p-0"></ul>
 
                 <div class="script-suggestion mt-6">
                     <h4>📝 Kịch bản gợi ý cho bạn (Người Bán):</h4>
@@ -172,18 +194,11 @@
                         <li><strong>Chào khách:</strong> <span class="chinese-text">你好！/ 欢迎光临！</span> <span class="pinyin-text">(Nǐ hǎo! / Huānyíng guānglín!)</span></li>
                         <li><strong>Hỏi khách muốn gì:</strong> <span class="chinese-text">你买什么？</span> <span class="pinyin-text">(Nǐ mǎi shénme?)</span></li>
                         <li><strong>Báo giá (ví dụ Táo 3 đồng):</strong> <span class="chinese-text">苹果三块一斤。</span> <span class="pinyin-text">(Píngguǒ sān kuài yì jīn.)</span></li>
-                        <li><strong>Phản hồi khi khách mặc cả (ví dụ đồng ý 2.5 đồng):</strong> <span class="chinese-text">好吧，两块五。</span> <span class="pinyin-text">(Hǎo ba, liǎng kuài wǔ.)</span></li>
                         <li><strong>Hỏi số lượng:</strong> <span class="chinese-text">你要几斤？</span> <span class="pinyin-text">(Nǐ yào jǐ jīn?)</span></li>
-                        <li><strong>Báo giá loại khác (ví dụ Cam 2 đồng):</strong> <span class="chinese-text">橘子两块一斤。</span> <span class="pinyin-text">(Júzi liǎng kuài yì jīn.)</span></li>
                         <li><strong>Tính tổng tiền (ví dụ 16.5 đồng):</strong> <span class="chinese-text">一共十六块五毛。</span> <span class="pinyin-text">(Yígòng shíliù kuài wǔ máo.)</span></li>
-                        <li><strong>Đề nghị làm tròn (nếu có):</strong> <span class="chinese-text">你给十六块吧。</span> <span class="pinyin-text">(Nǐ gěi shíliù kuài ba.)</span></li>
                         <li><strong>Nhận tiền và thối tiền (ví dụ nhận 50, thối 33.5):</strong> <span class="chinese-text">收你五十块，找你三十三块五毛。</span> <span class="pinyin-text">(Shōu nǐ wǔshí kuài, zhǎo nǐ sānshísān kuài wǔ máo.)</span></li>
                          <li><strong>Cảm ơn, tiễn khách:</strong> <span class="chinese-text">谢谢！您慢走！</span> <span class="pinyin-text">(Xièxie! Nín màn zǒu!)</span></li>
                     </ul>
-                </div>
-                 <div class="suggestion mt-4">
-                    <h3 class="mt-0 text-amber-700">💡 Nhớ nhé:</h3>
-                    <p class="text-gray-700">Sử dụng các mẫu câu: <span class="chinese-text">一共...块...毛</span>, <span class="chinese-text">收你...块</span>, <span class="chinese-text">找你...块...毛</span>.</p>
                 </div>
             </div>
             
@@ -200,14 +215,14 @@
 
     <script>
         const allFruitsData = [
-            { name: "Táo", chinese: "苹果", pinyin: "píngguǒ", basePriceMin: 2.5, basePriceMax: 6 },
-            { name: "Cam", chinese: "橘子", pinyin: "júzi", basePriceMin: 2, basePriceMax: 4.5 },
-            { name: "Chuối", chinese: "香蕉", pinyin: "xiāngjiāo", basePriceMin: 3, basePriceMax: 5 },
-            { name: "Dưa hấu", chinese: "西瓜", pinyin: "xīguā", basePriceMin: 1.5, basePriceMax: 3 },
-            { name: "Nho", chinese: "葡萄", pinyin: "pútao", basePriceMin: 6, basePriceMax: 12 },
-            { name: "Xoài", chinese: "芒果", pinyin: "mángguǒ", basePriceMin: 5, basePriceMax: 10 },
-            { name: "Lê", chinese: "梨", pinyin: "lí", basePriceMin: 3, basePriceMax: 5.5 },
-            { name: "Đào", chinese: "桃子", pinyin: "táozi", basePriceMin: 4, basePriceMax: 8 }
+            { name: "Táo", chinese: "苹果", pinyin: "píngguǒ", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoCDBwHdRmovxn9d3GZ14Uwbb7YUK7hFgq1A&s", basePriceMin: 2.5, basePriceMax: 6 },
+            { name: "Quýt", chinese: "橘子", pinyin: "júzi", imageUrl: "https://vcdn1-suckhoe.vnecdn.net/2022/11/17/close-up-fresh-organic-mandari-7704-8534-1668676426.jpg?w=1200&h=0&q=100&dpr=1&fit=crop&s=7xwH-Nb8gPUf1pAZGZ7jyg", basePriceMin: 2, basePriceMax: 4.5 },
+            { name: "Chuối", chinese: "香蕉", pinyin: "xiāngjiāo", imageUrl: "https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2021/10/14/chuoi1-16341869574602070184903.jpg", basePriceMin: 3, basePriceMax: 5 },
+            { name: "Dưa hấu", chinese: "西瓜", pinyin: "xīguā", imageUrl: "https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2022/11/12/dua-hau-16682703712011380946081.jpg", basePriceMin: 1.5, basePriceMax: 3 },
+            { name: "Nho", chinese: "葡萄", pinyin: "pútao", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw33gbpYpsdGtOMdLeYFmPpdX-I-8ku8e8SA&s", basePriceMin: 6, basePriceMax: 12 },
+            { name: "Xoài", chinese: "芒果", pinyin: "mángguǒ", imageUrl: "https://suckhoedoisong.qltns.mediacdn.vn/Images/duylinh/2019/08/15/8-loi-ich-it-biet-cua-xoai1565855128.jpg", basePriceMin: 5, basePriceMax: 10 },
+            { name: "Lê", chinese: "梨", pinyin: "lí", imageUrl: "https://cdn.tgdd.vn/Products/Images/8788/223091/bhx/le-duong-hop-1kg-4-6-trai-202205111941249856.jpg", basePriceMin: 3, basePriceMax: 5.5 },
+            { name: "Đào", chinese: "桃子", pinyin: "táozi", imageUrl: "https://citifruit.com/uploads/images/Products/qua-dao-800x600.jpg", basePriceMin: 4, basePriceMax: 8 }
         ];
 
         const jinQuantitiesData = [
@@ -219,7 +234,7 @@
         ];
 
         const MAX_SCENARIOS = 10;
-        let currentScenarioId = 1; // Default scenario ID
+        let currentScenarioId = 1;
         let selectedRole = null; 
 
         // DOM Elements
@@ -232,8 +247,8 @@
         const shoppingListBuyerContainer = document.getElementById('shopping-list-buyer');
         const priceListSellerContainer = document.getElementById('price-list-seller');
 
-        // Seeded Pseudo-Random Number Generator (Mulberry32)
-        let scenarioPrng; // Will be initialized for each scenario
+        // Seeded Pseudo-Random Number Generator
+        let scenarioPrng;
         function mulberry32(a) {
             return function() {
               var t = a += 0x6D2B79F5;
@@ -243,20 +258,17 @@
             }
         }
 
-        // Helper for seeded random integer
         function getSeededRandomInt(min, max) {
             min = Math.ceil(min);
             max = Math.floor(max);
             return Math.floor(scenarioPrng() * (max - min + 1)) + min;
         }
 
-        // Helper for seeded random element from array
         function getSeededRandomElement(arr) {
             if (!arr || arr.length === 0) return undefined;
             return arr[Math.floor(scenarioPrng() * arr.length)];
         }
         
-        // Generates price using the current scenarioPrng
         function generateSeededRandomPrice(minKuai, maxKuai) {
             const kuai = getSeededRandomInt(Math.floor(minKuai), Math.floor(maxKuai -1 < minKuai ? minKuai : maxKuai -1));
             const mao = getSeededRandomInt(0, 9);
@@ -286,11 +298,9 @@
             return (num >=0 && num <=9) ? pinyinMap[num] : String(num);
         }
 
-        // Generates a specific scenario based on scenarioId (for determinism)
         function generateSpecificScenario(scenarioId) {
-            scenarioPrng = mulberry32(scenarioId * 12345 + 67890); // Seed PRNG for this specific scenario
+            scenarioPrng = mulberry32(scenarioId * 12345 + 67890); 
 
-            // 1. Generate Seller's Price List (marketDayOfferings)
             const marketDayOfferings = [];
             let availableFruitsForThisScenario = [...allFruitsData];
             const numFruitsInMarket = getSeededRandomInt(Math.min(5, availableFruitsForThisScenario.length), Math.min(8, availableFruitsForThisScenario.length));
@@ -299,17 +309,11 @@
                 if (availableFruitsForThisScenario.length === 0) break;
                 const fruitIndex = Math.floor(scenarioPrng() * availableFruitsForThisScenario.length);
                 const fruitData = availableFruitsForThisScenario.splice(fruitIndex, 1)[0];
-                const price = generateSeededRandomPrice(fruitData.basePriceMin, fruitData.basePriceMax); // Uses scenarioPrng
-                marketDayOfferings.push({
-                    name: fruitData.name,
-                    chinese: fruitData.chinese,
-                    pinyin: fruitData.pinyin,
-                    price: price 
-                });
+                const price = generateSeededRandomPrice(fruitData.basePriceMin, fruitData.basePriceMax); 
+                marketDayOfferings.push({ ...fruitData, price: price });
             }
             marketDayOfferings.sort((a, b) => a.name.localeCompare(b.name));
 
-            // 2. Generate Buyer's Shopping List from the marketDayOfferings
             const buyerShoppingListItems = [];
             let fruitsToChooseFromForBuyer = [...marketDayOfferings]; 
             const numItemsToBuy = getSeededRandomInt(Math.min(2, fruitsToChooseFromForBuyer.length), Math.min(3, fruitsToChooseFromForBuyer.length));
@@ -317,14 +321,9 @@
             for (let k = 0; k < numItemsToBuy; k++) {
                 if (fruitsToChooseFromForBuyer.length === 0) break;
                 const itemIndex = Math.floor(scenarioPrng() * fruitsToChooseFromForBuyer.length);
-                const marketItem = fruitsToChooseFromForBuyer.splice(itemIndex, 1)[0]; // Remove to avoid duplicate items in shopping list
-                const quantity = getSeededRandomElement(jinQuantitiesData); // Uses scenarioPrng
-                buyerShoppingListItems.push({
-                    name: marketItem.name,
-                    chinese: marketItem.chinese,
-                    pinyin: marketItem.pinyin,
-                    quantity: quantity 
-                });
+                const marketItem = fruitsToChooseFromForBuyer.splice(itemIndex, 1)[0];
+                const quantity = getSeededRandomElement(jinQuantitiesData); 
+                buyerShoppingListItems.push({ ...marketItem, quantity: quantity });
             }
             return {
                 id: scenarioId,
@@ -338,7 +337,20 @@
             if (!shoppingListItems) return;
             shoppingListItems.forEach(item => {
                 const li = document.createElement('li');
-                li.innerHTML = `<strong>${item.name} (<span class="chinese-text">${item.chinese}</span> <span class="pinyin-text">${item.pinyin}</span>):</strong> ${item.quantity.amount} cân <span class="chinese-text">(${item.quantity.chinese})</span> <span class="pinyin-text">(${item.quantity.pinyin})</span>`;
+                li.className = 'fruit-list-item';
+                li.innerHTML = `
+                    <img src="${item.imageUrl}" alt="${item.chinese}">
+                    <div class="info">
+                        <div class="name">
+                            <span class="chinese-text">${item.chinese}</span> 
+                            <span class="pinyin-text">${item.pinyin}</span>
+                        </div>
+                        <div class="details">
+                            ${item.quantity.amount} cân <span class="chinese-text">(${item.quantity.chinese})</span> 
+                            <span class="pinyin-text">(${item.quantity.pinyin})</span>
+                        </div>
+                    </div>
+                `;
                 shoppingListBuyerContainer.appendChild(li);
             });
         }
@@ -348,8 +360,22 @@
             if (!priceListItems) return;
             priceListItems.forEach(item => {
                 const li = document.createElement('li');
+                li.className = 'fruit-list-item';
                 const priceStringForChinese = item.price.string.replace('块', '块一斤').replace(/(\d)毛$/, '$1毛一斤');
-                li.innerHTML = `<strong>${item.name} (<span class="chinese-text">${item.chinese}</span> <span class="pinyin-text">${item.pinyin}</span>):</strong> ${item.price.string}/cân <span class="chinese-text">(${priceStringForChinese})</span> <span class="pinyin-text">(${item.price.pinyin} yì jīn)</span>`;
+                li.innerHTML = `
+                    <img src="${item.imageUrl}" alt="${item.chinese}">
+                    <div class="info">
+                        <div class="name">
+                            <span class="chinese-text">${item.chinese}</span> 
+                            <span class="pinyin-text">${item.pinyin}</span>
+                        </div>
+                        <div class="details">
+                            ${item.price.string}/cân 
+                            <span class="chinese-text">(${priceStringForChinese})</span> 
+                            <span class="pinyin-text">(${item.price.pinyin} yì jīn)</span>
+                        </div>
+                    </div>
+                `;
                 priceListSellerContainer.appendChild(li);
             });
         }
@@ -365,7 +391,7 @@
         }
 
         function loadScenario(scenarioId) {
-            const scenario = generateSpecificScenario(scenarioId); // Generate deterministically
+            const scenario = generateSpecificScenario(scenarioId);
             if (scenario) {
                 currentScenarioId = scenario.id;
                 currentPhachDisplay.textContent = currentScenarioId;
@@ -386,7 +412,7 @@
             if (role === 'buyer') buyerRoleCard.classList.remove('hidden');
             else if (role === 'seller') sellerRoleCard.classList.remove('hidden');
             
-            loadScenario(currentScenarioId); // Load current or default scenario (e.g., Phach 1)
+            loadScenario(currentScenarioId); 
         }
 
         window.showCharacterSelection = function() {
@@ -401,8 +427,6 @@
             let randomId;
             if (MAX_SCENARIOS <= 1) randomId = 1;
             else {
-                // Use Math.random() for choosing which scenario ID to load next.
-                // The generation of that ID's content will still be deterministic.
                 do { randomId = Math.floor(Math.random() * MAX_SCENARIOS) + 1; } 
                 while (randomId === currentScenarioId && MAX_SCENARIOS > 1);
             }
@@ -428,7 +452,6 @@
         }
         
         function initializeApp() {
-            // No need to pre-generate all scenarios. They are generated on demand.
             showCharacterSelection(); 
         }
         window.onload = initializeApp;
