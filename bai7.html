@@ -16,6 +16,7 @@
             --font-family: 'Arial', sans-serif;
             --cute-pink: #ff69b4;
             --cute-blue: #87ceeb;
+            --info-color: #17a2b8; /* Added for consistency if used */
         }
 
         body {
@@ -163,9 +164,19 @@
             color: white;
             border-radius: 15px;
             cursor: grab;
-            user-select: none;
+            user-select: none; /* Standard */
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE10+/Edge */
+            touch-action: manipulation; /* Improve touch interaction */
+            -webkit-touch-callout: none; /* Disable callout menu on iOS */
         }
         .draggable-word:active { cursor: grabbing; }
+        .draggable-word.dragging {
+            opacity: 0.7;
+            /* Add other visual cues if desired */
+        }
+
 
         /* Dịch câu */
         .translation-item textarea { width: 95%; min-height: 50px; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
@@ -517,6 +528,11 @@
         let secondsElapsed = 0;
         let userAnswers = {};
 
+        // Global variables for touch drag-and-drop
+        let currentDraggingTouchElement = null;
+        let touchEndListenerAdded = false;
+
+
         document.addEventListener('DOMContentLoaded', () => {
             populateHanziMatching();
             populateHanziWriting();
@@ -577,47 +593,13 @@
                 showFinalSummary();
             }
         }
-        function restartGame() {
-            currentSectionIndex = 0;
-            score = 0;
-            secondsElapsed = 0;
-            userAnswers = {};
-            document.getElementById('score-display').textContent = `Điểm: 0`;
-            document.getElementById('timer').textContent = `⏳ Thời gian: 00:00:00`;
-
-            document.querySelectorAll('input[type="text"], textarea, select').forEach(input => {
-                if(input.tagName === 'SELECT') input.selectedIndex = 0;
-                else input.value = '';
-                input.disabled = false;
-                if(input.style.borderColor) input.style.borderColor = '#ccc';
-            });
-            document.querySelectorAll('.feedback').forEach(fb => {fb.textContent = ''; fb.className = 'feedback';});
-            document.querySelectorAll('.correct-hanzi').forEach(ch => ch.textContent = '');
-            document.querySelectorAll('.options button').forEach(btn => { btn.classList.remove('selected'); btn.disabled = false; delete btn.dataset.scored;});
-            
-            sentenceScrambleData.forEach(item => {
-                const bank = document.getElementById(`word-bank-${item.id}`);
-                const dropzone = document.getElementById(`dropzone-${item.id}`);
-                if(dropzone) dropzone.innerHTML = '';
-                if(bank) bank.innerHTML = shuffleArray([...item.words]).map(word => `<div class="draggable-word" draggable="true">${word}</div>`).join('');
-                makeDraggable(item.id);
-                const scrambleButton = document.querySelector(`button[onclick="checkSentenceScramble('${item.id}', \`${item.correctAnswer}\`, this)"]`);
-                if(scrambleButton) scrambleButton.disabled = false;
-            });
-
-             document.querySelectorAll('.action-button, .show-answer-btn').forEach(btn => btn.disabled = false);
-             const hanziMatchingButton = document.querySelector('#hanzi-matching button');
-             if(hanziMatchingButton) hanziMatchingButton.disabled = false;
-             const vocabFillButton = document.querySelector('#vocab-table-fill button');
-             if(vocabFillButton) vocabFillButton.disabled = false;
-             const dialogueButton = document.querySelector('#dialogue-completion button');
-             if(dialogueButton) dialogueButton.disabled = false;
-
-
-            document.getElementById('final-summary').classList.add('hidden');
-            showSection(currentSectionIndex);
-            if (timerInterval) clearInterval(timerInterval);
-            startTimer();
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
 
         function populateHanziMatching() {
@@ -645,13 +627,6 @@
                     <td id="match-feedback-${item.id}" class="feedback"></td>
                 `;
             });
-        }
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
         }
 
         function checkHanziMatching() {
@@ -721,11 +696,13 @@
             if (userInput === hanziWritingData[index].hanzi) {
                 feedbackEl.textContent = '🎉 Giỏi quá!';
                 feedbackEl.className = 'feedback correct';
+                 // updateScore(1); // Optionally score this if desired
             } else if (userInput !== "") {
                 feedbackEl.textContent = '🤔 Thử lại xem sao!';
                 feedbackEl.className = 'feedback incorrect';
             }
             buttonElement.disabled = true;
+            document.getElementById(`hanzi-input-${index}`).disabled = true;
         }
 
         function normalizePinyin(pinyin) {
@@ -826,35 +803,35 @@
         }
         function selectMCQOption(buttonEl, itemId, selectedOption) {
             const itemContainer = document.getElementById(`mcq-item-${itemId}`);
+            const questionData = vocabMcqData.find(q => q.id === itemId);
+            if (!questionData || buttonEl.dataset.scored) return; // Already answered or data missing
+
             itemContainer.querySelectorAll('.options button').forEach(btn => btn.classList.remove('selected'));
             buttonEl.classList.add('selected');
-
-            const questionData = vocabMcqData.find(q => q.id === itemId);
+            
             const feedbackEl = document.getElementById(`mcq-feedback-${itemId}`);
             let isCorrect = false;
+
             if (selectedOption === questionData.answer) {
                 feedbackEl.textContent = '🎉 Tuyệt vời!';
                 feedbackEl.className = 'feedback correct';
+                updateScore(1);
                 isCorrect = true;
             } else {
                 feedbackEl.textContent = `🤔 Chưa đúng rồi. Đáp án là: ${questionData.answer}`;
                 feedbackEl.className = 'feedback incorrect';
             }
-             userAnswers[`vocabMCQ_${itemId}`] = {
+            userAnswers[`vocabMCQ_${itemId}`] = {
                 question: questionData.question,
                 userAnswer: selectedOption,
                 correctAnswer: questionData.answer,
                 isCorrect: isCorrect
             };
-            if(isCorrect && !buttonEl.dataset.scored) {
-                updateScore(1);
-                buttonEl.dataset.scored = true;
-                itemContainer.querySelectorAll('.options button').forEach(btn => {
-                     btn.disabled = true;
-                });
-            } else if (!isCorrect) {
-                 buttonEl.disabled = true;
-            }
+            
+            itemContainer.querySelectorAll('.options button').forEach(btn => {
+                btn.disabled = true;
+                btn.dataset.scored = true; // Mark as scored to prevent re-scoring
+            });
         }
 
         function populateVocabTranslation() {
@@ -907,13 +884,16 @@
             sentenceScrambleData.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'sentence-scramble-item';
+                const bankId = `word-bank-${item.id}`;
+                const dropzoneId = `dropzone-${item.id}`;
+
                 div.innerHTML = `
                     <p><strong>Câu ${index + 1}:</strong> Sắp xếp các từ sau:</p>
-                    <div id="word-bank-${item.id}" class="word-bank">
+                    <div id="${bankId}" class="word-bank">
                         ${shuffleArray([...item.words]).map(word => `<div class="draggable-word" draggable="true">${word}</div>`).join('')}
                     </div>
                     <p>Câu của bạn:</p>
-                    <div id="dropzone-${item.id}" class="sentence-dropzone"></div>
+                    <div id="${dropzoneId}" class="sentence-dropzone"></div>
                     <button onclick="checkSentenceScramble('${item.id}', \`${item.correctAnswer}\`, this)" class="action-button" style="font-size:0.9em; padding: 8px 15px; background-color:var(--cute-pink); margin-top:10px;">Kiểm tra câu ${index + 1}</button>
                     <div id="scramble-feedback-${item.id}" class="feedback"></div>
                 `;
@@ -925,39 +905,86 @@
         function makeDraggable(itemId) {
             const bank = document.getElementById(`word-bank-${itemId}`);
             const dropzone = document.getElementById(`dropzone-${itemId}`);
-            if (!bank || !dropzone) return;
-            const draggables = bank.querySelectorAll('.draggable-word');
+            if (!bank || !dropzone) {
+                return;
+            }
 
-            draggables.forEach(draggable => {
+            const allDraggableWords = Array.from(bank.querySelectorAll('.draggable-word'));
+
+            allDraggableWords.forEach(draggable => {
+                // STANDARD MOUSE DRAG EVENTS
                 draggable.addEventListener('dragstart', () => {
                     draggable.classList.add('dragging');
                 });
+
                 draggable.addEventListener('dragend', () => {
                     draggable.classList.remove('dragging');
                 });
+
+                // TOUCH EVENTS
+                draggable.addEventListener('touchstart', (e) => {
+                    currentDraggingTouchElement = e.target.closest('.draggable-word');
+                    if (!currentDraggingTouchElement) return;
+                    currentDraggingTouchElement.classList.add('dragging');
+                }, { passive: true }); 
             });
 
             [bank, dropzone].forEach(zone => {
+                // MOUSE DRAGOVER
                 zone.addEventListener('dragover', e => {
-                    e.preventDefault();
+                    e.preventDefault(); 
+                    const draggingEl = document.querySelector('.draggable-word.dragging'); 
+                    if (!draggingEl || draggingEl === currentDraggingTouchElement) return; 
+
                     const afterElement = getDragAfterElement(zone, e.clientY);
-                    const dragging = document.querySelector('.dragging');
-                    if (dragging) {
-                        if (afterElement == null) {
-                            zone.appendChild(dragging);
-                        } else {
-                            zone.insertBefore(dragging, afterElement);
-                        }
+                    if (afterElement == null) {
+                        zone.appendChild(draggingEl);
+                    } else {
+                        zone.insertBefore(draggingEl, afterElement);
                     }
                 });
+
+                // TOUCHMOVE
+                zone.addEventListener('touchmove', e => {
+                    if (!currentDraggingTouchElement) return; 
+                    e.preventDefault(); 
+
+                    const touch = e.touches[0];
+                    const afterElement = getDragAfterElement(zone, touch.clientY);
+                    
+                    let alreadyInPlace = false;
+                    if (afterElement) {
+                        if (currentDraggingTouchElement.nextSibling === afterElement) alreadyInPlace = true;
+                    } else {
+                         if (zone.lastChild === currentDraggingTouchElement) alreadyInPlace = true;
+                    }
+
+                    if (!alreadyInPlace) {
+                         if (afterElement == null) {
+                            zone.appendChild(currentDraggingTouchElement);
+                        } else {
+                            zone.insertBefore(currentDraggingTouchElement, afterElement);
+                        }
+                    }
+                }, { passive: false }); 
             });
+
+            if (!touchEndListenerAdded) {
+                document.addEventListener('touchend', (e) => {
+                    if (currentDraggingTouchElement) {
+                        currentDraggingTouchElement.classList.remove('dragging');
+                        currentDraggingTouchElement = null;
+                    }
+                });
+                touchEndListenerAdded = true;
+            }
         }
 
         function getDragAfterElement(container, y) {
             const draggableElements = [...container.querySelectorAll('.draggable-word:not(.dragging)')];
             return draggableElements.reduce((closest, child) => {
                 const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
+                const offset = y - box.top - box.height / 2; 
                 if (offset < 0 && offset > closest.offset) {
                     return { offset: offset, element: child };
                 } else {
@@ -965,6 +992,7 @@
                 }
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
+
 
         function checkSentenceScramble(itemId, correctAnswer, buttonElement) {
             const dropzone = document.getElementById(`dropzone-${itemId}`);
@@ -981,13 +1009,15 @@
                 feedbackEl.textContent = `🤔 Chưa đúng lắm. Đáp án: ${correctAnswer}`;
                 feedbackEl.className = 'feedback incorrect';
             }
-            dropzone.querySelectorAll('.draggable-word').forEach(w => w.setAttribute('draggable', 'false'));
-             const bank = document.getElementById(`word-bank-${itemId}`);
-             if(bank) bank.querySelectorAll('.draggable-word').forEach(w => w.setAttribute('draggable', 'false'));
+            
+            const allWordsInItem = document.querySelectorAll(`#word-bank-${itemId} .draggable-word, #dropzone-${itemId} .draggable-word`);
+            allWordsInItem.forEach(w => {
+                w.setAttribute('draggable', 'false');
+            });
             buttonElement.disabled = true;
 
             userAnswers[`sentenceScramble_${itemId}`] = {
-                prompt: "Sắp xếp từ",
+                prompt: `Sắp xếp câu ${itemId}`,
                 userAnswer: wordsInDropzone,
                 correctAnswer: correctAnswer,
                 isCorrect: isCorrect
@@ -1025,7 +1055,7 @@
                 feedbackEl.className = 'feedback incorrect';
             }
             textarea.disabled = true;
-            buttonElement.disabled = true; // Directly disable the passed button element
+            buttonElement.disabled = true;
              userAnswers[`sentenceTrans_${index}`] = {
                 prompt: sentenceTranslationData[index].viet,
                 userAnswer: userAnswer,
@@ -1274,7 +1304,6 @@
             });
 
             tonePracticeData.forEach(item => {
-                 // FIXED: Check for userAnswers[`tonePractice_${item.id}`] instead of itemId
                 if (userAnswers[`tonePractice_${item.id}`]) {
                     const ans = userAnswers[`tonePractice_${item.id}`];
                     const li = document.createElement('li');
@@ -1307,6 +1336,53 @@
 
             document.getElementById('final-summary').classList.remove('hidden');
             window.scrollTo(0, document.getElementById('final-summary').offsetTop - 20);
+        }
+
+        function restartGame() {
+            currentSectionIndex = 0;
+            score = 0;
+            secondsElapsed = 0;
+            userAnswers = {};
+            document.getElementById('score-display').textContent = `Điểm: 0`;
+            document.getElementById('timer').textContent = `⏳ Thời gian: 00:00:00`;
+
+            document.querySelectorAll('input[type="text"], textarea, select').forEach(input => {
+                if(input.tagName === 'SELECT') input.selectedIndex = 0;
+                else input.value = '';
+                input.disabled = false;
+                if(input.style.borderColor) input.style.borderColor = '#ccc';
+            });
+            document.querySelectorAll('.feedback').forEach(fb => {fb.textContent = ''; fb.className = 'feedback';});
+            document.querySelectorAll('.correct-hanzi').forEach(ch => ch.textContent = '');
+            document.querySelectorAll('.options button').forEach(btn => { btn.classList.remove('selected'); btn.disabled = false; delete btn.dataset.scored;});
+            
+            sentenceScrambleData.forEach(item => {
+                const bank = document.getElementById(`word-bank-${item.id}`);
+                const dropzone = document.getElementById(`dropzone-${item.id}`);
+                if(dropzone) dropzone.innerHTML = '';
+                if(bank) {
+                    bank.innerHTML = shuffleArray([...item.words])
+                                     .map(word => `<div class="draggable-word" draggable="true">${word}</div>`)
+                                     .join('');
+                }
+                makeDraggable(item.id); 
+                const scrambleButton = document.querySelector(`button[onclick="checkSentenceScramble('${item.id}', \`${item.correctAnswer}\`, this)"]`);
+                if(scrambleButton) scrambleButton.disabled = false;
+            });
+
+             document.querySelectorAll('.action-button, .show-answer-btn').forEach(btn => btn.disabled = false);
+             const hanziMatchingButton = document.querySelector('#hanzi-matching button');
+             if(hanziMatchingButton) hanziMatchingButton.disabled = false;
+             const vocabFillButton = document.querySelector('#vocab-table-fill button');
+             if(vocabFillButton) vocabFillButton.disabled = false;
+             const dialogueButton = document.querySelector('#dialogue-completion button');
+             if(dialogueButton) dialogueButton.disabled = false;
+
+
+            document.getElementById('final-summary').classList.add('hidden');
+            showSection(currentSectionIndex);
+            if (timerInterval) clearInterval(timerInterval);
+            startTimer();
         }
 
     </script>
