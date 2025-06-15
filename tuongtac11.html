@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoạt động Tương tác: Giới thiệu Bản thân & Bạn bè</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #e67e22; /* Carrot Orange */
+            --secondary-color: #3498db; /* Peter River Blue */
+            --viet-color: #27ae60; /* Green for Vietnamese meaning */
+            --bg-color: #f5f7fa;
+            --text-dark: #2c3e50;
+            --text-light: #95a5a6;
+            --border-color: #dfe4ea;
+            --font-chinese: 'Noto Sans SC', sans-serif;
+            --font-vietnamese: 'Be Vietnam Pro', sans-serif;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: var(--font-vietnamese); background-color: var(--bg-color); padding: 30px; color: var(--text-dark); }
+        .main-container { max-width: 1200px; margin: auto; }
+        .activity-section { background-color: #ffffff; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); margin-bottom: 40px; }
+        .section-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 30px; flex-wrap: wrap; gap: 10px;}
+        .header-title h1 { font-family: var(--font-chinese); color: var(--primary-color); margin: 0; font-size: 2.2em; }
+        .pinyin { display: none; font-size: 0.8em; font-weight: 400; color: var(--text-light); margin-left: 10px; font-style: italic; }
+        .viet-meaning { display: none; font-size: 0.8em; font-weight: 600; color: var(--viet-color); margin-left: 8px; font-style: normal; }
+        .pinyin-visible .pinyin { display: inline-block; }
+        .viet-visible .viet-meaning { display: inline-block; }
+        .pinyin-visible .pinyin-block { display: block; }
+        
+        .controls { display: flex; align-items: center; gap: 20px; }
+        .control-group { display: flex; align-items: center; gap: 8px;}
+        .control-group span { font-weight: 600; font-size: 1.1em; }
+        .pinyin-toggle { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .pinyin-toggle input { display: none; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input.viet-switch:checked + .slider { background-color: var(--viet-color); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* --- Activity 1: Self-Intro Builder --- */
+        .intro-builder-layout { display: flex; gap: 30px; }
+        .input-panel { flex: 1; }
+        .preview-panel { flex: 1; background-color: var(--bg-color); padding: 20px; border-radius: 12px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-family: var(--font-chinese); font-size: 1.3em; font-weight: 500; margin-bottom: 8px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; font-size: 1.1em; border: 1px solid var(--border-color); border-radius: 8px; font-family: var(--font-vietnamese); }
+        .view-toggle { text-align: center; margin-bottom: 20px; }
+        .toggle-btn { background: #fff; border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+        .toggle-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        #sentence-preview { font-size: 1.2em; line-height: 1.8; }
+        #sentence-preview .placeholder { font-weight: 700; color: var(--primary-color); font-size: 1.1em; }
+        #keyword-preview { display: none; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .keyword-card { background: white; border-radius: 10px; padding: 15px; border: 1px solid var(--border-color); text-align: center; }
+        .keyword-card i { font-size: 1.8em; margin-bottom: 10px; }
+        .keyword-card .title { font-family: var(--font-chinese); font-weight: 600; font-size: 1.1em; color: var(--text-light) }
+        .keyword-card .value { font-family: var(--font-chinese); font-weight: 700; font-size: 1.5em; color: var(--text-dark); line-height: 1.2; word-break: break-word;}
+        
+        /* --- Activity 2: Introduce a Friend Game --- */
+        #role-selection-screen, .game-view { text-align: center; }
+        .role-btn {
+            background-color: var(--secondary-color); color: white; border: none; padding: 20px 40px;
+            font-size: 1.5em; font-weight: 600; border-radius: 12px; cursor: pointer; transition: all 0.3s; margin: 10px;
+        }
+        .role-btn:hover { transform: scale(1.05); }
+        .role-a-view-content, .role-b-view-content { display: flex; gap: 30px; text-align: left; }
+        .role-a-view-content > div, .role-b-view-content > div { flex: 1; }
+        .questions-notes h4, .friend-profile h4 { font-size: 1.3em; color: var(--secondary-color); border-bottom: 2px solid var(--secondary-color); padding-bottom: 10px; margin-top: 0;}
+        #notes-area { width: 100%; height: 200px; font-size: 1.1em; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .characters-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .character-card { border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s; position: relative; background: #000; }
+        .character-card img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.9; }
+        .character-card:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(0,0,0,0.3); }
+        .character-card.selected { border: 4px solid var(--secondary-color); box-shadow: 0 0 15px var(--secondary-color); }
+        .card-caption {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white; padding: 20px 10px 10px 10px; text-align: center;
+        }
+        .card-caption .name { font-family: var(--font-chinese); font-weight: 600; font-size: 1.2em; display: block; }
+        .card-caption .flag { font-size: 1.5em; }
+
+        .friend-profile-card { background: var(--bg-color); padding: 20px; border-radius: 12px; text-align: left;}
+        #friend-image { width: 100%; max-width: 200px; border-radius: 8px; margin-bottom: 15px; display: none; margin-left: auto; margin-right: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2)}
+        #friend-text-info p { font-size: 1.2em; margin-bottom: 10px; line-height: 1.8;}
+        #friend-translation {
+            display: none; margin-top: 15px; padding-top: 15px;
+            border-top: 2px dashed var(--border-color); font-style: italic;
+            color: var(--viet-color); font-size: 1.1em;
+        }
+        .viet-visible #friend-translation { display: block; }
+        .back-btn { margin-top: 20px; cursor: pointer; color: var(--primary-color); font-weight: 600; }
+
+        @media (max-width: 900px) {
+            .intro-builder-layout, .role-a-view-content, .role-b-view-content { flex-direction: column; }
+        }
+    </style>
+</head>
+<body id="main-body">
+
+    <div class="main-container">
+        <div class="activity-section">
+            <header class="section-header">
+                <div class="header-title"><h1>活动一：自我介绍<span class="pinyin pinyin-block">Huódòng Yī: Zìwǒ Jièshào</span></h1></div>
+                 <div class="controls">
+                    <div class="control-group">
+                        <span>Pinyin</span>
+                        <label class="pinyin-toggle"><input type="checkbox" class="pinyin-switch"><span class="slider"></span></label>
+                    </div>
+                </div>
+            </header>
+            <div class="intro-builder-layout">
+                <div class="input-panel">
+                    <div class="form-group"><label for="nameInput">姓名<span class="pinyin">(xìngmíng)</span></label><input type="text" id="nameInput" placeholder="Ví dụ: 段登科"></div>
+                    <div class="form-group"><label for="nationalityInput">国籍<span class="pinyin">(guójí)</span></label><input type="text" id="nationalityInput" placeholder="Ví dụ: 越南人"></div>
+                    <div class="form-group"><label for="ageInput">年龄<span class="pinyin">(niánlíng)</span></label><input type="number" id="ageInput" placeholder="Ví dụ: 23"></div>
+                    <div class="form-group"><label for="occupationInput">职业<span class="pinyin">(zhíyè)</span></label><input type="text" id="occupationInput" placeholder="Ví dụ: 研究生"></div>
+                    <div class="form-group"><label for="residenceInput">家乡<span class="pinyin">(jiāxiāng)</span></label><input type="text" id="residenceInput" placeholder="Ví dụ: 越南胡志明市"></div>
+                    <div class="form-group"><label for="maritalInput">婚姻状况<span class="pinyin">(hūnyīn zhuàngkuàng)</span></label><select id="maritalInput"><option value="还没结婚">还没结婚</option><option value="结婚了">结婚了</option></select></div>
+                    <div class="form-group"><label for="hobbyInput">爱好<span class="pinyin">(àihào)</span></label><input type="text" id="hobbyInput" placeholder="Ví dụ: 喝奶茶"></div>
+                </div>
+                <div class="preview-panel">
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" data-view="sentence">Xem cả câu</button>
+                        <button class="toggle-btn" data-view="keyword">Xem keyword</button>
+                    </div>
+                    <div id="sentence-preview"><p>大家好！我来介绍一下儿。</p><p>我叫 <span id="namePreview" class="placeholder">...</span>。</p><p>我是 <span id="nationalityPreview" class="placeholder">...</span>。</p><p>我今年 <span id="agePreview" class="placeholder">...</span> 岁。</p><p>我是 <span id="occupationPreview" class="placeholder">...</span>。</p><p>我的家乡是 <span id="residencePreview" class="placeholder">...</span>。</p><p>我 <span id="maritalPreview" class="placeholder">...</span>。</p><p>我的爱好是 <span id="hobbyPreview" class="placeholder">...</span>。</p><p>认识大家我很高兴，谢谢大家！</p></div>
+                    <div id="keyword-preview"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="activity-section">
+             <header class="section-header">
+                <div class="header-title"><h1>活动二：介绍朋友<span class="pinyin pinyin-block">Huódòng Èr: Jièshào Péngyou</span></h1></div>
+                <div class="controls">
+                    <div class="control-group">
+                        <span>Nghĩa</span>
+                        <label class="pinyin-toggle"><input type="checkbox" class="viet-switch"><span class="slider viet-switch"></span></label>
+                    </div>
+                    <div class="control-group">
+                        <span>Pinyin</span>
+                        <label class="pinyin-toggle"><input type="checkbox" class="pinyin-switch"><span class="slider"></span></label>
+                    </div>
+                </div>
+            </header>
+            <div id="activity2-content">
+                <div id="role-selection-screen">
+                    <h3>请选择你的角色 (Mời bạn chọn vai)</h3>
+                    <button class="role-btn" id="choose-role-a">选择 角色 A (Người Nghe)</button>
+                    <button class="role-btn" id="choose-role-b">选择 角色 B (Người Giới thiệu)</button>
+                </div>
+                <div id="role-a-view" class="game-view" style="display:none;">
+                     <div class="role-a-view-content">
+                        <div class="questions-notes">
+                            <h4><i class="fas fa-question-circle"></i> Gợi ý câu hỏi & Ghi chú</h4>
+                            <ul><li>他/她叫什么名字？</li><li>他/她是哪国人？</li><li>他/她多大？</li><li>他/她做什么工作？</li><li>他/她结婚了吗？</li><li>他/她有什么爱好？</li></ul>
+                            <textarea id="notes-area" placeholder="Ghi chú thông tin bạn nghe được vào đây..."></textarea>
+                        </div>
+                        <div class="characters-gallery">
+                            <h4><i class="fas fa-users"></i> Đây là ai? Hãy chọn đúng!</h4>
+                            <div class="characters-panel" id="characters-panel-a"></div>
+                        </div>
+                     </div>
+                     <div class="back-btn" id="back-to-selection-a"><i class="fas fa-arrow-left"></i> Quay lại chọn vai</div>
+                </div>
+                <div id="role-b-view" class="game-view" style="display:none;">
+                    <div class="role-b-view-content">
+                        <div class="friend-profile">
+                            <h4><i class="fas fa-user-circle"></i> Thông tin bạn của bạn</h4>
+                            <button id="get-friend-btn" class="role-btn" style="width:100%; margin-bottom: 20px;">Nhận thông tin bạn bè</button>
+                            <div id="friend-profile-card" class="friend-profile-card">
+                                <img id="friend-image" src="" alt="Hình ảnh người bạn">
+                                <div id="friend-text-info">
+                                    <p class="chinese-info"></p>
+                                    <p class="pinyin pinyin-info"></p>
+                                </div>
+                                <div id="friend-translation"></div>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="back-btn" id="back-to-selection-b"><i class="fas fa-arrow-left"></i> Quay lại chọn vai</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const mainBody = document.getElementById('main-body');
+    const pinyinSwitches = document.querySelectorAll('.pinyin-switch');
+    const vietSwitches = document.querySelectorAll('.viet-switch');
+
+    function syncSwitches(switches, className) {
+        switches.forEach(sw => {
+            sw.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                mainBody.classList.toggle(className, isChecked);
+                switches.forEach(otherSw => {
+                    if (otherSw !== e.target) otherSw.checked = isChecked;
+                });
+            });
+        });
+    }
+    syncSwitches(pinyinSwitches, 'pinyin-visible');
+    syncSwitches(vietSwitches, 'viet-visible');
+
+    // --- Activity 1 Logic ---
+    const inputs = { name: 'nameInput', nationality: 'nationalityInput', age: 'ageInput', occupation: 'occupationInput', residence: 'residenceInput', marital: 'maritalInput', hobby: 'hobbyInput' };
+    const previews = { name: 'namePreview', nationality: 'nationalityPreview', age: 'agePreview', occupation: 'occupationPreview', residence: 'residencePreview', marital: 'maritalPreview', hobby: 'hobbyPreview' };
+    const keywordPreview = document.getElementById('keyword-preview');
+    const sentencePreview = document.getElementById('sentence-preview');
+    const viewToggleButtons = document.querySelectorAll('.toggle-btn');
+    const keywordData = { name: { title: "姓名", icon: "fa-user" }, nationality: { title: "国籍", icon: "fa-flag" }, age: { title: "年龄", icon: "fa-birthday-cake" }, occupation: { title: "职业", icon: "fa-briefcase" }, residence: { title: "家乡", icon: "fa-home" }, marital: { title: "婚姻状况", icon: "fa-heart" }, hobby: { title: "爱好", icon: "fa-star" }};
+
+    function updatePreviews() {
+        let keywordHTML = '';
+        for (const key in inputs) {
+            const inputElement = document.getElementById(inputs[key]);
+            const previewElement = document.getElementById(previews[key]);
+            const value = inputElement.value.trim() || '...';
+            
+            previewElement.textContent = value;
+            if (key === 'age' && value !== '...') previewElement.textContent += ' 岁';
+            
+            const keyword = keywordData[key];
+            keywordHTML += `<div class="keyword-card"><i class="fas ${keyword.icon}" style="color:${getHashColor(keyword.title)}"></i><div class="title">${keyword.title}</div><div class="value">${value}</div></div>`;
+        }
+        keywordPreview.innerHTML = keywordHTML;
+    }
+
+    Object.values(inputs).forEach(id => { document.getElementById(id).addEventListener('input', updatePreviews); });
+    viewToggleButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewToggleButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const view = btn.dataset.view;
+            sentencePreview.style.display = view === 'sentence' ? 'block' : 'none';
+            keywordPreview.style.display = view === 'keyword' ? 'grid' : 'none';
+        });
+    });
+    function getHashColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
+        const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+        return "#" + "00000".substring(0, 6 - c.length) + c;
+    }
+    updatePreviews();
+
+    // --- Activity 2 Logic ---
+    const roleSelectionScreen = document.getElementById('role-selection-screen');
+    const chooseRoleA = document.getElementById('choose-role-a');
+    const chooseRoleB = document.getElementById('choose-role-b');
+    const roleAView = document.getElementById('role-a-view');
+    const roleBView = document.getElementById('role-b-view');
+    const backBtns = [document.getElementById('back-to-selection-a'), document.getElementById('back-to-selection-b')];
+    const getFriendBtn = document.getElementById('get-friend-btn');
+    const friendImage = document.getElementById('friend-image');
+    const friendTextInfo = document.getElementById('friend-text-info');
+    const friendTranslation = document.getElementById('friend-translation');
+    const charactersPanelA = document.getElementById('characters-panel-a');
+    
+    const vocabDictionary = {
+        '老师': { pinyin: 'lǎoshī', viet: '(giáo viên)' }, '研究生': { pinyin: 'yánjiūshēng', viet: '(SV cao học)' },
+        '工程师': { pinyin: 'gōngchéngshī', viet: '(kỹ sư)' }, '歌手': { pinyin: 'gēshǒu', viet: '(ca sĩ)' },
+        '设计师': { pinyin: 'shèjìshī', viet: '(nhà thiết kế)' }, '结婚了': { pinyin: 'jiéhūn le', viet: '(đã kết hôn)' },
+        '还没结婚': { pinyin: 'hái méi jiéhūn', viet: '(chưa kết hôn)' }, '有女朋友了': { pinyin: 'yǒu nǚpéngyou le', viet: '(có bạn gái rồi)' },
+        '看书': { pinyin: 'kàn shū', viet: '(đọc sách)' }, '看电影': { pinyin: 'kàn diànyǐng', viet: '(xem phim)' },
+        '踢足球': { pinyin: 'tī zúqiú', viet: '(đá bóng)' }, '喝奶茶': { pinyin: 'hē nǎichá', viet: '(uống trà sữa)' },
+        '画画': { pinyin: 'huàhuà', viet: '(vẽ tranh)' }
+    };
+    
+    const characters = [
+        { id: 1, name: '大卫', namePinyin: 'Dàwèi', flag: '🇺🇸', gender: '他', info: `来自美国纽约，今年四十五岁，是一名老师。他结婚了，家有三个人。他的爱好是看书。`, infoPinyin: `Láizì Měiguó Niǔyuē, jīnnián sìshíwǔ suì, shì yī míng lǎoshī. Tā jiéhūn le, jiā yǒu sān ge rén. Tā de àihào shì kàn shū.`, vietInfo: `Anh ấy đến từ New York, Mỹ, năm nay 45 tuổi, là một giáo viên. Anh ấy đã kết hôn, nhà có 3 người. Sở thích của anh ấy là đọc sách.`, img: 'https://usahello.org/wp-content/uploads/2019/09/man-with-US-flag-hand-raised-for-pledge.jpg' },
+        { id: 2, name: '李静', namePinyin: 'Lǐ Jìng', flag: '🇨🇳', gender: '她', info: `来自中国上海，今年二十三岁，是一名研究生。她还没结婚，一个人在北京住。她的爱好是看电影。`, infoPinyin: `láizì Zhōngguó Shànghǎi, jīnnián èrshísān suì, shì yī míng yánjiūshēng. Tā hái méi jiéhūn, yī ge rén zài Běijīng zhù. Tā de àihào shì kàn diànyǐng.`, vietInfo: `Cô ấy đến từ Thượng Hải, Trung Quốc, năm nay 23 tuổi, là một sinh viên cao học. Cô ấy chưa kết hôn, sống một mình ở Bắc Kinh. Sở thích của cô ấy là xem phim.`, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXY5YfVfTsYIWdNgK1WpgYk5YtphHSeNMDrw&s' },
+        { id: 3, name: '阿明', namePinyin: 'Ā Míng', flag: '🇻🇳', gender: '他', info: `来自越南河内，今年二十五岁，是一名工程师。他有女朋友了，还没结婚。他跟家人一起住。他的爱好是踢足球。`, infoPinyin: `láizì Yuènán Hénèi, jīnnián èrshíwǔ suì, shì yī míng gōngchéngshī. Tā yǒu nǚpéngyou le, hái méi jiéhūn. Tā gēn jiārén yīqǐ zhù. Tā de àihào shì tī zúqiú.`, vietInfo: `Anh ấy đến từ Hà Nội, Việt Nam, năm nay 25 tuổi, là một kỹ sư. Anh ấy có bạn gái rồi, chưa kết hôn. Anh ấy sống cùng gia đình. Sở thích của anh ấy là đá bóng.`, img: 'https://cdnphoto.dantri.com.vn/VI_KREb9ciN0Mni30y-GLF7xNIE=/thumb_w/1155/2022/01/31/bon-nguoi-viet-tao-dau-an-quoc-te-nam-quadocx-1643601656657.jpeg' },
+        { id: 4, name: '金书妍', namePinyin: 'Jīn Shūyán', flag: '🇰🇷', gender: '她', info: `来自韩国首尔，今年二十二岁，是一名歌手。她还没结婚。她最大的爱好是喝奶茶。`, infoPinyin: `láizì Hánguó Shǒuěr, jīnnián èrshíèr suì, shì yī míng gēshǒu. Tā hái méi jiéhūn. Tā zuì dà de àihào shì hē nǎichá.`, vietInfo: `Cô ấy đến từ Seoul, Hàn Quốc, năm nay 22 tuổi, là một ca sĩ. Cô ấy chưa kết hôn. Sở thích lớn nhất của cô ấy là uống trà sữa.`, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTci6pe92Mi_bxcxMuG3-mj8DTIYArS1uSwlg&s' },
+        { id: 5, name: '中村美咲', namePinyin: 'Zhōngcūn Měixiào', flag: '🇯🇵', gender: '她', info: `来自日本东京，今年二十六岁，是一名设计师。她结婚了，一个人住。她的爱好是画画。`, infoPinyin: `láizì Rìběn Dōngjīng, jīnnián èrshíliù suì, shì yī míng shèjìshī. Tā jiéhūn le, yī ge rén zhù. Tā de àihào shì huàhuà.`, vietInfo: `Cô ấy đến từ Tokyo, Nhật Bản, năm nay 26 tuổi, là một nhà thiết kế. Cô ấy đã kết hôn, sống một mình. Sở thích của cô ấy là vẽ tranh.`, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlNeuTbaH8H4Q_JzMcEFlGrE8VlUXbwYLI2Q&s' }
+    ];
+
+    function showScreen(screen) {
+        roleSelectionScreen.style.display = screen === 'selection' ? 'block' : 'none';
+        roleAView.style.display = screen === 'A' ? 'block' : 'none';
+        roleBView.style.display = screen === 'B' ? 'block' : 'none';
+    }
+
+    chooseRoleA.addEventListener('click', () => showScreen('A'));
+    chooseRoleB.addEventListener('click', () => showScreen('B'));
+    backBtns.forEach(btn => btn.addEventListener('click', () => showScreen('selection')));
+
+    getFriendBtn.addEventListener('click', () => {
+        const randomFriend = characters[Math.floor(Math.random() * characters.length)];
+        let processedInfo = randomFriend.info;
+        for (const [hanzi, data] of Object.entries(vocabDictionary)) {
+            const replacement = `<span class="vocab-term">${hanzi}<span class="viet-meaning">${data.viet}</span></span>`;
+            processedInfo = processedInfo.replaceAll(hanzi, replacement);
+        }
+        
+        friendImage.src = randomFriend.img;
+        friendImage.style.display = 'block';
+        friendTextInfo.querySelector('.chinese-info').innerHTML = `<p>这是你的朋友，<strong>${randomFriend.name}<span class="pinyin">(${randomFriend.namePinyin})</span></strong>。</p><p>${randomFriend.gender} ${processedInfo}</p>`;
+        friendTextInfo.querySelector('.pinyin-info').textContent = `(${randomFriend.infoPinyin})`;
+        friendTranslation.innerHTML = `<p><i>(Dịch nghĩa: ${randomFriend.vietInfo})</i></p>`;
+    });
+    
+    charactersPanelA.innerHTML = ''; // Clear previous panel
+    characters.forEach(char => {
+        const card = document.createElement('div');
+        card.className = 'character-card';
+        card.innerHTML = `<img src="${char.img}" alt="${char.name}"><div class="card-caption"><span class="flag">${char.flag}</span><span class="name">${char.name}<span class="pinyin pinyin-block">(${char.namePinyin})</span></span></div>`;
+        card.addEventListener('click', () => {
+             charactersPanelA.querySelectorAll('.character-card').forEach(c => c.classList.remove('selected'));
+             card.classList.add('selected');
+        });
+        charactersPanelA.appendChild(card);
+    });
+});
+</script>
+</body>
+</html>
