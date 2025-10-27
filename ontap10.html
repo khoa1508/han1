@@ -3,613 +3,1171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trò Chơi Đoán Từ</title>
+    <title>Game: Tìm Địa Chỉ - Bài 10</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #f39c12; /* Orange */
+            --secondary-color: #3498db; /* Peter River */
+            --accent-color: #e74c3c; /* Alizarin */
+            --bg-color: #ecf0f1; /* Clouds */
+            --text-color: #34495e; /* Wet Asphalt */
+            --light-text-color: #fff;
+            --correct-color: #2ecc71; /* Emerald */
+            --incorrect-color: #e74c3c; /* Alizarin */
+            --font-family: 'Baloo 2', cursive;
+        }
+
+        /* --- General Styles --- */
         body {
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            background-color: #f0f8ff;
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            overflow-x: hidden;
         }
+
         .game-container {
+            width: 100%;
             max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            min-height: 95vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s ease;
         }
-        .header {
+
+        /* --- Screens --- */
+        .screen {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- Start Screen --- */
+        #start-screen h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        #start-screen p {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .start-btn {
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            color: var(--light-text-color);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Game Screen --- */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px 0;
             margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
         }
-        .score-display {
-            font-size: 20px;
-            margin: 15px 0;
-            font-weight: bold;
-            color: #2e8b57;
+        .game-header-item {
+            background: #fef9e7; /* Light yellow */
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 700;
         }
-        .hint {
-            font-size: 20px;
-            margin: 15px 0;
-            color: #555;
-            font-style: italic;
-            font-weight: bold;
+        #timer { color: var(--accent-color); }
+        #score { color: var(--primary-color); }
+
+        .pinyin-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
         }
-        .hangman-figure {
-            width: 250px;
-            height: 250px;
-            margin: 20px auto;
+        .pinyin-toggle-label { margin-right: 8px; font-weight: 700; }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
         }
-        .word-display {
-            font-size: 28px;
-            letter-spacing: 12px;
-            margin: 25px 0;
-            color: #333;
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
         }
-        .pinyin-display {
-            font-size: 22px;
-            letter-spacing: 8px;
-            margin: 15px 0;
-            color: #333;
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px; width: 20px;
+            left: 4px; bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
         }
-        .guessed-letters {
-            margin: 15px 0;
-            font-size: 16px;
+        input:checked + .slider { background-color: var(--secondary-color); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        #question-container {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-        .input-section {
-            margin: 25px 0;
+        
+        .level-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .question-text {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+        .number-question {
+             font-family: 'Courier New', Courier, monospace;
+             font-size: 3rem;
+             letter-spacing: 5px;
+        }
+        .paragraph-question {
+            font-size: 1.2rem;
+            max-width: 90%;
+            line-height: 1.6;
+        }
+
+
+        .question-pinyin {
+            font-size: 1.5rem;
+            color: #888;
+            margin-bottom: 25px;
+            height: 2rem; /* Reserve space to prevent layout shift */
+            transition: opacity 0.3s;
+        }
+        .pinyin-hidden .question-pinyin { opacity: 0; }
+
+        .question-translation {
+             font-size: 1rem;
+             color: #666;
+             margin-bottom: 25px;
+        }
+
+        #options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+        }
+        .option-btn {
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .option-btn:hover {
+            border-color: var(--primary-color);
+            background-color: var(--bg-color);
+        }
+        .option-btn.correct { background-color: var(--correct-color); color: white; border-color: var(--correct-color); }
+        .option-btn.incorrect { background-color: var(--incorrect-color); color: white; border-color: var(--incorrect-color); }
+        
+        #text-input {
+            padding: 15px;
+            font-size: 1.2rem;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+            width: 100%;
+            max-width: 470px;
+            box-sizing: border-box;
+            text-align: center;
+            font-family: var(--font-family);
+        }
+        #text-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        #scramble-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
-        }
-        input {
-            padding: 10px;
-            font-size: 17px;
-            text-align: center;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .message {
-            margin: 20px 0;
-            font-size: 20px;
-            font-weight: bold;
-            min-height: 30px;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background-color: #e0e0e0;
-            border-radius: 10px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        .progress {
-            height: 100%;
-            background-color: #4CAF50;
-            width: 0%;
-            transition: width 0.5s;
-        }
-        .progress-text {
-            margin: 5px 0;
-            font-size: 16px;
-        }
-        .instruction {
-            margin: 10px 0;
-            font-size: 16px;
-            color: #666;
-        }
-        .intro-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            display: block;
-        }
-        .intro-content {
-            text-align: left;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            min-height: 50px;
             margin-bottom: 20px;
-            line-height: 1.6;
         }
-        .hidden {
-            display: none;
+        .scramble-word {
+            padding: 10px 15px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
         }
-        .difficulty-selection {
+        .scramble-word.dragging { opacity: 0.5; }
+
+        .feedback {
+            font-size: 1.2rem;
+            font-weight: bold;
+            height: auto;
+            min-height: 30px;
+            margin-top: 15px;
+        }
+
+        .game-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .footer-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        #hint-btn { background-color: var(--accent-color); color: white; }
+        #hint-box {
+            background: #fef9e7;
+            border: 1px solid var(--accent-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            width: 90%;
+            max-width: 500px;
+            font-style: italic;
+        }
+        #skip-btn { background-color: #95a5a6; color: white; }
+        #submit-btn { background-color: var(--primary-color); color: white; font-size: 1.2rem; padding: 12px 30px; }
+        #submit-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* --- Summary Screen --- */
+        #summary-screen h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+        }
+        #summary-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+            font-size: 1.2rem;
+        }
+        .summary-item {
+            background: #fef9e7;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .summary-item .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        #badge-container {
             margin: 20px 0;
         }
-        .hint-label {
-            font-weight: bold;
-            color: red;
-            font-size: 20px;
+        #badge-display {
+            font-size: 5rem;
         }
-        #hangman-figure svg {
-            stroke: #000;
-            stroke-width: 4;
+        #badge-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
         }
-        .difficulty-note {
-            font-weight: bold;
-            color: red;
-            margin: 10px 0;
+        #mistakes-log {
+            text-align: left;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
         }
-        .word-display-label {
-            font-weight: bold;
-            color: #555;
-            margin: 5px 0;
+        #mistakes-log h3 { text-align: center; }
+        .mistake-item {
+            background: #fadbd8;
+            border: 1px solid var(--incorrect-color);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
         }
-        .pinyin-display-label {
-            font-weight: bold;
-            color: #555;
-            margin: 5px 0;
+        .sample-answer {
+            background: #e8f8f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid var(--correct-color);
+        }
+        #restart-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+        }
+        
+        /* --- Responsive Design --- */
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 15px;
+                min-height: 98vh;
+            }
+            .question-text { font-size: 2rem; }
+            .question-pinyin { font-size: 1.2rem; }
+            .game-header { flex-direction: column; gap: 10px; }
+            #options-container { grid-template-columns: 1fr; }
+            .option-btn { height: auto; min-height: 50px; }
         }
     </style>
 </head>
 <body>
-    <div class="intro-container" id="introContainer">
-        <h1>TRÒ CHƠI ĐOÁN TỪ</h1>
-        <div class="intro-content">
-            <p><strong>Trò chơi Hangman</strong>, hay còn gọi là "người treo cổ", là một trò chơi đoán chữ cổ điển, thường được chơi bằng giấy và bút chì, nhưng ngày nay cũng có nhiều phiên bản trực tuyến và trên điện thoại di động.</p>
-            <h2>Luật chơi cơ bản:</h2>
-            <h3>Đoán chữ cái:</h3>
-            <p>Người chơi đoán pinyin mà họ nghĩ có thể có dựa vào gợi ý phía trên, hoặc viết chữ Hán (lưu ý viết từng chữ 1).</p>
-            <h3>Người chơi có thể chọn đoán đầy đủ từ bằng cách điền vào ô bên phải ngoài cùng (chỉ điền chữ Hán).</h3>
-            <h2>Kết quả:</h2>
-            <p>Nếu đoán đúng, hệ thống sẽ viết chữ cái đó vào đúng vị trí của nó trên các dấu gạch ngang.</p>
-            <p>Nếu đoán sai, hệ thống sẽ vẽ một phần của hình người treo cổ (thường là đầu, thân, tay, chân).</p>
-            <h2>Thắng/Thua:</h2>
-            <p>Người chơi đoán đúng toàn bộ từ trước khi hình người treo cổ được vẽ xong sẽ thắng.</p>
-            <p>Nếu hình người treo cổ được vẽ xong trước khi từ được đoán ra, người chơi đoán thua.</p>
+
+    <div class="game-container">
+
+        <!-- ===== Màn hình Bắt đầu ===== -->
+        <div id="start-screen" class="screen">
+            <h1>Tìm Địa Chỉ 📍</h1>
+            <p>Ôn tập Bài 10: "他住哪儿?" nào! <br> Bạn có thể tìm đúng người và đúng số không? 📞</p>
+            <button id="start-btn" class="start-btn">Bắt đầu!</button>
         </div>
-        <div class="difficulty-selection">
-            <button id="easyButton">Chế độ dễ</button>
-            <button id="hardButton">Chế độ khó</button>
+
+        <!-- ===== Màn hình Chơi Game ===== -->
+        <div id="game-screen" class="screen hidden">
+            <!-- Header: Timer, Score, Pinyin Toggle -->
+            <div class="game-header">
+                <div id="timer" class="game-header-item">⏳ 00:00</div>
+                <div class="pinyin-toggle">
+                    <span class="pinyin-toggle-label">Pinyin</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="pinyin-switch" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div id="score" class="game-header-item">Điểm: 0 ✨</div>
+            </div>
+
+            <!-- Khu vực câu hỏi -->
+            <div id="question-container">
+                <div id="level-title" class="level-title"></div>
+                <div id="question-text" class="question-text"></div>
+                <div id="question-pinyin" class="question-pinyin"></div>
+                <div id="question-translation" class="question-translation"></div>
+                
+                <!-- Container cho các loại câu trả lời -->
+                <div id="options-container"></div>
+                <input type="text" id="text-input" class="hidden" autocomplete="off">
+                <div id="scramble-container" class="hidden"></div>
+                <textarea id="expression-input" class="hidden" rows="6" style="width: 100%; max-width: 470px; font-size: 1.1rem; padding: 15px; border-radius: 12px; border: 2px solid #e0e0e0; font-family: var(--font-family);" placeholder="Viết câu/đoạn văn của bạn ở đây..."></textarea>
+                
+                <div id="feedback" class="feedback"></div>
+                <div id="hint-box" class="hidden"></div>
+            </div>
+
+            <!-- Footer: Hint, Skip, Submit buttons -->
+            <div class="game-footer">
+                <button id="hint-btn" class="footer-btn">💡 Gợi ý</button>
+                <button id="submit-btn" class="footer-btn">Kiểm tra</button>
+                <button id="skip-btn" class="footer-btn">Bỏ qua ⏭️</button>
+            </div>
         </div>
-        <div class="difficulty-note">
-            <p><strong>Chế độ khó:</strong> Người chơi chỉ được điền chữ Hán</p>
-            <p><strong>Chế độ dễ:</strong> Người chơi có thể điền chữ Hán hoặc pinyin</p>
+
+        <!-- ===== Màn hình Tổng kết ===== -->
+        <div id="summary-screen" class="screen hidden">
+            <h2>🎉 Hoàn thành! Bạn đúng là chuyên gia thông tin! 🎉</h2>
+            
+            <div id="badge-container">
+                <div id="badge-display"></div>
+                <div id="badge-text"></div>
+            </div>
+
+            <div id="summary-details">
+                <div class="summary-item">
+                    <div>Tổng thời gian</div>
+                    <div id="final-time" class="value"></div>
+                </div>
+                <div class="summary-item">
+                    <div>Tổng điểm</div>
+                    <div id="final-score" class="value"></div>
+                </div>
+                 <div class="summary-item">
+                    <div>Số câu đúng</div>
+                    <div id="correct-count" class="value" style="color: var(--correct-color);"></div>
+                </div>
+                 <div class="summary-item">
+                    <div>Số câu sai</div>
+                    <div id="incorrect-count" class="value" style="color: var(--incorrect-color);"></div>
+                </div>
+            </div>
+
+            <div id="mistakes-log">
+                <h3>Cùng xem lại các câu sai nhé:</h3>
+                <div id="mistakes-list"></div>
+            </div>
+            
+            <button id="restart-btn" class="start-btn footer-btn">Chơi lại</button>
         </div>
     </div>
 
-    <div class="game-container hidden" id="gameContainer">
-        <div class="header">
-            <h1>TRÒ CHƠI ĐOÁN TỪ</h1>
-        </div>
-        <div class="score-display">ĐIỂM: <span id="score">0</span></div>
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
-        </div>
-        <div class="progress-text" id="progressText">Câu 1/25</div>
-        <div class="hint">
-            <span class="hint-label">Gợi ý:</span> <span id="hint"></span>
-        </div>
-        <div class="hangman-figure">
-            <svg width="250" height="250">
-                <line x1="60" y1="220" x2="200" y2="220" stroke="#333" stroke-width="3"/>
-                <line x1="130" y1="220" x2="130" y2="30" stroke="#333" stroke-width="3"/>
-                <line x1="130" y1="30" x2="190" y2="30" stroke="#333" stroke-width="3"/>
-                <line x1="190" y1="30" x2="190" y2="50" stroke="#333" stroke-width="3"/>
-                <circle cx="190" cy="70" r="20" stroke="#333" stroke-width="3" fill="none" id="head" style="display: none;"/>
-                <line x1="190" y1="90" x2="190" y2="150" stroke="#333" stroke-width="3" id="body" style="display: none;"/>
-                <line x1="190" y1="100" x2="160" y2="120" stroke="#333" stroke-width="3" id="left-arm" style="display: none;"/>
-                <line x1="190" y1="100" x2="220" y2="120" stroke="#333" stroke-width="3" id="right-arm" style="display: none;"/>
-                <line x1="190" y1="150" x2="160" y2="180" stroke="#333" stroke-width="3" id="left-leg" style="display: none;"/>
-                <line x1="190" y1="150" x2="220" y2="180" stroke="#333" stroke-width="3" id="right-leg" style="display: none;"/>
-            </svg>
-        </div>
-        <div class="word-display-label">Chữ Hán: </div>
-        <div class="word-display" id="wordDisplay"></div>
-        <div class="pinyin-display-label">Pinyin: </div>
-        <div class="pinyin-display" id="pinyinDisplay"></div>
-        <div class="guessed-letters">Đã đoán: <span id="guessedLetters"></span></div>
-        <div class="instruction" id="currentInstruction"></div>
-        <div class="input-section">
-            <input type="text" id="guessInput" placeholder="Nhập chữ, pinyin hoặc câu trả lời đầy đủ">
-            <button id="guessButton">ĐOÁN</button>
-            <button id="hintButton">GỢI Ý</button>
-            <button id="newGameButton">TRÒ CHƠI MỚI</button>
-        </div>
-        <div class="message" id="message"></div>
-    </div>
+<script>
+// ===================================================================================
+// === DỮ LIỆU TRÒ CHƠI (Dựa trên Bài 10) ===
+// ===================================================================================
+const gameData = [
+    // --- Cấp 1: Nhận diện Từ ---
+    {
+        level: "Cấp 1: Bảng Chữ Cái 🔡",
+        type: 'mcq',
+        question: '办公室',
+        pinyin: 'bàngōngshì',
+        options: ['Văn phòng', 'Nhà ăn', 'Ký túc xá', 'Lớp học'],
+        answer: 'Văn phòng',
+        hint: 'Nơi nhân viên làm việc.'
+    },
+    {
+        level: "Cấp 1: Bảng Chữ Cái 🔡",
+        type: 'mcq',
+        question: 'Tìm kiếm',
+        pinyin: '',
+        options: ['在', '找', '住', '是'],
+        answer: '找',
+        hint: 'Động từ, bạn ... ai?'
+    },
+    {
+        level: "Cấp 1: Bảng Chữ Cái 🔡",
+        type: 'mcq',
+        question: '家',
+        pinyin: 'jiā',
+        options: ['Trường học', 'Nhà', 'Cửa hàng', 'Công ty'],
+        answer: 'Nhà',
+        hint: 'Nơi ở của gia đình.'
+    },
+    {
+        level: "Cấp 1: Bảng Chữ Cái 🔡",
+        type: 'mcq',
+        question: 'Sống, ở',
+        pinyin: '',
+        options: ['是', '在', '住', '找'],
+        answer: '住',
+        hint: 'Động từ chỉ nơi cư trú.'
+    },
+    {
+        level: "Cấp 1: Bảng Chữ Cái 🔡",
+        type: 'mcq',
+        question: '楼',
+        pinyin: 'lóu',
+        options: ['Cửa', 'Phòng', 'Tầng/Tòa nhà', 'Số'],
+        answer: 'Tầng/Tòa nhà',
+        hint: 'Anh ấy ở tầng 18.'
+    },
+    {
+        level: "Cấp 1: Bảng Chữ Cái 🔡",
+        type: 'mcq',
+        question: 'Biết',
+        pinyin: '',
+        options: ['在', '是', '知道', '找'],
+        answer: '知道',
+        hint: 'Bạn có ... số điện thoại của anh ấy không?'
+    },
+    {
+        level: "Cấp 1: Bảng Chữ Cái 🔡",
+        type: 'mcq',
+        question: '电话',
+        pinyin: 'diànhuà',
+        options: ['Điện thoại', 'Máy tính', 'Tivi', 'Di động'],
+        answer: 'Điện thoại',
+        hint: 'Thiết bị dùng để liên lạc.'
+    },
+    {
+        level: "Cấp 1: Bảng Chữ Cái 🔡",
+        type: 'mcq',
+        question: 'Số',
+        pinyin: '',
+        options: ['门', '房间', '号', '楼'],
+        answer: '号',
+        hint: 'Phòng ... 601.'
+    },
+    {
+        level: "Cấp 1: Bảng Chữ Cái 🔡",
+        type: 'mcq',
+        question: '手机',
+        pinyin: 'shǒujī',
+        options: ['Điện thoại bàn', 'Điện thoại di động', 'Máy tính bảng', 'Máy ảnh'],
+        answer: 'Điện thoại di động',
+        hint: 'Điện thoại cầm tay.'
+    },
+     {
+        level: "Cấp 1: Bảng Chữ Cái 🔡",
+        type: 'mcq',
+        question: '零',
+        pinyin: 'líng',
+        options: ['Một', 'Hai', 'Ba', 'Không'],
+        answer: 'Không',
+        hint: 'Số 0.'
+    },
 
-    <script>
-        // Từ vựng, gợi ý và pinyin
-        const wordHintsPinyin = [
-            { word: "闹钟", pinyin: "naozhong", hint: "Đồng hồ báo thức", wordLength: 2 },
-            { word: "衣柜", pinyin: "yigui", hint: "Tủ quần áo", wordLength: 2 },
-            { word: "床单", pinyin: "chuangdan", hint: "Drap giường", wordLength: 2 },
-            { word: "地毯", pinyin: "ditan", hint: "Thảm", wordLength: 2 },
-            { word: "床", pinyin: "chuang", hint: "Giường", wordLength: 1 },
-            { word: "被子", pinyin: "beizi", hint: "Chăn, mền", wordLength: 2 },
-            { word: "枕头", pinyin: "zhentou", hint: "Gối", wordLength: 2 },
-            { word: "电脑", pinyin: "diannao", hint: "Máy tính", wordLength: 2 },
-            { word: "手机", pinyin: "shouji", hint: "Điện thoại", wordLength: 2 },
-            { word: "办公室", pinyin: "bangongshi", hint: "Văn phòng làm việc", wordLength: 3 },
-            { word: "房间", pinyin: "fangjian", hint: "Căn phòng", wordLength: 2 },
-            { word: "窗帘", pinyin: "chuanglian", hint: "Cái rèm", wordLength: 2 },
-            { word: "洗手盆", pinyin: "xishoupen", hint: "Bồn rửa tay", wordLength: 3 },
-            { word: "窗户", pinyin: "chuanghu", hint: "Cửa sổ", wordLength: 2 },
-            { word: "家", pinyin: "jia", hint: "Nhà (home)", wordLength: 1 },
-            { word: "回家", pinyin: "huijia", hint: "Về nhà", wordLength: 2 },
-            { word: "门口", pinyin: "menkou", hint: "Cổng, cửa", wordLength: 2 },
-            { word: "找", pinyin: "zhao", hint: "Tìm kiếm", wordLength: 1 },
-            { word: "手机号码", pinyin: "shoujihaoma", hint: "Số điện thoại di động", wordLength: 4 },
-            { word: "职员", pinyin: "zhiyuan", hint: "Nhân viên", wordLength: 2 },
-            { word: "经理", pinyin: "jingli", hint: "Giám đốc", wordLength: 2 },
-            { word: "老板", pinyin: "laoban", hint: "Sếp", wordLength: 2 },
-            { word: "楼", pinyin: "lou", hint: "Toà nhà, lầu", wordLength: 1 },
-            { word: "公寓", pinyin: "gongyu", hint: "Chung cư", wordLength: 2 },
-            { word: "知道", pinyin: "zhidao", hint: "Biết (1 thông tin)", wordLength: 2 },
-            { word: "住", pinyin: "zhu", hint: "Sống (ở đâu đó)", wordLength: 1 },
-            { word: "护照", pinyin: "huzhao", hint: "Hộ chiếu", wordLength: 2 },
-            { word: "签证", pinyin: "qianzheng", hint: "Visa", wordLength: 2 },
-            { word: "身份证", pinyin: "shenfenzheng", hint: "Căn cước", wordLength: 3 }
-        ];
-        
-        let currentQuestionIndex = 0;
-        let selectedWord = "";
-        let selectedPinyin = "";
-        let selectedWordLength = 0;
-        let guessedLetters = [];
-        let guessedPinyin = [];
-        let incorrectGuesses = 0;
-        let score = 0;
-        let difficulty = "easy"; // Default difficulty
-        let hintsUsed = 0;
-        const maxHints = 3;
-        const maxGuesses = 6;
-        
-        // DOM elements
-        const wordDisplay = document.getElementById('wordDisplay');
-        const pinyinDisplay = document.getElementById('pinyinDisplay');
-        const guessedLettersDisplay = document.getElementById('guessedLetters');
-        const guessInput = document.getElementById('guessInput');
-        const guessButton = document.getElementById('guessButton');
-        const hintButton = document.getElementById('hintButton');
-        const newGameButton = document.getElementById('newGameButton');
-        const message = document.getElementById('message');
-        const hintDisplay = document.getElementById('hint');
-        const wordGuessInput = document.getElementById('wordGuessInput');
-        const scoreDisplay = document.getElementById('score');
-        const progressBar = document.getElementById('progress');
-        const progressText = document.getElementById('progressText');
-        const introContainer = document.getElementById('introContainer');
-        const gameContainer = document.getElementById('gameContainer');
-        const easyButton = document.getElementById('easyButton');
-        const hardButton = document.getElementById('hardButton');
-        const currentInstruction = document.getElementById('currentInstruction');
-        
-        // Hangman parts
-        const hangmanParts = [
-            document.getElementById('head'),
-            document.getElementById('body'),
-            document.getElementById('left-arm'),
-            document.getElementById('right-arm'),
-            document.getElementById('left-leg'),
-            document.getElementById('right-leg')
-        ];
-        
-        // Initialize game
-        function initGame() {
-            // Shuffle the questions
-            shuffleArray(wordHintsPinyin);
-            
-            currentQuestionIndex = 0;
-            score = 0;
-            hintsUsed = 0;
-            scoreDisplay.textContent = score;
-            loadNextQuestion();
-            introContainer.classList.add('hidden');
-            gameContainer.classList.remove('hidden');
-        }
-        
-        // Function to shuffle an array
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-        
-        function loadNextQuestion() {
-            if (currentQuestionIndex >= wordHintsPinyin.length) {
-                message.textContent = `CHÚC MỪNG! BẠN ĐÃ HOÀN THÀNH TẤT CẢ CÁC CÂU! TỔNG ĐIỂM: ${score}`;
-                guessButton.disabled = true;
-                hintButton.disabled = true;
-                return;
-            }
-            
-            const question = wordHintsPinyin[currentQuestionIndex];
-            selectedWord = question.word;
-            selectedPinyin = question.pinyin;
-            selectedWordLength = question.wordLength;
-            hintDisplay.textContent = question.hint;
-            
-            guessedLetters = [];
-            guessedPinyin = [];
-            incorrectGuesses = 0;
-            hintsUsed = 0;
-            
-            guessedLettersDisplay.textContent = "";
-            message.textContent = "";
-            guessInput.value = "";
-            
-            hangmanParts.forEach(part => {
-                part.style.display = 'none';
+    // --- Cấp 2: Điền từ ---
+    {
+        level: "Cấp 2: Ghép Từ Tạo Câu 🧩",
+        type: 'fill-blank',
+        question: '请问，这是____吗？',
+        pinyin: 'qǐngwèn, zhè shì ____ ma?',
+        answer: '办公室',
+        hint: 'Nơi làm việc của nhân viên.'
+    },
+    {
+        level: "Cấp 2: Ghép Từ Tạo Câu 🧩",
+        type: 'fill-blank',
+        question: '你____谁？',
+        pinyin: 'nǐ ____ shéi?',
+        answer: '找',
+        hint: 'Động từ "tìm kiếm".'
+    },
+    {
+        level: "Cấp 2: Ghép Từ Tạo Câu 🧩",
+        type: 'fill-blank',
+        question: '王老师____吗？',
+        pinyin: 'wáng lǎoshī ____ ma?',
+        answer: '在',
+        hint: 'Động từ "ở".'
+    },
+    {
+        level: "Cấp 2: Ghép Từ Tạo Câu 🧩",
+        type: 'fill-blank',
+        question: '他不在。他在____呢。',
+        pinyin: 'tā bù zài. tā zài ____ ne.',
+        answer: '家',
+        hint: 'Nơi ở của gia đình.'
+    },
+    {
+        level: "Cấp 2: Ghép Từ Tạo Câu 🧩",
+        type: 'fill-blank',
+        question: '他住____儿？',
+        pinyin: 'tā zhù ____ er?',
+        answer: '哪',
+        hint: 'Từ để hỏi "ở đâu".'
+    },
+    {
+        level: "Cấp 2: Ghép Từ Tạo Câu 🧩",
+        type: 'fill-blank',
+        question: '他住十八____一门。',
+        pinyin: 'tā zhù shíbā ____ yī mén.',
+        answer: '楼',
+        hint: 'Tòa nhà/Tầng.'
+    },
+    {
+        level: "Cấp 2: Ghép Từ Tạo Câu 🧩",
+        type: 'fill-blank',
+        question: '房间____是601。',
+        pinyin: 'fángjiān ____ shì liù líng yāo.',
+        answer: '号',
+        hint: 'Số phòng.'
+    },
+    {
+        level: "Cấp 2: Ghép Từ Tạo Câu 🧩",
+        type: 'fill-blank',
+        question: '您____他的电话号码吗？',
+        pinyin: 'nín ____ tā de diànhuà hàomǎ ma?',
+        answer: '知道',
+        hint: 'Động từ "biết".'
+    },
+    {
+        level: "Cấp 2: Ghép Từ Tạo Câu 🧩",
+        type: 'fill-blank',
+        question: '他的____号码是多少？',
+        pinyin: 'tā de ____ hàomǎ shì duōshǎo?',
+        answer: '手机',
+        hint: 'Điện thoại di động.'
+    },
+    {
+        level: "Cấp 2: Ghép Từ Tạo Câu 🧩",
+        type: 'fill-blank',
+        question: '他在家____。',
+        pinyin: 'tā zài jiā ____.',
+        answer: '呢',
+        hint: 'Trợ từ cuối câu chỉ sự tiếp diễn/khẳng định.'
+    },
+
+    // --- Cấp 3: Đọc số ---
+    {
+        level: "Cấp 3: Thần Số Học 🔢",
+        type: 'fill-blank',
+        question: '601',
+        pinyin: '',
+        questionClasses: ['number-question'],
+        answer: 'liù líng yāo',
+        hint: 'Đọc từng số, số 1 đọc là "yāo".'
+    },
+    {
+        level: "Cấp 3: Thần Số Học 🔢",
+        type: 'fill-blank',
+        question: '18',
+        pinyin: '',
+        questionClasses: ['number-question'],
+        answer: 'yāo bā',
+        hint: 'Đọc số nhà/tầng.'
+    },
+    {
+        level: "Cấp 3: Thần Số Học 🔢",
+        type: 'fill-blank',
+        question: '62931074',
+        pinyin: '',
+        questionClasses: ['number-question'],
+        answer: 'liù èr jiǔ sān yāo líng qī sì',
+        hint: 'Đọc số điện thoại.'
+    },
+    {
+        level: "Cấp 3: Thần Số Học 🔢",
+        type: 'mcq',
+        question: 'Chọn cách đọc đúng cho số phòng 202:',
+        pinyin: '',
+        options: ['Èr líng èr', 'Liǎng líng èr', 'Èr bǎi líng èr'],
+        answer: 'Èr líng èr',
+        hint: 'Đọc từng số, số 2 đọc là "èr".'
+    },
+     {
+        level: "Cấp 3: Thần Số Học 🔢",
+        type: 'fill-blank',
+        question: 'yāo sān qī...',
+        pinyin: '',
+        questionClasses: ['number-question'],
+        answer: '137...',
+        hint: 'Viết lại thành chữ số.'
+    },
+     {
+        level: "Cấp 3: Thần Số Học 🔢",
+        type: 'fill-blank',
+        question: 'bā liù líng...',
+        pinyin: '',
+        questionClasses: ['number-question'],
+        answer: '860...',
+        hint: 'Viết lại thành chữ số.'
+    },
+    {
+        level: "Cấp 3: Thần Số Học 🔢",
+        type: 'mcq',
+        question: 'Số 119 (cứu hỏa) đọc là gì?',
+        pinyin: '',
+        options: ['Yāo yāo jiǔ', 'Yī yī jiǔ'],
+        answer: 'Yāo yāo jiǔ',
+        hint: 'Số 1 trong dãy số đọc là "yāo".'
+    },
+    {
+        level: "Cấp 3: Thần Số Học 🔢",
+        type: 'fill-blank',
+        question: '555',
+        pinyin: '',
+        questionClasses: ['number-question'],
+        answer: 'wǔ wǔ wǔ',
+        hint: 'Đọc từng số.'
+    },
+    {
+        level: "Cấp 3: Thần Số Học 🔢",
+        type: 'fill-blank',
+        question: '010',
+        pinyin: '',
+        questionClasses: ['number-question'],
+        answer: 'líng yāo líng',
+        hint: 'Mã vùng Bắc Kinh.'
+    },
+    {
+        level: "Cấp 3: Thần Số Học 🔢",
+        type: 'mcq',
+        question: 'Khi đọc số nhà/phòng/điện thoại, số 2 đọc là:',
+        pinyin: '',
+        options: ['èr', 'liǎng'],
+        answer: 'èr',
+        hint: 'Không dùng "liǎng" khi đọc số hiệu.'
+    },
+
+    // --- Cấp 4: Sắp xếp câu ---
+    {
+        level: "Cấp 4: Kiến Trúc Sư Ngôn Ngữ 🏗️",
+        type: 'scramble',
+        words: ['他', '哪儿', '住'],
+        answer: '他住哪儿',
+        hint: 'Câu hỏi về nơi ở.'
+    },
+    {
+        level: "Cấp 4: Kiến Trúc Sư Ngôn Ngữ 🏗️",
+        type: 'scramble',
+        words: ['王老师', '在吗'],
+        answer: '王老师在吗',
+        hint: 'Câu hỏi xem thầy Vương có ở đó không.'
+    },
+    {
+        level: "Cấp 4: Kiến Trúc Sư Ngôn Ngữ 🏗️",
+        type: 'scramble',
+        words: ['他', '家', '在', '呢'],
+        answer: '他在家呢',
+        hint: 'Câu khẳng định ai đó đang ở nhà.'
+    },
+    {
+        level: "Cấp 4: Kiến Trúc Sư Ngôn Ngữ 🏗️",
+        type: 'scramble',
+        words: ['你', '谁', '找'],
+        answer: '你找谁',
+        hint: 'Câu hỏi tìm ai.'
+    },
+    {
+        level: "Cấp 4: Kiến Trúc Sư Ngôn Ngữ 🏗️",
+        type: 'scramble',
+        words: ['电话号码', '知道', '他的', '您', '吗'],
+        answer: '您知道他的电话号码吗',
+        hint: 'Câu hỏi về số điện thoại.'
+    },
+    {
+        level: "Cấp 4: Kiến Trúc Sư Ngôn Ngữ 🏗️",
+        type: 'scramble',
+        words: ['是', '办公室', '吗', '这'],
+        answer: '这是办公室吗',
+        hint: 'Câu hỏi xác nhận đây có phải văn phòng không.'
+    },
+    {
+        level: "Cấp 4: Kiến Trúc Sư Ngôn Ngữ 🏗️",
+        type: 'scramble',
+        words: ['他', '18楼', '住'],
+        answer: '他住18楼',
+        hint: 'Câu trả lời về tầng ở.'
+    },
+    {
+        level: "Cấp 4: Kiến Trúc Sư Ngôn Ngữ 🏗️",
+        type: 'scramble',
+        words: ['601', '是', '房间号'],
+        answer: '房间号是601',
+        hint: 'Câu nói về số phòng.'
+    },
+    {
+        level: "Cấp 4: Kiến Trúc Sư Ngôn Ngữ 🏗️",
+        type: 'scramble',
+        words: ['手机号码', '他的', '多少', '是'],
+        answer: '他的手机号码是多少',
+        hint: 'Câu hỏi về số điện thoại di động.'
+    },
+     {
+        level: "Cấp 4: Kiến Trúc Sư Ngôn Ngữ 🏗️",
+        type: 'scramble',
+        words: ['我', '学生', '他的', '是'],
+        answer: '我是他的学生',
+        hint: 'Câu giới thiệu bản thân.'
+    },
+
+    
+    // --- Cấp 5: Giao tiếp thực hành ---
+    {
+        level: "Cấp 5: Chuyên gia Liên Lạc 📞",
+        type: 'expression',
+        question: 'Hỏi xem thầy Vương có ở văn phòng không.',
+        pinyin: 'wèn wáng lǎoshī zài bu zài.',
+        sampleAnswer: '请问，王老师在办公室吗？',
+        hint: 'Sử dụng cấu trúc: ...在...吗？'
+    },
+    {
+        level: "Cấp 5: Giao tiếp thực hành 🤝",
+        type: 'expression',
+        question: 'Hỏi địa chỉ nhà của ai đó.',
+        pinyin: 'wèn zhù nǎr.',
+        sampleAnswer: '请问，你住哪儿？',
+        hint: 'Sử dụng đại từ nghi vấn 哪儿.'
+    },
+    {
+        level: "Cấp 5: Giao tiếp thực hành 🤝",
+        type: 'expression',
+        question: 'Nói số điện thoại của bạn (tự bịa).',
+        pinyin: 'shuō nǐ de diànhuà hàomǎ.',
+        sampleAnswer: '我的电话号码是八三九零一二三四。 (83901234)',
+        hint: 'Đọc từng số một, nhớ đọc "yāo" cho số 1.'
+    },
+     {
+        level: "Cấp 5: Giao tiếp thực hành 🤝",
+        type: 'expression',
+        question: 'Nói rằng bạn không biết số điện thoại di động của ai đó.',
+        pinyin: 'shuō nǐ bù zhīdào shǒujī hàomǎ.',
+        sampleAnswer: '对不起，我不知道他的手机号码。',
+        hint: 'Sử dụng 不知道.'
+    },
+
+    // --- Cấp 6: Viết đoạn văn ---
+    {
+        level: "Cấp 6: Viết Danh Bạ ✍️",
+        type: 'expression',
+        question: 'Hãy viết một đoạn văn ngắn (2-3 câu) giới thiệu bạn tìm ai, người đó ở đâu và số điện thoại (tự bịa).',
+        pinyin: 'Jièshào nǐ yào zhǎo de rén.',
+        questionClasses: ['paragraph-question'],
+        sampleAnswer: '我找王老师。他不在办公室，他在家呢。他住10楼，房间号是205。他的电话号码是13812345678。',
+        hint: 'Sử dụng các cấu trúc: 我找..., 他在..., 他住..., 电话号码是...'
+    }
+];
+
+
+// ===================================================================================
+// === LOGIC CỦA TRÒ CHƠI (Tái sử dụng) ===
+// ===================================================================================
+const startScreen = document.getElementById('start-screen');
+const gameScreen = document.getElementById('game-screen');
+const summaryScreen = document.getElementById('summary-screen');
+const startBtn = document.getElementById('start-btn');
+const restartBtn = document.getElementById('restart-btn');
+const skipBtn = document.getElementById('skip-btn');
+const hintBtn = document.getElementById('hint-btn');
+const submitBtn = document.getElementById('submit-btn');
+
+const timerEl = document.getElementById('timer');
+const scoreEl = document.getElementById('score');
+const pinyinSwitch = document.getElementById('pinyin-switch');
+const levelTitleEl = document.getElementById('level-title');
+const questionTextEl = document.getElementById('question-text');
+const questionPinyinEl = document.getElementById('question-pinyin');
+const questionTranslationEl = document.getElementById('question-translation');
+const optionsContainer = document.getElementById('options-container');
+const textInput = document.getElementById('text-input');
+const scrambleContainer = document.getElementById('scramble-container');
+const expressionInput = document.getElementById('expression-input');
+const feedbackEl = document.getElementById('feedback');
+const hintBox = document.getElementById('hint-box');
+
+let gameState = {};
+let timerInterval;
+
+function initGameState() {
+    gameState = {
+        currentQuestionIndex: 0,
+        score: 0,
+        startTime: null,
+        elapsedSeconds: 0,
+        mistakes: [],
+        pinyinVisible: true,
+    };
+}
+
+function startGame() {
+    initGameState();
+    startScreen.classList.add('hidden');
+    summaryScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+    gameState.startTime = new Date();
+    startTimer();
+    renderQuestion();
+    updateScore();
+}
+
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        gameState.elapsedSeconds++;
+        const minutes = Math.floor(gameState.elapsedSeconds / 60).toString().padStart(2, '0');
+        const seconds = (gameState.elapsedSeconds % 60).toString().padStart(2, '0');
+        timerEl.textContent = `⏳ ${minutes}:${seconds}`;
+    }, 1000);
+}
+
+function renderQuestion() {
+    optionsContainer.innerHTML = '';
+    textInput.value = '';
+    textInput.classList.add('hidden');
+    scrambleContainer.innerHTML = '';
+    scrambleContainer.classList.add('hidden');
+    expressionInput.value = '';
+    expressionInput.classList.add('hidden');
+    feedbackEl.innerHTML = '';
+    hintBox.classList.add('hidden');
+    submitBtn.disabled = false;
+    submitBtn.style.display = 'block';
+    questionTranslationEl.textContent = '';
+    
+    questionTextEl.className = 'question-text'; // Reset classes
+
+    if (gameState.currentQuestionIndex >= gameData.length) {
+        endGame();
+        return;
+    }
+
+    const q = gameData[gameState.currentQuestionIndex];
+    levelTitleEl.textContent = q.level;
+    questionTextEl.textContent = q.question;
+    questionPinyinEl.textContent = q.pinyin || '';
+    if (q.translation) {
+        questionTranslationEl.textContent = `(${q.translation})`;
+    }
+    
+    if (q.questionClasses) {
+        q.questionClasses.forEach(cls => questionTextEl.classList.add(cls));
+    }
+
+
+    switch (q.type) {
+        case 'mcq':
+            submitBtn.style.display = 'none'; // Hide submit for MCQ, answer on click
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-btn');
+                button.onclick = () => checkAnswer(option);
+                optionsContainer.appendChild(button);
             });
-            
-            updateWordDisplay();
-            updatePinyinDisplay();
-            
-            const progress = ((currentQuestionIndex) / wordHintsPinyin.length) * 100;
-            progressBar.style.width = `${progress}%`;
-            progressText.textContent = `Câu ${currentQuestionIndex + 1}/${wordHintsPinyin.length}`;
-            
-            if (difficulty === "hard") {
-                pinyinDisplay.style.display = "none";
-                document.querySelector('.pinyin-display-label').style.display = "none";
-                currentInstruction.textContent = "Chú ý: Bạn chỉ được điền chữ Hán.";
-            } else {
-                pinyinDisplay.style.display = "block";
-                document.querySelector('.pinyin-display-label').style.display = "block";
-                currentInstruction.textContent = "Chú ý: Bạn có thể điền chữ Hán hoặc pinyin.";
-            }
+            break;
+        case 'fill-blank':
+            submitBtn.textContent = 'Kiểm tra';
+            textInput.classList.remove('hidden');
+            textInput.focus();
+            break;
+        case 'scramble':
+            submitBtn.textContent = 'Kiểm tra';
+            scrambleContainer.classList.remove('hidden');
+            const shuffledWords = [...q.words].sort(() => Math.random() - 0.5);
+            shuffledWords.forEach(word => {
+                const wordEl = document.createElement('div');
+                wordEl.textContent = word;
+                wordEl.classList.add('scramble-word');
+                wordEl.draggable = true;
+                wordEl.addEventListener('dragstart', handleDragStart);
+                scrambleContainer.appendChild(wordEl);
+            });
+            scrambleContainer.addEventListener('dragover', handleDragOver);
+            scrambleContainer.addEventListener('drop', handleDrop);
+            break;
+        case 'expression':
+            submitBtn.textContent = 'Hoàn thành';
+            expressionInput.classList.remove('hidden');
+            expressionInput.focus();
+            break;
+    }
+}
+let draggedItem = null;
+
+function handleDragStart(e) {
+    draggedItem = e.target;
+    e.target.style.opacity = '0.5';
+}
+function handleDragOver(e) { e.preventDefault(); }
+function handleDrop(e) {
+    e.preventDefault();
+    if(e.target.classList.contains('scramble-word')) {
+        const rect = e.target.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        if(offsetX > rect.width / 2) {
+             e.target.parentNode.insertBefore(draggedItem, e.target.nextSibling);
+        } else {
+             e.target.parentNode.insertBefore(draggedItem, e.target);
         }
-        
-        function updateWordDisplay() {
-            wordDisplay.textContent = selectedWord.split('').map(letter => {
-                return guessedLetters.includes(letter) ? letter : '_';
-            }).join(' ');
-        }
-        
-        function updatePinyinDisplay() {
-            pinyinDisplay.textContent = selectedPinyin.split('').map(py => {
-                return guessedPinyin.includes(py) ? py : '_';
-            }).join(' ');
-        }
-        
-        function checkWin() {
-            if (difficulty === "easy") {
-                return selectedPinyin.split('').every(py => guessedPinyin.includes(py)) ||
-                       selectedWord.split('').every(letter => guessedLetters.includes(letter));
-            } else {
-                return selectedWord.split('').every(letter => guessedLetters.includes(letter));
-            }
-        }
-        
-        function processGuess() {
-            const guess = guessInput.value.trim();
-            
-            if (!guess) {
-                message.textContent = "Vui lòng nhập chữ, pinyin hoặc câu trả lời đầy đủ!";
-                return;
-            }
-            
-            if (guess.length === 1) {
-                if (difficulty === "easy") {
-                    // Check if it's a letter or pinyin
-                    if (guessedLetters.includes(guess) || guessedPinyin.includes(guess)) {
-                        message.textContent = "Bạn đã đoán ký tự này rồi!";
-                        return;
-                    }
-                    
-                    // Check if it's a letter
-                    if (selectedWord.includes(guess)) {
-                        guessedLetters.push(guess);
-                        guessedLettersDisplay.textContent = guessedLetters.join(', ');
-                        message.textContent = "Đúng rồi!";
-                        score += 10;
-                        scoreDisplay.textContent = score;
-                        updateWordDisplay();
-                    } 
-                    // Check if it's a pinyin
-                    else if (selectedPinyin.includes(guess)) {
-                        guessedPinyin.push(guess);
-                        guessedLettersDisplay.textContent = guessedPinyin.join(', ');
-                        message.textContent = "Đúng rồi!";
-                        score += 10;
-                        scoreDisplay.textContent = score;
-                        updatePinyinDisplay();
-                    } else {
-                        message.textContent = "Sai rồi!";
-                        incorrectGuesses++;
-                        
-                        if (incorrectGuesses <= maxGuesses) {
-                            hangmanParts[incorrectGuesses - 1].style.display = 'block';
-                        }
-                        
-                        if (incorrectGuesses >= maxGuesses) {
-                            message.textContent = `Bạn thua rồi! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
-                            currentQuestionIndex++;
-                            setTimeout(loadNextQuestion, 2000);
-                        }
-                    }
-                } else {
-                    // Hard mode: only check for letters
-                    if (guessedLetters.includes(guess)) {
-                        message.textContent = "Bạn đã đoán chữ này rồi!";
-                        return;
-                    }
-                    
-                    guessedLetters.push(guess);
-                    guessedLettersDisplay.textContent = guessedLetters.join(', ');
-                    
-                    if (selectedWord.includes(guess)) {
-                        message.textContent = "Đúng rồi!";
-                        score += 10;
-                        scoreDisplay.textContent = score;
-                        updateWordDisplay();
-                        
-                        if (checkWin()) {
-                            score += 50;
-                            scoreDisplay.textContent = score;
-                            message.textContent = `Chúc mừng! Bạn đã thắng! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
-                            currentQuestionIndex++;
-                            setTimeout(loadNextQuestion, 2000);
-                        }
-                    } else {
-                        message.textContent = "Sai rồi!";
-                        incorrectGuesses++;
-                        
-                        if (incorrectGuesses <= maxGuesses) {
-                            hangmanParts[incorrectGuesses - 1].style.display = 'block';
-                        }
-                        
-                        if (incorrectGuesses >= maxGuesses) {
-                            message.textContent = `Bạn thua rồi! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
-                            currentQuestionIndex++;
-                            setTimeout(loadNextQuestion, 2000);
-                        }
-                    }
+    } else {
+         scrambleContainer.appendChild(draggedItem);
+    }
+    draggedItem.style.opacity = '1';
+    draggedItem = null;
+}
+
+function checkAnswer(selectedOption = null) {
+    if (submitBtn.disabled) return;
+
+    const q = gameData[gameState.currentQuestionIndex];
+    let isCorrect = false;
+    let userAnswerForLog = '';
+    
+    switch(q.type) {
+        case 'mcq':
+            isCorrect = selectedOption === q.answer;
+            userAnswerForLog = selectedOption;
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.disabled = true; // Disable buttons after selection
+                if (btn.textContent === q.answer) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === selectedOption) {
+                    btn.classList.add('incorrect');
                 }
-            } else {
-                // Check if the guess is the full word or pinyin
-                if (difficulty === "easy") {
-                    if (guess === selectedWord || guess === selectedPinyin) {
-                        message.textContent = `Chúc mừng! Bạn đã thắng! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
-                        score += 100;
-                        scoreDisplay.textContent = score;
-                        currentQuestionIndex++;
-                        setTimeout(loadNextQuestion, 2000);
-                    } else {
-                        message.textContent = "Câu trả lời sai rồi!";
-                        incorrectGuesses++;
-                        
-                        if (incorrectGuesses <= maxGuesses) {
-                            hangmanParts[incorrectGuesses - 1].style.display = 'block';
-                        }
-                        
-                        if (incorrectGuesses >= maxGuesses) {
-                            message.textContent = `Bạn thua rồi! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
-                            currentQuestionIndex++;
-                            setTimeout(loadNextQuestion, 2000);
-                        }
-                    }
-                } else {
-                    if (guess === selectedWord) {
-                        message.textContent = `Chúc mừng! Bạn đã thắng! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
-                        score += 100;
-                        scoreDisplay.textContent = score;
-                        currentQuestionIndex++;
-                        setTimeout(loadNextQuestion, 2000);
-                    } else {
-                        message.textContent = "Câu trả lời sai rồi!";
-                        incorrectGuesses++;
-                        
-                        if (incorrectGuesses <= maxGuesses) {
-                            hangmanParts[incorrectGuesses - 1].style.display = 'block';
-                        }
-                        
-                        if (incorrectGuesses >= maxGuesses) {
-                            message.textContent = `Bạn thua rồi! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
-                            currentQuestionIndex++;
-                            setTimeout(loadNextQuestion, 2000);
-                        }
-                    }
-                }
-            }
-            
-            guessInput.value = "";
+            });
+            break;
+        case 'fill-blank':
+            userAnswerForLog = textInput.value.trim().toLowerCase(); // Normalize input
+            // Allow multiple correct answers for some cases using includes
+             if (Array.isArray(q.answer)) {
+                 isCorrect = q.answer.map(ans => ans.toLowerCase()).includes(userAnswerForLog);
+                 q.displayAnswer = q.answer.join(' / '); // For feedback display
+             } else {
+                // Normalize answer for number reading, remove spaces
+                 const normalizedAnswer = q.answer.toLowerCase().replace(/\s+/g, '');
+                 isCorrect = userAnswerForLog.replace(/\s+/g, '') === normalizedAnswer;
+                 q.displayAnswer = q.answer;
+             }
+            break;
+        case 'scramble':
+            const words = [...scrambleContainer.querySelectorAll('.scramble-word')].map(el => el.textContent);
+            userAnswerForLog = words.join('');
+            isCorrect = userAnswerForLog === q.answer;
+            q.displayAnswer = q.answer;
+            break;
+        case 'expression':
+            userAnswerForLog = expressionInput.value;
+            // For expression, we show feedback but always mark as correct for points
+            isCorrect = true; 
+            feedbackEl.innerHTML = `Tuyệt vời! Đây là một câu trả lời mẫu:<div class="sample-answer">${q.sampleAnswer}</div>`;
+            feedbackEl.style.color = 'var(--text-color)';
+            q.displayAnswer = q.sampleAnswer; // Use sample for log if needed
+            break;
+    }
+
+    if (q.type !== 'expression') {
+        if (isCorrect) {
+            feedbackEl.textContent = '🎉 Chính xác! Tuyệt vời!';
+            feedbackEl.style.color = 'var(--correct-color)';
+        } else {
+            feedbackEl.textContent = `🤔 Chưa đúng rồi! Đáp án là: "${q.displayAnswer || q.answer}"`;
+            feedbackEl.style.color = 'var(--incorrect-color)';
+            gameState.mistakes.push({ ...q, userAnswer: userAnswerForLog, correctAnswer: q.displayAnswer || q.answer });
         }
-        
-        function useHint() {
-            if (hintsUsed >= maxHints) {
-                message.textContent = "Bạn đã sử dụng hết số lần gợi ý!";
-                return;
-            }
-            
-            hintsUsed++;
-            
-            // Randomly reveal a part of the answer based on word length
-            if (selectedWordLength > 1) {
-                // Reveal a random letter
-                const unrevealedLetters = selectedWord.split('').filter(letter => !guessedLetters.includes(letter));
-                if (unrevealedLetters.length > 0) {
-                    const randomLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
-                    guessedLetters.push(randomLetter);
-                    guessedLettersDisplay.textContent = guessedLetters.join(', ');
-                    updateWordDisplay();
-                    
-                    // Check if all letters are revealed
-                    if (checkWin()) {
-                        score += 50;
-                        scoreDisplay.textContent = score;
-                        message.textContent = `Chúc mừng! Bạn đã thắng! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
-                        currentQuestionIndex++;
-                        setTimeout(loadNextQuestion, 2000);
-                        return;
-                    }
-                }
-            } else {
-                // Reveal a random pinyin character
-                const unrevealedPinyin = selectedPinyin.split('').filter(py => !guessedPinyin.includes(py));
-                if (unrevealedPinyin.length > 0) {
-                    const randomPinyin = unrevealedPinyin[Math.floor(Math.random() * unrevealedPinyin.length)];
-                    guessedPinyin.push(randomPinyin);
-                    guessedLettersDisplay.textContent = guessedPinyin.join(', ');
-                    updatePinyinDisplay();
-                    
-                    // Check if all pinyin characters are revealed
-                    if (checkWin()) {
-                        score += 50;
-                        scoreDisplay.textContent = score;
-                        message.textContent = `Chúc mừng! Bạn đã thắng! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
-                        currentQuestionIndex++;
-                        setTimeout(loadNextQuestion, 2000);
-                        return;
-                    }
-                }
-            }
-            
-            message.textContent = `Bạn đã sử dụng ${hintsUsed}/${maxHints} gợi ý.`;
-            incorrectGuesses++;
-            
-            if (incorrectGuesses <= maxGuesses) {
-                hangmanParts[incorrectGuesses - 1].style.display = 'block';
-            }
-            
-            if (incorrectGuesses >= maxGuesses) {
-                message.textContent = `Bạn thua rồi! Câu trả lời: ${selectedWord} (${selectedPinyin})`;
-                currentQuestionIndex++;
-                setTimeout(loadNextQuestion, 2000);
-            }
-        }
-        
-        // Event listeners
-        guessButton.addEventListener('click', processGuess);
-        hintButton.addEventListener('click', useHint);
-        newGameButton.addEventListener('click', () => {
-            introContainer.classList.remove('hidden');
-            gameContainer.classList.add('hidden');
+    }
+
+    if (isCorrect) {
+        gameState.score += 10;
+        updateScore();
+    }
+
+
+    submitBtn.disabled = true;
+    setTimeout(() => {
+        gameState.currentQuestionIndex++;
+        renderQuestion();
+    }, q.type === 'expression' ? 4000 : (q.type === 'mcq' ? 1500 : 2000));
+}
+
+function updateScore() {
+    scoreEl.textContent = `Điểm: ${gameState.score} ✨`;
+}
+
+function togglePinyin() {
+    gameState.pinyinVisible = pinyinSwitch.checked;
+    const container = document.getElementById('question-container');
+    if (gameState.pinyinVisible) {
+        container.classList.remove('pinyin-hidden');
+    } else {
+        container.classList.add('pinyin-hidden');
+    }
+}
+
+function showHint() {
+    const q = gameData[gameState.currentQuestionIndex];
+    hintBox.textContent = `💡 Gợi ý nè: ${q.hint}`;
+    hintBox.classList.remove('hidden');
+}
+
+function skipQuestion() {
+    const q = gameData[gameState.currentQuestionIndex];
+    if (q.type !== 'expression') {
+         gameState.mistakes.push({ ...q, userAnswer: "(bỏ qua)", correctAnswer: q.displayAnswer || q.answer });
+    }
+    feedbackEl.textContent = 'Bỏ qua câu này!';
+    feedbackEl.style.color = '#888';
+    setTimeout(() => {
+        gameState.currentQuestionIndex++;
+        renderQuestion();
+    }, 1000);
+}
+
+function endGame() {
+    clearInterval(timerInterval);
+    gameScreen.classList.add('hidden');
+    summaryScreen.classList.remove('hidden');
+
+    const totalQuestions = gameData.filter(q => q.type !== 'expression').length;
+    const minutes = Math.floor(gameState.elapsedSeconds / 60).toString().padStart(2, '0');
+    const seconds = (gameState.elapsedSeconds % 60).toString().padStart(2, '0');
+    const correctCount = totalQuestions - gameState.mistakes.length;
+
+    document.getElementById('final-time').textContent = `${minutes}:${seconds}`;
+    document.getElementById('final-score').textContent = gameState.score;
+    document.getElementById('correct-count').textContent = correctCount;
+    document.getElementById('incorrect-count').textContent = gameState.mistakes.length;
+    
+    const badgeDisplay = document.getElementById('badge-display');
+    const badgeText = document.getElementById('badge-text');
+     if (gameState.mistakes.length === 0) {
+        badgeDisplay.textContent = '🥇';
+        badgeText.textContent = 'Bậc Thầy Thông Tin';
+    } else if (gameState.mistakes.length <= 5) {
+        badgeDisplay.textContent = '🥈';
+        badgeText.textContent = 'Chuyên Gia Liên Lạc';
+    } else {
+        badgeDisplay.textContent = '🥉';
+        badgeText.textContent = 'Người Tìm Đường';
+    }
+
+    const mistakesList = document.getElementById('mistakes-list');
+    mistakesList.innerHTML = '';
+    if (gameState.mistakes.length === 0) {
+        mistakesList.innerHTML = '<p style="text-align: center;">Bạn không sai câu nào cả! Quá đỉnh! 🥳</p>';
+    } else {
+        gameState.mistakes.forEach(mistake => {
+            const item = document.createElement('div');
+            item.classList.add('mistake-item');
+            item.innerHTML = `
+                <p><b>Câu hỏi:</b> ${mistake.question}</p>
+                <p><b>Bạn trả lời:</b> <span style="color: var(--incorrect-color);">${mistake.userAnswer}</span></p>
+                <p><b>Đáp án đúng:</b> <span style="color: var(--correct-color);">${mistake.correctAnswer}</span></p>
+            `;
+            mistakesList.appendChild(item);
         });
-        easyButton.addEventListener('click', () => {
-            difficulty = "easy";
-            initGame();
-        });
-        hardButton.addEventListener('click', () => {
-            difficulty = "hard";
-            initGame();
-        });
-        
-        guessInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                processGuess();
-            }
-        });
-    </script>
+    }
+}
+
+// Event Listeners
+startBtn.addEventListener('click', startGame);
+restartBtn.addEventListener('click', startGame);
+pinyinSwitch.addEventListener('change', togglePinyin);
+hintBtn.addEventListener('click', showHint);
+skipBtn.addEventListener('click', skipQuestion);
+submitBtn.addEventListener('click', () => checkAnswer());
+
+textInput.addEventListener('keyup', (event) => {
+    if (event.key === "Enter") {
+        checkAnswer();
+    }
+});
+</script>
+
 </body>
 </html>
