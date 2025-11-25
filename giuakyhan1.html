@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Thi Giữa Kỳ Tiếng Trung - 练习 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fff1f2; /* Rose-50 */
+            background-image: radial-gradient(#fecdd3 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .chinese-text {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .cute-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .cute-card:hover {
+            transform: translateY(-2px);
+        }
+        .input-line {
+            border: none;
+            border-bottom: 2px dashed #cbd5e1;
+            outline: none;
+            padding: 0 5px;
+            color: #db2777;
+            text-align: center;
+            background: transparent;
+            transition: border-color 0.3s;
+        }
+        .input-line:focus {
+            border-bottom: 2px solid #db2777;
+        }
+        /* Sticky Timer */
+        .sticky-timer {
+            position: sticky;
+            top: 1rem;
+            z-index: 50;
+        }
+        /* Result Mode Styles */
+        .review-mode .hide-on-review {
+            display: none;
+        }
+        .review-mode input, .review-mode textarea {
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            pointer-events: none; /* Lock inputs */
+        }
+        .correct-answer {
+            color: #16a34a;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+        .review-mode .correct-answer {
+            display: block;
+        }
+        .feedback-icon {
+            display: none;
+            margin-left: 8px;
+        }
+        .review-mode .feedback-icon {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="pb-20">
+
+    <!-- Header & Timer -->
+    <div class="max-w-3xl mx-auto p-4">
+        <div class="sticky-timer flex justify-between items-center bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-lg border-2 border-pink-100 mb-8">
+            <div class="flex items-center gap-3">
+                <div class="bg-pink-100 p-2 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-gray-700">ĐỀ KIỂM TRA GIỮA KỲ</h1>
+                    <p class="text-xs text-gray-500">Giáo trình Hán ngữ</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="text-right">
+                    <p class="text-xs text-gray-500">Thời gian còn lại</p>
+                    <div id="timer" class="text-xl font-bold text-pink-600 font-mono">45:00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Info -->
+        <div class="cute-card p-6 mb-6 border-l-8 border-pink-400">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Họ và tên (姓名):</label>
+                    <input type="text" id="studentName" class="w-full p-2 rounded-lg border border-pink-200 focus:ring-2 focus:ring-pink-300 outline-none" placeholder="Nhập tên của bạn...">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Lớp (班级):</label>
+                    <input type="text" class="w-full p-2 rounded-lg border border-pink-200 focus:ring-2 focus:ring-pink-300 outline-none" placeholder="Ví dụ: Hán 1-K15">
+                </div>
+            </div>
+        </div>
+
+        <form id="examForm" onsubmit="return false;">
+            
+            <!-- Part A -->
+            <div class="cute-card p-6 mb-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-pink-100 text-pink-600 font-bold px-3 py-1 rounded-full text-sm">Phần A</span>
+                    <h2 class="font-bold text-gray-700">Hoàn thành câu (完成句子)</h2>
+                </div>
+                <div class="space-y-4 chinese-text text-lg text-gray-700">
+                    <div class="p-3 bg-pink-50 rounded-lg">
+                        <span>1. 你学</span>
+                        <input type="text" class="input-line w-32" placeholder="...">
+                        <span>?</span>
+                    </div>
+                    <div class="p-3 bg-white border border-pink-100 rounded-lg">
+                        <span>2. 今天是</span>
+                        <input type="text" class="input-line w-32" placeholder="...">
+                        <span>。</span>
+                    </div>
+                    <div class="p-3 bg-pink-50 rounded-lg">
+                        <span>3. 我去中国，我学</span>
+                        <input type="text" class="input-line w-32" placeholder="...">
+                        <span>。</span>
+                    </div>
+                    <div class="p-3 bg-white border border-pink-100 rounded-lg">
+                        <span>4. 我很忙，我回</span>
+                        <input type="text" class="input-line w-32" placeholder="...">
+                        <span>吗?</span>
+                    </div>
+                    <div class="p-3 bg-pink-50 rounded-lg">
+                        <span>5. 今天星期二，后天</span>
+                        <input type="text" class="input-line w-32" placeholder="...">
+                        <span>，银行不工作。</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part B: Auto-Graded -->
+            <div class="cute-card p-6 mb-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-bl-lg font-bold">
+                    Tự động chấm điểm
+                </div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-teal-100 text-teal-600 font-bold px-3 py-1 rounded-full text-sm">Phần B</span>
+                    <h2 class="font-bold text-gray-700">Sắp xếp câu (重组句子)</h2>
+                </div>
+                <p class="text-sm text-gray-500 mb-4 italic">*Gõ lại cả câu hoàn chỉnh bằng chữ Hán.</p>
+                
+                <div class="space-y-6">
+                    <!-- Q1 -->
+                    <div class="border-b border-gray-100 pb-4">
+                        <p class="chinese-text text-gray-600 mb-2 bg-gray-50 p-2 rounded">1. 爸爸 / 身体 / 妈妈 / 吗 / 好 / ?</p>
+                        <input type="text" id="q_b1" class="w-full p-3 rounded-lg border border-gray-200 focus:border-teal-400 outline-none chinese-text" placeholder="Nhập câu trả lời...">
+                        <div id="res_b1" class="correct-answer">Đáp án: 爸爸妈妈身体好吗？ (hoặc 妈妈爸爸...)</div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="border-b border-gray-100 pb-4">
+                        <p class="chinese-text text-gray-600 mb-2 bg-gray-50 p-2 rounded">2. 我 / 邮局 / 去 / 信 / 寄 。</p>
+                        <input type="text" id="q_b2" class="w-full p-3 rounded-lg border border-gray-200 focus:border-teal-400 outline-none chinese-text" placeholder="Nhập câu trả lời...">
+                        <div id="res_b2" class="correct-answer">Đáp án: 我去邮局寄信。</div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="border-b border-gray-100 pb-4">
+                        <p class="chinese-text text-gray-600 mb-2 bg-gray-50 p-2 rounded">3. 是 / 这 / 段 / 老师 。</p>
+                        <input type="text" id="q_b3" class="w-full p-3 rounded-lg border border-gray-200 focus:border-teal-400 outline-none chinese-text" placeholder="Nhập câu trả lời...">
+                        <div id="res_b3" class="correct-answer">Đáp án: 这是段老师。</div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="border-b border-gray-100 pb-4">
+                        <p class="chinese-text text-gray-600 mb-2 bg-gray-50 p-2 rounded">4. 英语 / 我 / 在(ở) / 美国 / 学习 。</p>
+                        <input type="text" id="q_b4" class="w-full p-3 rounded-lg border border-gray-200 focus:border-teal-400 outline-none chinese-text" placeholder="Nhập câu trả lời...">
+                        <div id="res_b4" class="correct-answer">Đáp án: 我在美国学习英语。</div>
+                    </div>
+                    
+                     <!-- Q5 (Complex) -->
+                     <div class="pb-2">
+                        <p class="chinese-text text-gray-600 mb-2 bg-gray-50 p-2 rounded">5. 请 / 工作 / 请 / 吗 / 忙 / 坐 / 请 / 茶 / 好 / 喝 / 您 / 您 / 进 / ! / ! / ! / ! 。</p>
+                        <textarea class="w-full p-3 rounded-lg border border-gray-200 focus:border-teal-400 outline-none chinese-text" rows="2" placeholder="Nhập câu trả lời..."></textarea>
+                         <div class="correct-answer">Gợi ý: 您好！请进！请坐！请喝茶！您工作忙吗？</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part C -->
+            <div class="cute-card p-6 mb-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-purple-100 text-purple-600 font-bold px-3 py-1 rounded-full text-sm">Phần C</span>
+                    <h2 class="font-bold text-gray-700">Đặt câu (造句)</h2>
+                </div>
+                <div class="grid gap-4">
+                    <div class="flex items-center gap-3">
+                        <span class="chinese-text w-20 font-bold text-gray-700">1. 忙:</span>
+                        <input type="text" class="flex-1 p-2 border-b-2 border-purple-100 focus:border-purple-400 outline-none bg-transparent chinese-text">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="chinese-text w-20 font-bold text-gray-700">2. 中国:</span>
+                        <input type="text" class="flex-1 p-2 border-b-2 border-purple-100 focus:border-purple-400 outline-none bg-transparent chinese-text">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="chinese-text w-20 font-bold text-gray-700">3. 德语:</span>
+                        <input type="text" class="flex-1 p-2 border-b-2 border-purple-100 focus:border-purple-400 outline-none bg-transparent chinese-text">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="chinese-text w-20 font-bold text-gray-700">4. 学校:</span>
+                        <input type="text" class="flex-1 p-2 border-b-2 border-purple-100 focus:border-purple-400 outline-none bg-transparent chinese-text">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="chinese-text w-20 font-bold text-gray-700">5. 星期二:</span>
+                        <input type="text" class="flex-1 p-2 border-b-2 border-purple-100 focus:border-purple-400 outline-none bg-transparent chinese-text">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part D -->
+            <div class="cute-card p-6 mb-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-blue-100 text-blue-600 font-bold px-3 py-1 rounded-full text-sm">Phần D</span>
+                    <h2 class="font-bold text-gray-700">Dịch thuật (翻译)</h2>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-600 mb-1">1. Mẹ tớ là người Việt Nam.</p>
+                        <textarea class="w-full p-3 rounded-lg bg-blue-50 border-none chinese-text focus:ring-2 focus:ring-blue-200" rows="2"></textarea>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-600 mb-1">2. Tôi thứ hai, tư, sáu đến Trung tâm tiếng Trung Nihao học tiếng Trung.</p>
+                        <textarea class="w-full p-3 rounded-lg bg-blue-50 border-none chinese-text focus:ring-2 focus:ring-blue-200" rows="2"></textarea>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-600 mb-1">3. Hôm qua là chủ nhật, ngân hàng không làm việc. Hôm nay là thứ hai, tôi đi ngân hàng rút tiền.</p>
+                        <textarea class="w-full p-3 rounded-lg bg-blue-50 border-none chinese-text focus:ring-2 focus:ring-blue-200" rows="2"></textarea>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-600 mb-1 chinese-text">4. 请喝茶! 你哥哥妹妹好吗?</p>
+                        <textarea class="w-full p-3 rounded-lg bg-blue-50 border-none focus:ring-2 focus:ring-blue-200" rows="2" placeholder="Dịch sang tiếng Việt..."></textarea>
+                    </div>
+                     <div>
+                        <p class="text-sm font-semibold text-gray-600 mb-1 chinese-text">5. 王老师!您好!你工作忙吗?</p>
+                        <textarea class="w-full p-3 rounded-lg bg-blue-50 border-none focus:ring-2 focus:ring-blue-200" rows="2" placeholder="Dịch sang tiếng Việt..."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+             <!-- Part E: Dictation/Listening Placeholder -->
+            <div class="cute-card p-6 mb-8">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-orange-100 text-orange-600 font-bold px-3 py-1 rounded-full text-sm">Phần E</span>
+                    <h2 class="font-bold text-gray-700">Nghe viết (写出你所听到的词语)</h2>
+                </div>
+                <p class="text-xs text-gray-400 mb-2 italic">(*Giáo viên đọc, học sinh điền từ còn thiếu)</p>
+                <div class="chinese-text text-lg space-y-4 text-gray-700">
+                     <div class="p-2 border-b border-dashed border-gray-300">
+                        1. A: <input type="text" class="input-line w-24"> 吗？<br>
+                        &nbsp;&nbsp;&nbsp;B: <input type="text" class="input-line w-24">
+                    </div>
+                     <div class="p-2 border-b border-dashed border-gray-300">
+                        2. A: 你 <input type="text" class="input-line w-24"> 汉语 <input type="text" class="input-line w-24"> 吗？<br>
+                        &nbsp;&nbsp;&nbsp;B: 不太 <input type="text" class="input-line w-24">
+                    </div>
+                     <div class="p-2 border-b border-dashed border-gray-300">
+                        3. A: 你 <input type="text" class="input-line w-24"> 英语吗？<br>
+                        &nbsp;&nbsp;&nbsp;B: 不，<input type="text" class="input-line w-24">
+                    </div>
+                     <div class="p-2 border-b border-dashed border-gray-300">
+                        4. A: 今天 <input type="text" class="input-line w-24"> ?<br>
+                        &nbsp;&nbsp;&nbsp;B: 今天 <input type="text" class="input-line w-24">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center mb-12">
+                <button id="submitBtn" onclick="submitExam()" class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-4 px-12 rounded-full shadow-lg transform transition hover:scale-105 text-lg flex items-center gap-2 mx-auto">
+                    <span>Nộp bài & Xem kết quả</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+            </div>
+        </form>
+
+        <!-- Result Footer (Hidden initially) -->
+        <div id="resultFooter" class="hidden text-center p-6 bg-white rounded-xl shadow-xl border-2 border-teal-100">
+            <h3 class="text-2xl font-bold text-teal-600 mb-2">🎉 Đã hoàn thành!</h3>
+            <p class="text-gray-600 mb-4">Hãy chụp màn hình (Screenshot) toàn bộ trang này và gửi cho giáo viên nhé.</p>
+            <div class="inline-block bg-gray-100 p-3 rounded-lg text-left">
+                <p class="font-bold text-gray-700">Điểm phần B (Tự động): <span id="autoScore" class="text-pink-600 text-xl">0</span>/4</p>
+                <p class="text-xs text-gray-500">*Các phần khác giáo viên sẽ chấm sau khi nhận ảnh.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Timer Logic
+        let timeLeft = 45 * 60; // 45 minutes
+        const timerElement = document.getElementById('timer');
+        
+        const countdown = setInterval(() => {
+            const minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            
+            timerElement.textContent = `${minutes}:${seconds}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                alert("Hết giờ! Hệ thống sẽ tự động nộp bài.");
+                submitExam();
+            }
+            timeLeft--;
+        }, 1000);
+
+        // Grading Logic
+        function submitExam() {
+            // Stop Timer
+            clearInterval(countdown);
+            
+            // UI Changes
+            document.body.classList.add('review-mode');
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('resultFooter').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Lock Inputs
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => input.setAttribute('readonly', true));
+
+            // Grade Part B (Simple String Matching)
+            let scoreB = 0;
+            
+            // Helper to clean string (remove spaces and punctuation for loose checking)
+            const clean = (str) => str.replace(/[^\u4e00-\u9fa5]/g, ""); 
+
+            // Key Answers for Part B
+            const answers = {
+                'q_b1': ['爸爸妈妈身体好吗', '妈妈爸爸身体好吗'],
+                'q_b2': ['我去邮局寄信'],
+                'q_b3': ['这是段老师'],
+                'q_b4': ['我在美国学习英语']
+            };
+
+            for (let id in answers) {
+                const el = document.getElementById(id);
+                const userVal = clean(el.value);
+                const correctVals = answers[id].map(v => clean(v));
+                
+                // Visualization logic
+                if (correctVals.includes(userVal) && userVal !== "") {
+                    scoreB++;
+                    el.style.border = "2px solid #22c55e"; // Green
+                    el.style.backgroundColor = "#dcfce7";
+                    // Add checkmark
+                    const check = document.createElement('span');
+                    check.innerHTML = "✅";
+                    check.className = "absolute right-3 top-10"; 
+                    el.parentElement.style.position = "relative";
+                    el.parentElement.appendChild(check);
+                } else {
+                    el.style.border = "2px solid #ef4444"; // Red
+                    el.style.backgroundColor = "#fee2e2";
+                     // Add cross
+                    const cross = document.createElement('span');
+                    cross.innerHTML = "❌";
+                    cross.className = "absolute right-3 top-10"; 
+                    el.parentElement.style.position = "relative";
+                    el.parentElement.appendChild(cross);
+                }
+            }
+
+            // Update Score Display
+            document.getElementById('autoScore').textContent = scoreB;
+        }
+    </script>
+</body>
+</html>
