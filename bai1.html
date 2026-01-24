@@ -5,351 +5,169 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ôn tập Tiếng Trung Vui (Click-to-Match)</title>
     
-    <!-- Script bảo vệ truy cập -->
- <script>
-        // CẤU HÌNH: Chỉ điền tên miền và thư mục chính (bỏ http/https và tên file đi cho chắc ăn)
-        const TU_KHOA_HOP_LE = "khoa1508.github.io"; 
+    <script>
+        // CẤU HÌNH: Tên miền hợp lệ (Bỏ http/https, chỉ lấy domain)
+        const DOMAIN_HOP_LE = "khoa1508.github.io"; 
         
         // Link trang chủ để đá về khi bị chặn
-        const LINK_TRANG_CHU = "https://khoa1508.github.io/portal/portal2";
+        const LINK_TRANG_CHU = "https://khoa1508.github.io/portal/portal2"; // Hãy đảm bảo link này đúng
 
         function kiemTraTruyCap() {
-            // Lấy nguồn truy cập
             const nguonTruyCap = document.referrer;
             
-            // Mẹo Debug: Bỏ comment dòng dưới để xem trình duyệt đang báo nguồn là gì
-            // console.log("Nguồn hiện tại:", nguonTruyCap);
+            // Debug: Bật dòng này lên nếu muốn xem nguồn (F12)
+            // console.log("Nguồn truy cập:", nguonTruyCap);
 
-            // LOGIC KIỂM TRA:
-            // 1. !nguonTruyCap: Không có nguồn (do copy paste link trực tiếp)
-            // 2. indexOf(...) === -1: Nguồn không chứa từ khóa "khoa1508.github.io"
-            if (!nguonTruyCap || nguonTruyCap.indexOf(TU_KHOA_HOP_LE) === -1) {
-                
-                alert("⚠️ Bạn phải đăng nhập từ Trang Chủ để xem bài tập này!");
-                
-                // Chuyển hướng về trang chủ
+            // LOGIC: 
+            // 1. Nếu không có nguồn (Copy link paste thẳng) -> CHẶN
+            // 2. Nếu nguồn không chứa "khoa1508.github.io" -> CHẶN
+            if (!nguonTruyCap || nguonTruyCap.indexOf(DOMAIN_HOP_LE) === -1) {
+                alert("⚠️ Truy cập bị từ chối!\nBạn phải mở bài tập này từ Trang Chủ của DDK Chinese.");
                 window.location.href = LINK_TRANG_CHU;
                 
-                // Xóa trắng màn hình ngay lập tức để không lộ nội dung
-                document.write('<div style="height:100vh; display:flex; justify-content:center; align-items:center;"><h1>Đang chuyển hướng...</h1></div>');
+                // Xóa trắng màn hình để bảo mật nội dung
+                document.write('<div style="height:100vh;display:flex;justify-content:center;align-items:center;font-family:sans-serif;"><h1>⏳ Đang chuyển hướng về trang chủ...</h1></div>');
                 return false;
             }
-            return true;
+            return true; // Cho phép vào
         }
         
+        // Chạy ngay lập tức
         kiemTraTruyCap();
     </script>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* === CSS cho Login Overlay === */
-        #login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            font-family: sans-serif;
-        }
-        .login-box {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-        }
-        .login-box h2 {
-            color: #0056b3;
-            margin-top: 0;
-            margin-bottom: 25px;
-        }
-        .login-box input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1.1em;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease;
-        }
-        .login-box input:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-        .login-box button {
-            padding: 15px 30px;
-            font-size: 1.1em;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: 100%;
-        }
-        .login-box button:hover {
-            background-color = '#218838';
-        }
-        #login-error {
-            color: '#dc3545';
-            margin-top: 15px;
-            min-height: 25px;
-            font-size: 0.95em;
-        }
+        body { font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f4f8fb; color: #333; padding-bottom: 50px; margin: 0; }
+        h1, h2 { color: #004A99; text-align: center; }
+        h2 { margin-bottom: 10px; }
+        
+        /* Game Container */
+        .game-container { background-color: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-top: 30px; width: 90%; max-width: 900px; border: 1px solid #e0eafc; }
+        
+        /* Info Bar */
+        .game-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; flex-wrap: wrap; gap: 10px; }
+        .game-info p { margin: 0; font-weight: 600; color: #55606B; }
+        .game-info span { color: #FF8C00; font-weight: 700; }
+        
+        /* Buttons */
+        button { font-family: 'Inter', sans-serif; cursor: pointer; border: none; outline: none; transition: all 0.2s ease; }
+        #hint-button, #next-part-button, #restart-button, #next-stage1-button { padding: 10px 20px; font-size: 0.95em; font-weight: 600; background-color: #28a745; color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2); }
+        #hint-button:hover, #next-part-button:hover, #restart-button:hover, #next-stage1-button:hover { background-color: #218838; transform: translateY(-1px); }
+        #hint-button:disabled { background-color: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        /* Sections */
+        .game-part { margin-top: 10px; text-align: center; }
+        .stage-info { font-size: 1.1em; font-weight: bold; color: #004A99; margin-bottom: 5px; }
+        .instructions { color: #6c757d; font-style: italic; margin-bottom: 20px; }
 
-        /* === CSS Styles === */
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f0f8ff; color: #333; padding-bottom: 50px; }
-        h1, h2 { color: #0056b3; text-align: center; }
-        h2 { margin-bottom: 5px; }
-        .game-container { background-color: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-top: 20px; width: 90%; max-width: 900px; } /* Tăng width một chút */
-        .game-info { display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; flex-wrap: wrap; gap: 10px; }
-        .game-info p { margin: 0; font-size: 1.1em; }
-        #hint-button, #next-part-button, #restart-button, #next-stage1-button { padding: 10px 15px; font-size: 1em; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 5px; transition: background-color 0.3s ease; margin-top: 5px; }
-        #hint-button:hover, #next-part-button:hover, #restart-button:hover, #next-stage1-button:hover { background-color: #218838; }
-        #hint-button:disabled { background-color: #ccc; cursor: not-allowed; }
-        .game-part { margin-top: 20px; text-align: center; }
-        .stage-info { font-size: 1.1em; font-weight: bold; color: #0056b3; margin-bottom: 10px; }
-        .instructions { color: #555; font-style: italic; margin-bottom: 15px; }
-
-        /* === Phần 1 CSS (Giữ nguyên) === */
-        .memory-game-grid { display: grid; gap: 10px; perspective: 1000px; justify-content: center; max-width: 550px; margin: 20px auto; }
-        .memory-card { background-color: #007bff; height: 80px; width: 80px; border-radius: 5px; cursor: pointer; position: relative; transform-style: preserve-3d; transition: transform 0.6s; box-shadow: 1px 1px 3px rgba(0,0,0,0.2); border: 2px solid transparent; }
-        .memory-card .front-face, .memory-card .back-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; border-radius: 5px; padding: 5px; box-sizing: border-box; overflow-wrap: break-word; text-align: center; }
-        .memory-card .front-face { background-color: #e9ecef; color: #333; transform: rotateY(180deg); border: 1px solid #ccc; }
-        .memory-card .back-face { background-color: #007bff; color: white; font-size: 2em; line-height: 1; }
+        /* === PART 1: MEMORY GAME === */
+        .memory-game-grid { display: grid; gap: 12px; perspective: 1000px; justify-content: center; max-width: 600px; margin: 0 auto; }
+        .memory-card { background-color: transparent; height: 90px; width: 90px; border-radius: 10px; cursor: pointer; position: relative; transform-style: preserve-3d; transition: transform 0.5s; }
+        .memory-card .front-face, .memory-card .back-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; border-radius: 10px; padding: 5px; box-sizing: border-box; overflow-wrap: break-word; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        
+        /* Mặt trước (Chữ/Pinyin) */
+        .memory-card .front-face { background-color: #fff; color: #333; transform: rotateY(180deg); border: 2px solid #e0eafc; font-weight: 600; font-size: 1.2em; }
+        /* Mặt sau (Dấu hỏi) */
+        .memory-card .back-face { background-color: #004A99; color: white; font-size: 2.5em; font-weight: 700; }
+        
         .memory-card.flip { transform: rotateY(180deg); }
-        .memory-card.matched { cursor: default; border-color: #28a745; }
-        .memory-card.matched.flip .front-face { background-color: #d4edda; color: #155724; border-color: #218838; opacity: 1; }
+        .memory-card.matched { cursor: default; }
+        .memory-card.matched .front-face { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
 
-        /* === Phần 2 CSS (Click-to-Match) === */
-        .click-match-container {
-            display: flex;
-            flex-direction: column; /* Xếp chồng trên mobile */
-            gap: 30px; /* Khoảng cách lớn hơn giữa 2 cột */
-            margin-top: 20px;
+        /* === PART 2: CLICK-TO-MATCH === */
+        .click-match-container { display: flex; flex-direction: column; gap: 20px; margin-top: 20px; }
+        @media (min-width: 768px) { 
+            .click-match-container { flex-direction: row; justify-content: space-between; gap: 40px; } 
+            .item-column { width: 48%; }
         }
-        @media (min-width: 768px) { /* Xếp ngang trên desktop */
-            .click-match-container { flex-direction: row; justify-content: space-around; }
-            .item-column { width: 45%; }
-        }
+        .item-column { background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 20px; border-radius: 12px; }
+        .item-column h3 { margin-top: 0; text-align: center; color: #495057; font-size: 1.1em; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; margin-bottom: 20px; }
 
-        .item-column { /* Cột chứa các item */
-            width: 95%;
-            margin: 0 auto;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 15px;
-            border-radius: 8px;
-            min-height: 250px;
-        }
-        .item-column h3 { margin-top: 0; text-align: center; color: #0056b3; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .word-item, .meaning-item { background-color: #fff; border: 2px solid #e9ecef; padding: 15px; margin-bottom: 12px; border-radius: 10px; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .word-item:hover, .meaning-item:hover { border-color: #004A99; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        
+        .word-item .hanzi { font-size: 1.8em; display: block; color: #212529; font-weight: bold; margin-bottom: 4px; }
+        .word-item .pinyin { font-size: 0.9em; color: #868e96; }
+        .meaning-item { font-size: 1.1em; color: #343a40; font-weight: 500; min-height: 70px; display: flex; align-items: center; justify-content: center; }
 
-        .word-item, .meaning-item {
-            background-color: #fff;
-            border: 1px solid #ced4da;
-            padding: 12px 15px; /* Tăng padding */
-            margin: 10px 0;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            user-select: none;
-        }
-        .word-item:hover, .meaning-item:hover {
-            border-color: #007bff;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+        /* States for Part 2 */
+        .selected { border-color: #FF8C00 !important; background-color: #FFF4E6 !important; box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.2); }
+        .matched { background-color: #d4edda !important; border-color: #28a745 !important; color: #155724 !important; opacity: 0.6; cursor: default; transform: none !important; }
+        .incorrect-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; background-color: #f8d7da !important; border-color: #dc3545 !important; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
 
-        .word-item .hanzi { font-size: 2.2em; display: block; margin-bottom: 5px; line-height: 1.1; color: #343a40; }
-        .word-item .pinyin { font-size: 0.9em; display: block; opacity: 0.7; color: #495057; }
-        .meaning-item { font-size: 1.2em; font-weight: bold; color: #495057; display: flex; justify-content: center; align-items: center; min-height: 60px; /* Đảm bảo chiều cao tối thiểu */ }
-
-        /* Trạng thái được chọn */
-        .word-item.selected, .meaning-item.selected { /* Thêm meaning-item nếu cần */
-            border-color: #0056b3; /* Viền xanh đậm */
-            background-color: #e7f1ff; /* Nền xanh nhạt */
-            box-shadow: 0 0 5px rgba(0, 86, 179, 0.5);
-        }
-
-        /* Trạng thái đã ghép đúng */
-        .word-item.matched, .meaning-item.matched {
-            background-color: #d4edda; /* Nền xanh lá nhạt */
-            border-color: #28a745; /* Viền xanh lá */
-            color: #155724; /* Chữ xanh lá đậm */
-            opacity: 0.7; /* Làm mờ đi một chút */
-            cursor: default; /* Con trỏ mặc định */
-            box-shadow: none;
-        }
-        .word-item.matched .hanzi, .word-item.matched .pinyin {
-            color: #155724; /* Đổi màu chữ Hán/Pinyin khi match */
-            opacity: 1; /* Rõ ràng hơn */
-        }
-        .meaning-item.matched {
-            color: #155724; /* Đổi màu chữ Nghĩa khi match */
-             opacity: 1; /* Rõ ràng hơn */
-        }
-
-
-        /* Hiệu ứng sai */
-        .incorrect-shake {
-            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-            transform: translate3d(0, 0, 0);
-            background-color: #f8d7da; /* Nền đỏ nhạt */
-            border-color: #dc3545; /* Viền đỏ */
-        }
-        @keyframes shake { /* Giữ nguyên */ 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
-
-        /* === Phần Tổng kết CSS (Giữ nguyên) === */
-        #summary p { font-size: 1.2em; margin: 10px 0; }
-        #summary p span { font-weight: bold; color: #0056b3; }
+        /* Summary */
+        #summary { padding: 40px 20px; }
+        #summary p { font-size: 1.2em; margin: 15px 0; }
+        #summary button { background-color: #FF8C00; font-size: 1.1em; padding: 12px 30px; margin-top: 20px; }
+        #summary button:hover { background-color: #e07b00; }
     </style>
 </head>
 <body>
-    <!-- Giao diện đăng nhập -->
-    <div id="login-overlay">
-        <div class="login-box">
-            <h2>Đăng nhập giáo viên</h2>
-            <p>Vui lòng nhập mã giáo viên để tiếp tục</p>
-            <input type="password" id="teacher-code" placeholder="Nhập mã giáo viên">
-            <button id="login-button">Truy cập</button>
-            <div id="login-error"></div>
-        </div>
-    </div>
 
-    <!-- Nội dung chính của game (ban đầu ẩn) -->
-    <div id="main-content" style="display:none;">
-        <h1>Chào mừng bạn đến với Góc Ôn Tập Tiếng Trung!</h1>
+    <div id="main-content">
+        <h1>Góc Ôn Tập Tiếng Trung DDK</h1>
 
         <div class="game-container">
             <div class="game-info">
-                <p>Thời gian: <span id="timer">00:00</span></p>
-                <button id="hint-button">Gợi ý nè!</button>
-                <p>Gợi ý còn lại: <span id="hints-left">3</span></p>
+                <p>⏱️ Thời gian: <span id="timer">00:00</span></p>
+                <div>
+                    <button id="hint-button">💡 Gợi ý</button>
+                    <span style="font-size: 0.9em; margin-left: 5px; color:#aaa;">(Còn: <span id="hints-left" style="color:#FF8C00">3</span>)</span>
+                </div>
             </div>
 
             <div id="part1" class="game-part">
-                <h2>Phần 1: Lật thẻ vui nhộn!</h2>
-                <p class="stage-info">Màn chơi: <span id="stage-display">1/3</span></p>
-                <p class="instructions">Hãy lật các thẻ để tìm cặp Chữ Hán và Pinyin tương ứng!</p>
+                <h2>Phần 1: Lật thẻ tìm cặp</h2>
+                <p class="stage-info">Màn: <span id="stage-display">1/3</span></p>
+                <p class="instructions">Lật 2 thẻ để tìm cặp Chữ Hán & Pinyin giống nhau!</p>
                 <div id="memory-game" class="memory-game-grid"></div>
-                <button id="next-stage1-button" style="display: none; margin-top: 20px;">Qua Màn Tiếp Theo</button>
-                <button id="next-part-button" style="display: none; margin-top: 20px;">Tuyệt vời! Qua Phần 2 nào!</button>
+                <button id="next-stage1-button" style="display: none; margin-top: 20px;">Tiếp tục màn sau ➡️</button>
+                <button id="next-part-button" style="display: none; margin-top: 20px;">🎉 Qua Phần 2</button>
             </div>
 
             <div id="part2" class="game-part" style="display: none;">
-                <h2>Phần 2: Chọn từ đúng nghĩa!</h2>
-                <p class="instructions">Chọn 1 Chữ Hán (có Pinyin gợi ý), sau đó chọn Nghĩa Tiếng Việt tương ứng.</p>
+                <h2>Phần 2: Nối từ với nghĩa</h2>
+                <p class="instructions">Chọn Chữ Hán trước, sau đó chọn Nghĩa Tiếng Việt tương ứng.</p>
                 <div class="click-match-container">
                     <div id="word-items" class="item-column">
-                        <h3>Chữ Hán - Pinyin:</h3>
-                        </div>
+                        <h3>Chữ Hán - Pinyin</h3>
+                    </div>
                     <div id="meaning-items" class="item-column">
-                        <h3>Nghĩa Tiếng Việt:</h3>
-                        </div>
+                        <h3>Nghĩa Tiếng Việt</h3>
+                    </div>
                 </div>
             </div>
 
             <div id="summary" class="game-part" style="display: none;">
-                 <h2>Hoàn thành xuất sắc!</h2>
-                 <p>Chúc mừng bạn đã hoàn thành trò chơi!</p>
-                 <p>Thời gian hoàn thành: <span id="final-time"></span></p>
-                 <p>Số lượt gợi ý đã dùng: <span id="hints-used"></span></p>
-                 <button id="restart-button">Chơi lại nào!</button>
+                 <h2>🏆 Hoàn thành xuất sắc!</h2>
+                 <p>Bạn đã chinh phục bài học này.</p>
+                 <p>Thời gian: <span id="final-time"></span></p>
+                 <p>Gợi ý đã dùng: <span id="hints-used"></span></p>
+                 <button id="restart-button">🔄 Chơi lại từ đầu</button>
             </div>
         </div>
     </div>
 
     <script>
-        // === JavaScript xử lý đăng nhập ===
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginOverlay = document.getElementById('login-overlay');
-            const mainContent = document.getElementById('main-content');
-            const loginButton = document.getElementById('login-button');
-            const teacherCodeInput = document.getElementById('teacher-code');
-            const loginError = document.getElementById('login-error');
-            const SERVER_URL = "https://script.google.com/macros/s/AKfycbw0UuBeAYAEUcmx81DU6S1MxpJBm_VOutbkBvTGzl__bV2FvEPAtllTcBpn0gizsWEa/exec";
-
-            // Xử lý sự kiện đăng nhập
-            loginButton.addEventListener('click', function() {
-                const code = teacherCodeInput.value.trim();
-                
-                if (!code) {
-                    showLoginError("Vui lòng nhập mã giáo viên");
-                    return;
-                }
-
-                // Hiển thị trạng thái đang xử lý
-                loginButton.disabled = true;
-                loginButton.textContent = "Đang xác thực...";
-                loginError.textContent = "";
-
-                // Gửi request GET đến Server (Google Apps Script của bạn dùng doGet)
-                fetch(`${SERVER_URL}?code=${encodeURIComponent(code)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.valid === true) {
-                            // Đăng nhập thành công
-                            loginOverlay.style.display = 'none';
-                            mainContent.style.display = 'block';
-                        } else {
-                            // Đăng nhập thất bại
-                            showLoginError(data.message || "Mã giáo viên không đúng. Vui lòng thử lại.");
-                            teacherCodeInput.value = '';
-                            teacherCodeInput.focus();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Lỗi kết nối:', error);
-                        showLoginError("Lỗi kết nối đến server. Vui lòng thử lại.");
-                    })
-                    .finally(() => {
-                        loginButton.disabled = false;
-                        loginButton.textContent = "Truy cập";
-                    });
-            });
-
-            // Cho phép nhấn Enter để đăng nhập
-            teacherCodeInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    loginButton.click();
-                }
-            });
-
-            // Hàm hiển thị lỗi đăng nhập
-            function showLoginError(message) {
-                loginError.textContent = message;
-                loginError.style.color = '#dc3545';
-            }
-
-            // Tự động focus vào ô nhập mã
-            teacherCodeInput.focus();
-        });
-
-        // === JavaScript Code ===
         document.addEventListener('DOMContentLoaded', () => {
-            // ---- Dữ liệu đầu vào ----
-             const allPart1DataStr = "你nǐ 好hǎo 一yī 五wǔ 八bā 大dà 不bù 口kǒu 白bái 女nǚ 马mǎ 我wǒ 你nǐ 爱ài";
-             const allPart1Pairs = parseAllPart1Data(allPart1DataStr);
-             const part1StagesDataArrays = splitIntoStages(allPart1Pairs, [5, 5, 4]);
-             const initialHints = 3;
-
+            // ---- DATA INPUT ----
+            const allPart1DataStr = "你nǐ 好hǎo 一yī 五wǔ 八bā 大dà 不bù 口kǒu 白bái 女nǚ 马mǎ 我wǒ 你nǐ 爱ài";
             const part2DataStr = "你nǐBạn 好hǎoTốt 一yīMột 五wǔNăm 八bāTám 大dàLớn 不bùKhông 口kǒuMiệng 白báiTrắng 女nǚNữ 马mǎNgựa 我wǒTôi 爱àiYêu";
 
-            // ---- DOM Elements ----
+            // ---- PARSE DATA ----
+            const allPart1Pairs = parseAllPart1Data(allPart1DataStr);
+            const part1StagesDataArrays = splitIntoStages(allPart1Pairs, [5, 5, 4]);
+            const initialHints = 3;
+
+            // ---- DOM ELEMENTS ----
             const memoryGameContainer = document.getElementById('memory-game');
             const nextPartButton = document.getElementById('next-part-button');
             const part1Element = document.getElementById('part1');
             const part2Element = document.getElementById('part2');
-            // Đổi tên container Phần 2 cho rõ nghĩa
             const wordItemsContainer = document.getElementById('word-items');
             const meaningItemsContainer = document.getElementById('meaning-items');
             const timerElement = document.getElementById('timer');
@@ -362,252 +180,287 @@
             const stageDisplayElement = document.getElementById('stage-display');
             const nextStage1Button = document.getElementById('next-stage1-button');
 
-            // ---- Trạng thái Game ----
-            let part1Stage = 1; const totalPart1Stages = part1StagesDataArrays.length; let currentStagePairsData = []; let totalPairsCurrentStage = 0;
-            let part2ItemsData = []; let flippedCards = []; let matchedPairs = 0; let lockBoard = false; let timerInterval; let seconds = 0;
-            let hintsRemaining = initialHints; let hintsUsedCount = 0; let gameStarted = false; let part1Completed = false; let part2Started = false;
-            let part2CorrectMatches = 0; let totalItemsPart2 = 0;
-            // Bỏ draggedItem, thay bằng selectedWordItem
-            let selectedWordItem = null; // Item chữ Hán đang được chọn ở Phần 2
+            // ---- GAME STATE ----
+            let part1Stage = 1; 
+            const totalPart1Stages = part1StagesDataArrays.length; 
+            let currentStagePairsData = []; 
+            let totalPairsCurrentStage = 0;
+            let part2ItemsData = []; 
+            let flippedCards = []; 
+            let matchedPairs = 0; 
+            let lockBoard = false; 
+            let timerInterval; 
+            let seconds = 0;
+            let hintsRemaining = initialHints; 
+            let hintsUsedCount = 0; 
+            let gameStarted = false; 
+            let part1Completed = false; 
+            let part2Started = false;
+            let part2CorrectMatches = 0; 
+            let totalItemsPart2 = 0;
+            let selectedWordItem = null; 
 
-             // =================== Helper Functions (Giữ nguyên) ===================
-             function parseAllPart1Data(dataStr) { const items = dataStr.trim().split(/\s+/); const pairs = []; let id=0; items.forEach(item => { const m = item.match(/^([\u4e00-\u9fa5]+)([a-zA-ZüÜāáǎàēéěèīíǐìōóǒòūúǔù\d]+)$/u); if(m) pairs.push({ h: m[1], p: m[2], id: `p${id++}`}); else console.warn("P1 Err:",item); }); return pairs; }
-             function splitIntoStages(allPairs, stageSizes) { const stages = []; let idx=0; for(const size of stageSizes){ const s=allPairs.slice(idx, idx + size); if(s.length>0) stages.push(s); idx+=size; } if(idx<allPairs.length){ const r=allPairs.slice(idx); if(stages.length>0) stages[stages.length-1].push(...r); else stages.push(r); } return stages; }
-             function createCardsFromPairs(pairDataArray) { const cards = []; pairDataArray.forEach(p => { cards.push({ t:'hanzi', v:p.h, pId:p.id }); cards.push({ t:'pinyin', v:p.p, pId:p.id }); }); return cards; }
-
-            // =================== PART 1: MEMORY GAME (Giữ nguyên) ===================
-            function setupPart1Stage(stageNum) { /* Giữ nguyên */
-                part1Stage=stageNum; if(part1Stage > totalPart1Stages || part1Stage<1) return;
-                stageDisplayElement.textContent=`${part1Stage}/${totalPart1Stages}`; memoryGameContainer.innerHTML=''; matchedPairs=0; lockBoard=false; flippedCards=[];
-                currentStagePairsData = part1StagesDataArrays[part1Stage-1]||[]; totalPairsCurrentStage = currentStagePairsData.length;
-                if(totalPairsCurrentStage===0){ goToPart2(); return; }
-                const currentStageCards = createCardsFromPairs(currentStagePairsData); shuffleArray(currentStageCards);
-                const numCards = currentStageCards.length; let cols=Math.ceil(Math.sqrt(numCards)); cols=Math.min(cols,5); memoryGameContainer.style.gridTemplateColumns=`repeat(${cols}, minmax(80px, 1fr))`;
-                currentStageCards.forEach(d => { const c=document.createElement('div'); c.className='memory-card'; c.dataset.pairId=d.pId; c.dataset.type=d.t; c.dataset.value=d.v; c.innerHTML=`<div class="front-face">${d.v}</div><div class="back-face">?</div>`; c.addEventListener('click',handleCardFlip); memoryGameContainer.appendChild(c); });
-                nextStage1Button.style.display='none'; nextPartButton.style.display='none'; hintButton.style.display='inline-block'; hintButton.disabled = hintsRemaining<=0;
+            // =================== HELPERS ===================
+            function parseAllPart1Data(dataStr) { 
+                const items = dataStr.trim().split(/\s+/); 
+                const pairs = []; 
+                let id=0; 
+                items.forEach(item => { 
+                    const m = item.match(/^([\u4e00-\u9fa5]+)([a-zA-ZüÜāáǎàēéěèīíǐìōóǒòūúǔù\d]+)$/u); 
+                    if(m) pairs.push({ h: m[1], p: m[2], id: `p${id++}`}); 
+                }); 
+                return pairs; 
             }
-            function handleCardFlip() { /* Giữ nguyên */ if(part1Completed||lockBoard||this.classList.contains('flip')||this.classList.contains('matched')) return; if(!gameStarted){startGameTimer();gameStarted=true;} this.classList.add('flip'); flippedCards.push(this); if(flippedCards.length===2){lockBoard=true;checkForMatch();} }
-            function checkForMatch() { /* Giữ nguyên */ const [c1,c2]=flippedCards; const isMatch=c1.dataset.pairId===c2.dataset.pairId; if(isMatch) disableCards(); else unflipCards(); }
-            function disableCards() { /* Giữ nguyên */ flippedCards.forEach(c=>{c.classList.add('matched','flip');}); matchedPairs++; resetBoardState(); if(matchedPairs===totalPairsCurrentStage){ console.log(`Done Stage ${part1Stage}`); setTimeout(()=>{ hintButton.style.display='none'; if(part1Stage<totalPart1Stages) nextStage1Button.style.display='inline-block'; else {part1Completed=true; nextPartButton.style.display='inline-block';} }, 500); } }
-            function unflipCards() { /* Giữ nguyên */ setTimeout(()=>{ flippedCards.forEach(c=>{if(!c.classList.contains('matched')) c.classList.remove('flip');}); resetBoardState(); }, 1000); }
-            function resetBoardState() { /* Giữ nguyên */ flippedCards=[]; lockBoard=false; }
+            function splitIntoStages(allPairs, stageSizes) { 
+                const stages = []; let idx=0; 
+                for(const size of stageSizes){ 
+                    const s=allPairs.slice(idx, idx + size); 
+                    if(s.length>0) stages.push(s); 
+                    idx+=size; 
+                } 
+                if(idx<allPairs.length){ 
+                    const r=allPairs.slice(idx); 
+                    if(stages.length>0) stages[stages.length-1].push(...r); else stages.push(r); 
+                } 
+                return stages; 
+            }
+            function createCardsFromPairs(pairDataArray) { 
+                const cards = []; 
+                pairDataArray.forEach(p => { 
+                    cards.push({ t:'hanzi', v:p.h, pId:p.id }); 
+                    cards.push({ t:'pinyin', v:p.p, pId:p.id }); 
+                }); 
+                return cards; 
+            }
+            function shuffleArray(array) { 
+                for (let i = array.length - 1; i > 0; i--) { 
+                    const j = Math.floor(Math.random() * (i + 1)); 
+                    [array[i], array[j]] = [array[j], array[i]]; 
+                } 
+            }
 
-            // =================== PART 2: CLICK-TO-MATCH ===================
+            // =================== PART 1 FUNCTIONS ===================
+            function setupPart1Stage(stageNum) { 
+                part1Stage=stageNum; 
+                if(part1Stage > totalPart1Stages || part1Stage<1) return;
+                stageDisplayElement.textContent=`${part1Stage}/${totalPart1Stages}`; 
+                memoryGameContainer.innerHTML=''; 
+                matchedPairs=0; lockBoard=false; flippedCards=[];
+                currentStagePairsData = part1StagesDataArrays[part1Stage-1]||[]; 
+                totalPairsCurrentStage = currentStagePairsData.length;
+                if(totalPairsCurrentStage===0){ goToPart2(); return; }
+                const currentStageCards = createCardsFromPairs(currentStagePairsData); 
+                shuffleArray(currentStageCards);
+                const numCards = currentStageCards.length; 
+                let cols=Math.ceil(Math.sqrt(numCards)); 
+                cols=Math.min(cols,5); 
+                memoryGameContainer.style.gridTemplateColumns=`repeat(${cols}, minmax(80px, 1fr))`;
+                currentStageCards.forEach(d => { 
+                    const c=document.createElement('div'); c.className='memory-card'; 
+                    c.dataset.pairId=d.pId; c.dataset.type=d.t; c.dataset.value=d.v; 
+                    c.innerHTML=`<div class="front-face">${d.v}</div><div class="back-face">?</div>`; 
+                    c.addEventListener('click',handleCardFlip); 
+                    memoryGameContainer.appendChild(c); 
+                }); 
+                nextStage1Button.style.display='none'; 
+                nextPartButton.style.display='none'; 
+                hintButton.style.display='inline-block'; 
+                hintButton.disabled = hintsRemaining<=0;
+            }
+            function handleCardFlip() { 
+                if(part1Completed||lockBoard||this.classList.contains('flip')||this.classList.contains('matched')) return; 
+                if(!gameStarted){startGameTimer();gameStarted=true;} 
+                this.classList.add('flip'); 
+                flippedCards.push(this); 
+                if(flippedCards.length===2){lockBoard=true;checkForMatch();} 
+            }
+            function checkForMatch() { 
+                const [c1,c2]=flippedCards; 
+                const isMatch=c1.dataset.pairId===c2.dataset.pairId; 
+                if(isMatch) disableCards(); else unflipCards(); 
+            }
+            function disableCards() { 
+                flippedCards.forEach(c=>{c.classList.add('matched','flip');}); 
+                matchedPairs++; resetBoardState(); 
+                if(matchedPairs===totalPairsCurrentStage){ 
+                    setTimeout(()=>{ 
+                        hintButton.style.display='none'; 
+                        if(part1Stage<totalPart1Stages) nextStage1Button.style.display='inline-block'; 
+                        else {part1Completed=true; nextPartButton.style.display='inline-block';} 
+                    }, 500); 
+                } 
+            }
+            function unflipCards() { 
+                setTimeout(()=>{ 
+                    flippedCards.forEach(c=>{if(!c.classList.contains('matched')) c.classList.remove('flip');}); 
+                    resetBoardState(); 
+                }, 1000); 
+            }
+            function resetBoardState() { flippedCards=[]; lockBoard=false; }
 
-            // Giữ lại hàm parse P2 đã sửa ở lần trước
-            function parsePart2DataRevised(dataStr) { /* Giữ nguyên hàm parse P2 đã sửa */
+            // =================== PART 2 FUNCTIONS ===================
+            function parsePart2DataRevised(dataStr) {
                 const items = dataStr.trim().split(/\s+/); const parsedItems = []; let uniqueIdCounter = 0;
                 items.forEach(item => {
-                    let hanzi = '', pinyin = '', meaning = '', pinyinStartIndex = item.search(/[a-zA-ZüÜāáǎàēéěèīíǐìōóǒòūúǔù]/u);
-                    if (pinyinStartIndex === -1) { console.warn("P2 PE: No Pinyin", item); return; }
+                    let hanzi='', pinyin='', meaning='', pinyinStartIndex = item.search(/[a-zA-ZüÜāáǎàēéěèīíǐìōóǒòūúǔù]/u);
+                    if (pinyinStartIndex === -1) return;
                     hanzi = item.substring(0, pinyinStartIndex);
                     let meaningStartIndex = -1;
                     for (let i = pinyinStartIndex; i < item.length; i++) { if (item[i].match(/[a-zA-ZÀÁÂãÈÉÊÌÍÒÓÔÕÙÚÝĂĐĨŨƠƯẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸ]/iu) && item[i] === item[i].toUpperCase() && item[i] !== item[i].toLowerCase()) { meaningStartIndex = i; break; } }
                     if (meaningStartIndex === -1) { for (let i = pinyinStartIndex; i < item.length; i++) { if (item[i].match(/[àáâãèéêìíòóôõùúýăđĩũơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/iu)) { if (i > pinyinStartIndex && item[i-1].match(/[a-zA-ZüÜāáǎàēéěèīíǐìōóǒòūúǔù\d]/u)) { meaningStartIndex = i; break; } } } }
-                    if (meaningStartIndex === -1 || meaningStartIndex <= pinyinStartIndex) { console.warn("P2 PE: No Meaning", item); return; }
+                    if (meaningStartIndex === -1 || meaningStartIndex <= pinyinStartIndex) return;
                     pinyin = item.substring(pinyinStartIndex, meaningStartIndex); meaning = item.substring(meaningStartIndex);
                     if (hanzi && pinyin && meaning) parsedItems.push({ id: `item-${uniqueIdCounter++}`, hanzi, pinyin, meaning });
-                    else console.warn("P2 PE: Extract Fail", item);
                 });
                 totalItemsPart2 = parsedItems.length;
-                if (totalItemsPart2 === 0 && items.length > 0) console.error("P2 PE: Parse ALL fail!"); else console.log(`Parsed ${totalItemsPart2} items P2.`);
                 return parsedItems;
-             }
+            }
 
             function setupPart2() {
                 part2ItemsData = parsePart2DataRevised(part2DataStr);
-                if (!part2ItemsData || part2ItemsData.length === 0) {
-                    console.error("Cannot setup Part 2: No data!");
-                    wordItemsContainer.innerHTML = '<p style="color: red;">Lỗi tải dữ liệu Phần 2!</p>';
-                    meaningItemsContainer.innerHTML = '';
-                    return;
-                }
-
-                wordItemsContainer.innerHTML = '<h3>Chữ Hán - Pinyin:</h3>'; // Xóa nội dung cũ
-                meaningItemsContainer.innerHTML = '<h3>Nghĩa Tiếng Việt:</h3>'; // Xóa nội dung cũ
-                part2CorrectMatches = 0;
-                selectedWordItem = null; // Reset lựa chọn
-
-                const meaningElements = []; // Mảng chứa các element nghĩa để xáo trộn
-
-                // Tạo các item Nghĩa Tiếng Việt
+                wordItemsContainer.innerHTML = '<h3>Chữ Hán - Pinyin</h3>'; 
+                meaningItemsContainer.innerHTML = '<h3>Nghĩa Tiếng Việt</h3>'; 
+                part2CorrectMatches = 0; selectedWordItem = null;
+                const meaningElements = []; 
                 part2ItemsData.forEach(item => {
                     const meaningDiv = document.createElement('div');
                     meaningDiv.classList.add('meaning-item');
                     meaningDiv.textContent = item.meaning;
-                    meaningDiv.dataset.meaning = item.meaning; // Lưu nghĩa để so khớp
-                    meaningDiv.dataset.id = item.id; // Lưu id gốc để gợi ý
+                    meaningDiv.dataset.meaning = item.meaning;
                     meaningDiv.addEventListener('click', handleMeaningItemClick);
                     meaningElements.push(meaningDiv);
                 });
-
-                // Xáo trộn và thêm các item Nghĩa vào cột
                 shuffleArray(meaningElements);
                 meaningElements.forEach(el => meaningItemsContainer.appendChild(el));
-
-                 // Tạo các item Chữ Hán - Pinyin
-                 const wordElements = []; // Mảng chứa các element từ để xáo trộn
-                 part2ItemsData.forEach(item => {
-                     const wordDiv = document.createElement('div');
-                     wordDiv.classList.add('word-item');
-                     wordDiv.dataset.meaning = item.meaning; // Lưu nghĩa để so khớp
-                     wordDiv.dataset.id = item.id; // Lưu id gốc
-                     wordDiv.innerHTML = `
-                         <span class="hanzi">${item.hanzi}</span>
-                         <span class="pinyin">${item.pinyin}</span>
-                     `;
-                     wordDiv.addEventListener('click', handleWordItemClick);
-                     wordElements.push(wordDiv);
-                 });
-
-                // Xáo trộn và thêm các item Từ vào cột
+                const wordElements = []; 
+                part2ItemsData.forEach(item => {
+                    const wordDiv = document.createElement('div');
+                    wordDiv.classList.add('word-item');
+                    wordDiv.dataset.meaning = item.meaning;
+                    wordDiv.innerHTML = `<span class="hanzi">${item.hanzi}</span><span class="pinyin">${item.pinyin}</span>`;
+                    wordDiv.addEventListener('click', handleWordItemClick);
+                    wordElements.push(wordDiv);
+                });
                 shuffleArray(wordElements);
                 wordElements.forEach(el => wordItemsContainer.appendChild(el));
-
                 part2Started = true;
                 hintButton.style.display = 'inline-block';
                 hintButton.disabled = hintsRemaining <= 0;
             }
 
-            // --- Click Event Handlers Part 2 ---
             function handleWordItemClick() {
-                if (this.classList.contains('matched')) return; // Bỏ qua nếu đã khớp
-
-                // Bỏ chọn item cũ (nếu có)
-                if (selectedWordItem) {
-                    selectedWordItem.classList.remove('selected');
-                }
-
-                // Nếu click lại chính item đang chọn -> bỏ chọn
-                if (selectedWordItem === this) {
-                    selectedWordItem = null;
-                } else {
-                    // Chọn item mới
-                    this.classList.add('selected');
-                    selectedWordItem = this;
-                }
+                if (this.classList.contains('matched')) return;
+                if (selectedWordItem) selectedWordItem.classList.remove('selected');
+                if (selectedWordItem === this) selectedWordItem = null;
+                else { this.classList.add('selected'); selectedWordItem = this; }
             }
 
             function handleMeaningItemClick() {
-                if (this.classList.contains('matched') || !selectedWordItem) {
-                    // Bỏ qua nếu ô nghĩa đã khớp hoặc chưa chọn ô chữ Hán nào
-                    return;
-                }
-
+                if (this.classList.contains('matched') || !selectedWordItem) return;
                 const clickedMeaningItem = this;
                 const targetMeaning = clickedMeaningItem.dataset.meaning;
                 const selectedMeaning = selectedWordItem.dataset.meaning;
-
-                // Tạm thời bỏ chọn chữ Hán để user thấy kết quả
-                 selectedWordItem.classList.remove('selected');
-
+                selectedWordItem.classList.remove('selected');
 
                 if (targetMeaning === selectedMeaning) {
-                    // ---- Ghép đúng ----
-                    console.log("Ghép đúng!");
                     clickedMeaningItem.classList.add('matched');
                     selectedWordItem.classList.add('matched');
-
-                    // Không cho click lại những item đã ghép đúng
-                     clickedMeaningItem.removeEventListener('click', handleMeaningItemClick); // Có thể không cần nếu check 'matched' đầu hàm
-                     selectedWordItem.removeEventListener('click', handleWordItemClick);    // Có thể không cần nếu check 'matched' đầu hàm
-
                     part2CorrectMatches++;
-                    selectedWordItem = null; // Reset lựa chọn
-
-                    // Kiểm tra hoàn thành Phần 2
+                    selectedWordItem = null;
                     if (part2CorrectMatches === totalItemsPart2) {
-                        console.log("Hoàn thành Phần 2!");
-                        stopGameTimer();
-                        showSummary();
+                        stopGameTimer(); showSummary();
                     }
                 } else {
-                    // ---- Ghép sai ----
-                    console.log("Sai rồi!");
-                    // Thêm hiệu ứng rung lắc
                     clickedMeaningItem.classList.add('incorrect-shake');
                     selectedWordItem.classList.add('incorrect-shake');
-
-                    // Xóa hiệu ứng và reset lựa chọn sau một khoảng thời gian ngắn
                     setTimeout(() => {
                         clickedMeaningItem.classList.remove('incorrect-shake');
                         selectedWordItem.classList.remove('incorrect-shake');
-                        selectedWordItem = null; // Reset lựa chọn
-                    }, 400); // Thời gian bằng với animation shake
+                        selectedWordItem = null;
+                    }, 400);
                 }
             }
 
-            // =================== COMMON FEATURES (Update Hint P2) ===================
-            function startGameTimer() { /* Giữ nguyên */ clearInterval(timerInterval); seconds = 0; timerElement.textContent = formatTime(seconds); timerInterval = setInterval(() => { seconds++; timerElement.textContent = formatTime(seconds); }, 1000); }
-            function stopGameTimer() { /* Giữ nguyên */ clearInterval(timerInterval); }
-            function formatTime(totalSeconds) { /* Giữ nguyên */ const minutes = Math.floor(totalSeconds / 60); const secs = totalSeconds % 60; return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`; }
-            function useHint() { /* Giữ nguyên */ if (hintsRemaining <= 0) return; hintsRemaining--; hintsUsedCount++; hintsLeftElement.textContent = hintsRemaining; if (!part2Started) provideHintPart1(); else provideHintPart2(); if (hintsRemaining === 0) hintButton.disabled = true; }
-            function provideHintPart1() { /* Giữ nguyên */ if (lockBoard) return; const unmatchedCards = Array.from(memoryGameContainer.querySelectorAll('.memory-card:not(.matched):not(.flip)')); if (unmatchedCards.length < 2) return; const randomCard1 = unmatchedCards[Math.floor(Math.random() * unmatchedCards.length)]; const pairIdToFind = randomCard1.dataset.pairId; let randomCard2 = null; for (const card of unmatchedCards) { if (card !== randomCard1 && card.dataset.pairId === pairIdToFind) { randomCard2 = card; break; } } if (randomCard1 && randomCard2) { lockBoard = true; randomCard1.classList.add('flip'); randomCard2.classList.add('flip'); setTimeout(() => { randomCard1.classList.remove('flip'); randomCard2.classList.remove('flip'); lockBoard = false; }, 1500); } }
-
-            // *** Cập nhật gợi ý Phần 2 ***
+            // =================== COMMON FEATURES ===================
+            function startGameTimer() { clearInterval(timerInterval); seconds = 0; timerElement.textContent = formatTime(seconds); timerInterval = setInterval(() => { seconds++; timerElement.textContent = formatTime(seconds); }, 1000); }
+            function stopGameTimer() { clearInterval(timerInterval); }
+            function formatTime(totalSeconds) { const minutes = Math.floor(totalSeconds / 60); const secs = totalSeconds % 60; return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`; }
+            
+            function useHint() { 
+                if (hintsRemaining <= 0) return; 
+                hintsRemaining--; hintsUsedCount++; hintsLeftElement.textContent = hintsRemaining; 
+                if (!part2Started) provideHintPart1(); else provideHintPart2(); 
+                if (hintsRemaining === 0) hintButton.disabled = true; 
+            }
+            
+            function provideHintPart1() { 
+                if (lockBoard) return; 
+                const unmatchedCards = Array.from(memoryGameContainer.querySelectorAll('.memory-card:not(.matched):not(.flip)')); 
+                if (unmatchedCards.length < 2) return; 
+                const randomCard1 = unmatchedCards[Math.floor(Math.random() * unmatchedCards.length)]; 
+                const pairIdToFind = randomCard1.dataset.pairId; 
+                let randomCard2 = null; 
+                for (const card of unmatchedCards) { if (card !== randomCard1 && card.dataset.pairId === pairIdToFind) { randomCard2 = card; break; } } 
+                if (randomCard1 && randomCard2) { 
+                    lockBoard = true; 
+                    randomCard1.classList.add('flip'); randomCard2.classList.add('flip'); 
+                    setTimeout(() => { randomCard1.classList.remove('flip'); randomCard2.classList.remove('flip'); lockBoard = false; }, 1500); 
+                } 
+            }
+            
             function provideHintPart2() {
-                 // Tìm một word-item chưa được ghép đúng
                  const availableWordItems = Array.from(wordItemsContainer.querySelectorAll('.word-item:not(.matched)'));
                  if (availableWordItems.length === 0) return;
-
-                 // Chọn ngẫu nhiên một item
                  const randomWordItem = availableWordItems[Math.floor(Math.random() * availableWordItems.length)];
                  const correctMeaning = randomWordItem.dataset.meaning;
-
-                 // Tìm meaning-item tương ứng chưa được ghép đúng
                  const correctMeaningItem = meaningItemsContainer.querySelector(`.meaning-item[data-meaning="${correctMeaning}"]:not(.matched)`);
-
                  if (randomWordItem && correctMeaningItem) {
-                     // Làm nổi bật (nhấp nháy) cả hai item này
                      const originalWordBg = randomWordItem.style.backgroundColor;
                      const originalMeaningBg = correctMeaningItem.style.backgroundColor;
-                     const highlightColor = '#a7d7f5'; // Màu xanh dương nhạt
+                     const highlightColor = '#FFF4E6'; 
                      let blinkCount = 0;
-
                      const blinkInterval = setInterval(() => {
                          const isHighlighted = blinkCount % 2 === 0;
                          randomWordItem.style.backgroundColor = isHighlighted ? highlightColor : originalWordBg;
                          correctMeaningItem.style.backgroundColor = isHighlighted ? highlightColor : originalMeaningBg;
                          blinkCount++;
-                         if (blinkCount > 5) { // Nhấp nháy 3 lần
-                             clearInterval(blinkInterval);
-                             randomWordItem.style.backgroundColor = originalWordBg; // Trả lại màu gốc
-                             correctMeaningItem.style.backgroundColor = originalMeaningBg;
+                         if (blinkCount > 5) { 
+                             clearInterval(blinkInterval); 
+                             randomWordItem.style.backgroundColor = originalWordBg; 
+                             correctMeaningItem.style.backgroundColor = originalMeaningBg; 
                          }
                      }, 250);
                  }
             }
 
-            function showSummary() { /* Giữ nguyên */ part1Element.style.display = 'none'; part2Element.style.display = 'none'; summaryElement.style.display = 'block'; hintButton.style.display = 'none'; finalTimeElement.textContent = formatTime(seconds); hintsUsedElement.textContent = hintsUsedCount; }
-
-             // *** Cập nhật hàm goToPart2 để reset gợi ý ***
-             function goToPart2() {
-                 part1Element.style.display = 'none'; part2Element.style.display = 'block';
-                 nextStage1Button.style.display = 'none'; nextPartButton.style.display = 'none';
-                 hintsRemaining = initialHints; // Reset gợi ý
-                 hintsLeftElement.textContent = hintsRemaining;
-                 hintButton.disabled = hintsRemaining <= 0;
-                 hintButton.style.display = 'inline-block';
-                 setupPart2();
-             }
-
-            function restartGame() { /* Giữ nguyên - Đã reset gợi ý đúng */
-                stopGameTimer(); seconds = 0; hintsRemaining = initialHints; hintsUsedCount = 0; matchedPairs = 0; part2CorrectMatches = 0;
-                gameStarted = false; part1Completed = false; part2Started = false; flippedCards = []; lockBoard = false; selectedWordItem = null; /* Reset thêm */ part1Stage = 1;
-                timerElement.textContent = '00:00'; hintsLeftElement.textContent = hintsRemaining; hintButton.disabled = false; hintButton.style.display = 'inline-block';
-                summaryElement.style.display = 'none'; part2Element.style.display = 'none'; nextStage1Button.style.display = 'none'; nextPartButton.style.display = 'none';
-                part1Element.style.display = 'block'; setupPart1Stage(1);
+            function showSummary() { part1Element.style.display = 'none'; part2Element.style.display = 'none'; summaryElement.style.display = 'block'; hintButton.style.display = 'none'; finalTimeElement.textContent = formatTime(seconds); hintsUsedElement.textContent = hintsUsedCount; }
+            function goToPart2() { 
+                part1Element.style.display = 'none'; part2Element.style.display = 'block'; 
+                nextStage1Button.style.display = 'none'; nextPartButton.style.display = 'none'; 
+                hintsRemaining = initialHints; hintsLeftElement.textContent = hintsRemaining; 
+                hintButton.disabled = hintsRemaining <= 0; hintButton.style.display = 'inline-block'; 
+                setupPart2(); 
             }
-            function shuffleArray(array) { /* Giữ nguyên */ for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
+            function restartGame() { 
+                stopGameTimer(); seconds = 0; hintsRemaining = initialHints; hintsUsedCount = 0; 
+                matchedPairs = 0; part2CorrectMatches = 0; gameStarted = false; part1Completed = false; 
+                part2Started = false; flippedCards = []; lockBoard = false; selectedWordItem = null; part1Stage = 1;
+                timerElement.textContent = '00:00'; hintsLeftElement.textContent = hintsRemaining; 
+                hintButton.disabled = false; hintButton.style.display = 'inline-block'; 
+                summaryElement.style.display = 'none'; part2Element.style.display = 'none'; 
+                nextStage1Button.style.display = 'none'; nextPartButton.style.display = 'none'; 
+                part1Element.style.display = 'block'; setupPart1Stage(1); 
+            }
 
-            // =================== Initialization ===================
+            // ---- INIT ----
             hintButton.addEventListener('click', useHint);
             restartButton.addEventListener('click', restartGame);
             nextStage1Button.addEventListener('click', () => { if (part1Stage < totalPart1Stages) setupPart1Stage(part1Stage + 1); });
             nextPartButton.addEventListener('click', goToPart2);
-            setupPart1Stage(1); hintsLeftElement.textContent = hintsRemaining; hintButton.disabled = false;
-
-        }); // End DOMContentLoaded
+            setupPart1Stage(1); 
+            hintsLeftElement.textContent = hintsRemaining; 
+            hintButton.disabled = false;
+        });
     </script>
 </body>
 </html>
