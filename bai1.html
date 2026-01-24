@@ -6,32 +6,37 @@
     <title>Ôn tập Tiếng Trung Vui (Click-to-Match)</title>
     
     <!-- Script bảo vệ truy cập -->
-    <script>
-        // Định nghĩa trang chủ hợp lệ
-        const TRANG_CHU = "http://khoa1508.github.io/portal/portal2";
+ <script>
+        // CẤU HÌNH: Chỉ điền tên miền và thư mục chính (bỏ http/https và tên file đi cho chắc ăn)
+        const TU_KHOA_HOP_LE = "khoa1508.github.io"; 
         
-        // Kiểm tra nguồn truy cập
+        // Link trang chủ để đá về khi bị chặn
+        const LINK_TRANG_CHU = "https://khoa1508.github.io/portal/portal2";
+
         function kiemTraTruyCap() {
-            // Lấy thông tin nguồn truy cập (referrer)
+            // Lấy nguồn truy cập
             const nguonTruyCap = document.referrer;
             
-            // Kiểm tra xem nguồn truy cập có chứa đường link TRANG_CHU không
-            // Nếu không có referrer hoặc referrer không chứa TRANG_CHU
-            if (!nguonTruyCap || nguonTruyCap.indexOf(TRANG_CHU) === -1) {
-                // Hiển thị cảnh báo
-                alert("Bạn phải đăng nhập từ Trang Chủ để xem bài tập này!");
+            // Mẹo Debug: Bỏ comment dòng dưới để xem trình duyệt đang báo nguồn là gì
+            // console.log("Nguồn hiện tại:", nguonTruyCap);
+
+            // LOGIC KIỂM TRA:
+            // 1. !nguonTruyCap: Không có nguồn (do copy paste link trực tiếp)
+            // 2. indexOf(...) === -1: Nguồn không chứa từ khóa "khoa1508.github.io"
+            if (!nguonTruyCap || nguonTruyCap.indexOf(TU_KHOA_HOP_LE) === -1) {
+                
+                alert("⚠️ Bạn phải đăng nhập từ Trang Chủ để xem bài tập này!");
                 
                 // Chuyển hướng về trang chủ
-                window.location.href = TRANG_CHU;
+                window.location.href = LINK_TRANG_CHU;
                 
-                // Ngăn không cho trang tiếp tục tải
-                document.write('<h1 style="text-align: center; margin-top: 50px; color: red;">Đang chuyển hướng về trang chủ...</h1>');
+                // Xóa trắng màn hình ngay lập tức để không lộ nội dung
+                document.write('<div style="height:100vh; display:flex; justify-content:center; align-items:center;"><h1>Đang chuyển hướng...</h1></div>');
                 return false;
             }
             return true;
         }
         
-        // Thực hiện kiểm tra ngay khi trang bắt đầu tải
         kiemTraTruyCap();
     </script>
     
