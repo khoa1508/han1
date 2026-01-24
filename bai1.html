@@ -5,6 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ôn tập Tiếng Trung Vui (Click-to-Match)</title>
     <style>
+        /* === CSS cho Login Overlay === */
+        #login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            font-family: sans-serif;
+        }
+        .login-box {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        .login-box h2 {
+            color: #0056b3;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1.1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        .login-box input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .login-box button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        .login-box button:hover {
+            background-color: #218838;
+        }
+        #login-error {
+            color: #dc3545;
+            margin-top: 15px;
+            min-height: 25px;
+            font-size: 0.95em;
+        }
+
         /* === CSS Styles === */
         body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f0f8ff; color: #333; padding-bottom: 50px; }
         h1, h2 { color: #0056b3; text-align: center; }
@@ -114,47 +178,132 @@
     </style>
 </head>
 <body>
-    <h1>Chào mừng bạn đến với Góc Ôn Tập Tiếng Trung!</h1>
-
-    <div class="game-container">
-        <div class="game-info">
-            <p>Thời gian: <span id="timer">00:00</span></p>
-            <button id="hint-button">Gợi ý nè!</button>
-            <p>Gợi ý còn lại: <span id="hints-left">3</span></p>
+    <!-- Giao diện đăng nhập -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>Đăng nhập giáo viên</h2>
+            <p>Vui lòng nhập mã giáo viên để tiếp tục</p>
+            <input type="password" id="teacher-code" placeholder="Nhập mã giáo viên">
+            <button id="login-button">Truy cập</button>
+            <div id="login-error"></div>
         </div>
+    </div>
 
-        <div id="part1" class="game-part">
-            <h2>Phần 1: Lật thẻ vui nhộn!</h2>
-            <p class="stage-info">Màn chơi: <span id="stage-display">1/3</span></p>
-            <p class="instructions">Hãy lật các thẻ để tìm cặp Chữ Hán và Pinyin tương ứng!</p>
-            <div id="memory-game" class="memory-game-grid"></div>
-            <button id="next-stage1-button" style="display: none; margin-top: 20px;">Qua Màn Tiếp Theo</button>
-            <button id="next-part-button" style="display: none; margin-top: 20px;">Tuyệt vời! Qua Phần 2 nào!</button>
-        </div>
+    <!-- Nội dung chính của game (ban đầu ẩn) -->
+    <div id="main-content" style="display:none;">
+        <h1>Chào mừng bạn đến với Góc Ôn Tập Tiếng Trung!</h1>
 
-        <div id="part2" class="game-part" style="display: none;">
-            <h2>Phần 2: Chọn từ đúng nghĩa!</h2>
-            <p class="instructions">Chọn 1 Chữ Hán (có Pinyin gợi ý), sau đó chọn Nghĩa Tiếng Việt tương ứng.</p>
-            <div class="click-match-container">
-                <div id="word-items" class="item-column">
-                    <h3>Chữ Hán - Pinyin:</h3>
-                    </div>
-                <div id="meaning-items" class="item-column">
-                    <h3>Nghĩa Tiếng Việt:</h3>
-                    </div>
+        <div class="game-container">
+            <div class="game-info">
+                <p>Thời gian: <span id="timer">00:00</span></p>
+                <button id="hint-button">Gợi ý nè!</button>
+                <p>Gợi ý còn lại: <span id="hints-left">3</span></p>
             </div>
-        </div>
 
-        <div id="summary" class="game-part" style="display: none;">
-             <h2>Hoàn thành xuất sắc!</h2>
-             <p>Chúc mừng bạn đã hoàn thành trò chơi!</p>
-             <p>Thời gian hoàn thành: <span id="final-time"></span></p>
-             <p>Số lượt gợi ý đã dùng: <span id="hints-used"></span></p>
-             <button id="restart-button">Chơi lại nào!</button>
+            <div id="part1" class="game-part">
+                <h2>Phần 1: Lật thẻ vui nhộn!</h2>
+                <p class="stage-info">Màn chơi: <span id="stage-display">1/3</span></p>
+                <p class="instructions">Hãy lật các thẻ để tìm cặp Chữ Hán và Pinyin tương ứng!</p>
+                <div id="memory-game" class="memory-game-grid"></div>
+                <button id="next-stage1-button" style="display: none; margin-top: 20px;">Qua Màn Tiếp Theo</button>
+                <button id="next-part-button" style="display: none; margin-top: 20px;">Tuyệt vời! Qua Phần 2 nào!</button>
+            </div>
+
+            <div id="part2" class="game-part" style="display: none;">
+                <h2>Phần 2: Chọn từ đúng nghĩa!</h2>
+                <p class="instructions">Chọn 1 Chữ Hán (có Pinyin gợi ý), sau đó chọn Nghĩa Tiếng Việt tương ứng.</p>
+                <div class="click-match-container">
+                    <div id="word-items" class="item-column">
+                        <h3>Chữ Hán - Pinyin:</h3>
+                        </div>
+                    <div id="meaning-items" class="item-column">
+                        <h3>Nghĩa Tiếng Việt:</h3>
+                        </div>
+                </div>
+            </div>
+
+            <div id="summary" class="game-part" style="display: none;">
+                 <h2>Hoàn thành xuất sắc!</h2>
+                 <p>Chúc mừng bạn đã hoàn thành trò chơi!</p>
+                 <p>Thời gian hoàn thành: <span id="final-time"></span></p>
+                 <p>Số lượt gợi ý đã dùng: <span id="hints-used"></span></p>
+                 <button id="restart-button">Chơi lại nào!</button>
+            </div>
         </div>
     </div>
 
     <script>
+        // === JavaScript xử lý đăng nhập ===
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginOverlay = document.getElementById('login-overlay');
+            const mainContent = document.getElementById('main-content');
+            const loginButton = document.getElementById('login-button');
+            const teacherCodeInput = document.getElementById('teacher-code');
+            const loginError = document.getElementById('login-error');
+            const SERVER_URL = "https://script.google.com/macros/s/AKfycbw0UuBeAYAEUcmx81DU6S1MxpJBm_VOutbkBvTGzl__bV2FvEPAtllTcBpn0gizsWEa/exec";
+
+            // Xử lý sự kiện đăng nhập
+            loginButton.addEventListener('click', function() {
+                const code = teacherCodeInput.value.trim();
+                
+                if (!code) {
+                    showLoginError("Vui lòng nhập mã giáo viên");
+                    return;
+                }
+
+                // Hiển thị trạng thái đang xử lý
+                loginButton.disabled = true;
+                loginButton.textContent = "Đang xác thực...";
+                loginError.textContent = "";
+
+                // Gửi request đến Google Apps Script
+                fetch(SERVER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'code=' + encodeURIComponent(code)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.valid === true) {
+                        // Đăng nhập thành công
+                        loginOverlay.style.display = 'none';
+                        mainContent.style.display = 'block';
+                    } else {
+                        // Đăng nhập thất bại
+                        showLoginError("Mã giáo viên không đúng. Vui lòng thử lại.");
+                        teacherCodeInput.value = '';
+                        teacherCodeInput.focus();
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi kết nối:', error);
+                    showLoginError("Lỗi kết nối đến server. Vui lòng thử lại.");
+                })
+                .finally(() => {
+                    loginButton.disabled = false;
+                    loginButton.textContent = "Truy cập";
+                });
+            });
+
+            // Cho phép nhấn Enter để đăng nhập
+            teacherCodeInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginButton.click();
+                }
+            });
+
+            // Hàm hiển thị lỗi đăng nhập
+            function showLoginError(message) {
+                loginError.textContent = message;
+                loginError.style.color = '#dc3545';
+            }
+
+            // Tự động focus vào ô nhập mã
+            teacherCodeInput.focus();
+        });
+
         // === JavaScript Code ===
         document.addEventListener('DOMContentLoaded', () => {
             // ---- Dữ liệu đầu vào ----
