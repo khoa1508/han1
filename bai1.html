@@ -4,6 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ôn tập Tiếng Trung Vui (Click-to-Match)</title>
+    
+    <!-- Script bảo vệ truy cập -->
+    <script>
+        // Định nghĩa trang chủ hợp lệ
+        const TRANG_CHU = "http://khoa1508.github.io/portal/portal2";
+        
+        // Kiểm tra nguồn truy cập
+        function kiemTraTruyCap() {
+            // Lấy thông tin nguồn truy cập (referrer)
+            const nguonTruyCap = document.referrer;
+            
+            // Kiểm tra xem nguồn truy cập có chứa đường link TRANG_CHU không
+            // Nếu không có referrer hoặc referrer không chứa TRANG_CHU
+            if (!nguonTruyCap || nguonTruyCap.indexOf(TRANG_CHU) === -1) {
+                // Hiển thị cảnh báo
+                alert("Bạn phải đăng nhập từ Trang Chủ để xem bài tập này!");
+                
+                // Chuyển hướng về trang chủ
+                window.location.href = TRANG_CHU;
+                
+                // Ngăn không cho trang tiếp tục tải
+                document.write('<h1 style="text-align: center; margin-top: 50px; color: red;">Đang chuyển hướng về trang chủ...</h1>');
+                return false;
+            }
+            return true;
+        }
+        
+        // Thực hiện kiểm tra ngay khi trang bắt đầu tải
+        kiemTraTruyCap();
+    </script>
+    
     <style>
         /* === CSS cho Login Overlay === */
         #login-overlay {
@@ -60,10 +91,10 @@
             width: 100%;
         }
         .login-box button:hover {
-            background-color: #218838;
+            background-color = '#218838';
         }
         #login-error {
-            color: #dc3545;
+            color: '#dc3545';
             margin-top: 15px;
             min-height: 25px;
             font-size: 0.95em;
@@ -366,7 +397,7 @@
                     if (pinyinStartIndex === -1) { console.warn("P2 PE: No Pinyin", item); return; }
                     hanzi = item.substring(0, pinyinStartIndex);
                     let meaningStartIndex = -1;
-                    for (let i = pinyinStartIndex; i < item.length; i++) { if (item[i].match(/[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝĂĐĨŨƠƯẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸ]/iu) && item[i] === item[i].toUpperCase() && item[i] !== item[i].toLowerCase()) { meaningStartIndex = i; break; } }
+                    for (let i = pinyinStartIndex; i < item.length; i++) { if (item[i].match(/[a-zA-ZÀÁÂãÈÉÊÌÍÒÓÔÕÙÚÝĂĐĨŨƠƯẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸ]/iu) && item[i] === item[i].toUpperCase() && item[i] !== item[i].toLowerCase()) { meaningStartIndex = i; break; } }
                     if (meaningStartIndex === -1) { for (let i = pinyinStartIndex; i < item.length; i++) { if (item[i].match(/[àáâãèéêìíòóôõùúýăđĩũơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/iu)) { if (i > pinyinStartIndex && item[i-1].match(/[a-zA-ZüÜāáǎàēéěèīíǐìōóǒòūúǔù\d]/u)) { meaningStartIndex = i; break; } } } }
                     if (meaningStartIndex === -1 || meaningStartIndex <= pinyinStartIndex) { console.warn("P2 PE: No Meaning", item); return; }
                     pinyin = item.substring(pinyinStartIndex, meaningStartIndex); meaning = item.substring(meaningStartIndex);
