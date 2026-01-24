@@ -256,35 +256,29 @@
                 loginButton.textContent = "Đang xác thực...";
                 loginError.textContent = "";
 
-                // Gửi request đến Google Apps Script
-                fetch(SERVER_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'code=' + encodeURIComponent(code)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.valid === true) {
-                        // Đăng nhập thành công
-                        loginOverlay.style.display = 'none';
-                        mainContent.style.display = 'block';
-                    } else {
-                        // Đăng nhập thất bại
-                        showLoginError("Mã giáo viên không đúng. Vui lòng thử lại.");
-                        teacherCodeInput.value = '';
-                        teacherCodeInput.focus();
-                    }
-                })
-                .catch(error => {
-                    console.error('Lỗi kết nối:', error);
-                    showLoginError("Lỗi kết nối đến server. Vui lòng thử lại.");
-                })
-                .finally(() => {
-                    loginButton.disabled = false;
-                    loginButton.textContent = "Truy cập";
-                });
+                // Gửi request GET đến Server (Google Apps Script của bạn dùng doGet)
+                fetch(`${SERVER_URL}?code=${encodeURIComponent(code)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.valid === true) {
+                            // Đăng nhập thành công
+                            loginOverlay.style.display = 'none';
+                            mainContent.style.display = 'block';
+                        } else {
+                            // Đăng nhập thất bại
+                            showLoginError(data.message || "Mã giáo viên không đúng. Vui lòng thử lại.");
+                            teacherCodeInput.value = '';
+                            teacherCodeInput.focus();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi kết nối:', error);
+                        showLoginError("Lỗi kết nối đến server. Vui lòng thử lại.");
+                    })
+                    .finally(() => {
+                        loginButton.disabled = false;
+                        loginButton.textContent = "Truy cập";
+                    });
             });
 
             // Cho phép nhấn Enter để đăng nhập
