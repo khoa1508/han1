@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thi Trực Tuyến Tiếng Trung</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Thêm thư viện jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .cute-card {
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .cute-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .question-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .speaking-room {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .answer-correct {
+            background-color: #d4edda;
+            border-left: 5px solid #28a745;
+        }
+        .answer-incorrect {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+        .tab-active {
+            border-bottom: 3px solid #667eea;
+            color: #667eea;
+            font-weight: 700;
+        }
+        .reading-passage {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+        .reading-passage h4 {
+            color: #2d3748;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .reading-passage p {
+            color: #4a5568;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        .timer-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .audio-player-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .audio-progress {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .audio-progress-fill {
+            height: 100%;
+            background: #4ade80;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .audio-disabled .audio-controls {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .audio-disabled .audio-progress {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .listening-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body x-data="examApp()" x-init="initApp()" class="py-8 px-4">
+    <!-- Header -->
+    <div class="max-w-6xl mx-auto mb-10">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
+                    <i class="fas fa-graduation-cap text-purple-600 mr-3"></i>
+                    Thi Trực Tuyến Tiếng Trung
+                </h1>
+                <p class="text-gray-600 mt-2">Kiểm tra kỹ năng đọc, viết và nói tiếng Trung</p>
+            </div>
+            <div class="text-right">
+                <div class="timer-container mb-3">
+                    <i class="fas fa-clock mr-2"></i>
+                    <span id="timer-display" x-text="formatTime(timer)"></span>
+                </div>
+                <div class="text-gray-600" x-text="'Học viên: ' + (studentId || 'Chưa nhập mã')"></div>
+                <div class="text-sm text-gray-500" x-text="'Thời gian vào: ' + formatTime(entryTime)"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Student ID Input & Status -->
+        <div class="cute-card bg-white p-6 mb-8">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Mã học viên</label>
+                    <div class="flex">
+                        <input 
+                            type="text" 
+                            x-model="studentId" 
+                            @input="studentId = studentId.toUpperCase(); connectToFirebase()"
+                            placeholder="Nhập mã HV (ví dụ: HV001)" 
+                            class="flex-grow p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+                        <button @click="connectToFirebase()" class="btn-primary rounded-l-none">
+                            <i class="fas fa-plug mr-2"></i> Kết nối
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Mã học viên phải viết hoa (ví dụ: HV001, HV002)</p>
+                </div>
+                
+                <div class="speaking-room">
+                    <h3 class="text-xl font-bold mb-4">
+                        <i class="fas fa-microphone-alt mr-2"></i> Phòng thi nói
+                    </h3>
+                    <div class="flex items-center">
+                        <div class="mr-4 text-4xl">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div>
+                            <div class="text-lg font-semibold" x-text="speakingStatus"></div>
+                            <div class="mt-2" x-show="allowSpeaking">
+                                <span class="inline-block px-4 py-1 bg-green-100 text-green-800 rounded-full font-semibold">
+                                    <i class="fas fa-check-circle mr-1"></i> Đã mở đề thi
+                                </span>
+                            </div>
+                            <div class="mt-2" x-show="!allowSpeaking && studentId">
+                                <span class="inline-block px-4 py-1 bg-yellow-100 text-yellow-800 rounded-full font-semibold">
+                                    <i class="fas fa-clock mr-1"></i> Đang chờ mở đề...
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="flex flex-wrap border-b border-gray-200 mb-8">
+            <template x-for="(tab, index) in tabs" :key="index">
+                <button
+                    @click="activeTab = index"
+                    :class="{'tab-active': activeTab === index}"
+                    class="px-6 py-3 text-lg font-medium text-gray-600 hover:text-purple-600 transition-colors"
+                    x-text="tab.name"
+                ></button>
+            </template>
+            <button
+                @click="submitExam()"
+                class="ml-auto px-6 py-3 btn-primary"
+            >
+                <i class="fas fa-paper-plane mr-2"></i> Nộp bài
+            </button>
+        </div>
+
+        <!-- Bài 1 -->
+        <div x-show="activeTab === 0" class="space-y-8">
+            <div class="cute-card bg-white p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">
+                    <i class="fas fa-book-open text-blue-500 mr-2"></i> Bài 1
+                </h2>
+                
+                <!-- Bài đọc Bài 1 -->
+                <div class="reading-passage">
+                    <h4><i class="fas fa-book-reader mr-2"></i> Đọc đoạn văn sau:</h4>
+                    <p>我是日本留学生，我叫山田。我家在日本东京（Tokyo）。我在北京语言大学学习汉语。<br>
+                    这是我朋友安娜，她是美国人。那是我朋友玛丽，她是英国人。她们都是留学生，她们也在北京语言大学学习汉语。</p>
+                </div>
+                
+                <!-- Dạng 1: Điền từ -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 1: Điền từ vào chỗ trống (dựa vào bài đọc)</h3>
+                    <template x-for="(question, index) in examData.bai1.dang1" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-3">
+                                <span class="question-number" x-text="index+1"></span>
+                                <div class="text-gray-800" x-html="formatQuestion(question.question)"></div>
+                            </div>
+                            <input 
+                                type="text" 
+                                x-model="question.userAnswer"
+                                class="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                :placeholder="'Câu ' + (index+1) + ' - Nhập đáp án'"
+                            >
+                            <div x-show="showAnswers" class="mt-2">
+                                <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
+                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Dạng 2: Trắc nghiệm -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 2: Câu hỏi trắc nghiệm (chọn đáp án đúng)</h3>
+                    <template x-for="(question, index) in examData.bai1.dang2" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-4">
+                                <span class="question-number" x-text="index+1"></span>
+                                <div class="text-gray-800 font-medium" x-text="question.question"></div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-3 ml-10">
+                                <template x-for="(option, optIndex) in question.options" :key="optIndex">
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                        <input 
+                                            type="radio" 
+                                            :name="'bai1-dang2-' + index"
+                                            :value="option"
+                                            x-model="question.userAnswer"
+                                            class="mr-3 h-5 w-5 text-blue-600"
+                                        >
+                                        <span class="text-gray-700" x-text="optIndex + '. ' + option"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <div x-show="showAnswers" class="mt-3 ml-10">
+                                <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
+                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Dạng 3: Đúng/Sai -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 3: Câu hỏi đúng (T) / sai (F)</h3>
+                    <template x-for="(question, index) in examData.bai1.dang3" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-4">
+                                <span class="question-number" x-text="index+1"></span>
+                                <div class="text-gray-800" x-text="question.question"></div>
+                            </div>
+                            <div class="flex space-x-6 ml-10">
+                                <label class="flex items-center">
+                                    <input 
+                                        type="radio" 
+                                        :name="'bai1-dang3-' + index"
+                                        value="T"
+                                        x-model="question.userAnswer"
+                                        class="mr-2 h-5 w-5 text-green-600"
+                                    >
+                                    <span class="text-gray-700">Đúng (T)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input 
+                                        type="radio" 
+                                        :name="'bai1-dang3-' + index"
+                                        value="F"
+                                        x-model="question.userAnswer"
+                                        class="mr-2 h-5 w-5 text-red-600"
+                                    >
+                                    <span class="text-gray-700">Sai (F)</span>
+                                </label>
+                            </div>
+                            <div x-show="showAnswers" class="mt-3 ml-10">
+                                <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
+                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Dạng 4: Trả lời ngắn -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 4: Trả lời câu hỏi ngắn (dựa vào bài đọc)</h3>
+                    <template x-for="(question, index) in examData.bai1.dang4" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-3">
+                                <span class="question-number" x-text="index+1"></span>
+                                <div class="text-gray-800" x-text="question.question"></div>
+                            </div>
+                            <textarea 
+                                x-model="question.userAnswer"
+                                rows="2"
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                :placeholder="'Trả lời câu ' + (index+1)"
+                            ></textarea>
+                            <div x-show="showAnswers" class="mt-2">
+                                <span class="text-sm font-medium text-blue-600">
+                                    Đáp án tham khảo: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bài 2 -->
+        <div x-show="activeTab === 1" class="space-y-8">
+            <div class="cute-card bg-white p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">
+                    <i class="fas fa-book-open text-green-500 mr-2"></i> Bài 2
+                </h2>
+                
+                <!-- Bài đọc Bài 2 -->
+                <div class="reading-passage">
+                    <h4><i class="fas fa-book-reader mr-2"></i> Đọc đoạn văn sau:</h4>
+                    <p>我是北京语言大学的英国留学生，我叫玛丽。我在这儿（here）学习汉语。我觉得汉语语法不太难，但是，发音和汉字很难。安娜是美国人，她是我的同班同学，也是我的同屋。</p>
+                </div>
+                
+                <!-- Dạng 1: Điền từ -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 1: Điền từ vào chỗ trống (dựa vào bài đọc)</h3>
+                    <template x-for="(question, index) in examData.bai2.dang1" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-3">
+                                <span class="question-number" x-text="index+1"></span>
+                                <div class="text-gray-800" x-html="formatQuestion(question.question)"></div>
+                            </div>
+                            <input 
+                                type="text" 
+                                x-model="question.userAnswer"
+                                class="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                :placeholder="'Câu ' + (index+1) + ' - Nhập đáp án'"
+                            >
+                            <div x-show="showAnswers" class="mt-2">
+                                <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
+                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Dạng 2: Trắc nghiệm -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 2: Câu hỏi trắc nghiệm (chọn đáp án đúng)</h3>
+                    <template x-for="(question, index) in examData.bai2.dang2" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-4">
+                                <span class="question-number" x-text="index+1"></span>
+                                <div class="text-gray-800 font-medium" x-text="question.question"></div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-3 ml-10">
+                                <template x-for="(option, optIndex) in question.options" :key="optIndex">
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-green-50 transition-colors">
+                                        <input 
+                                            type="radio" 
+                                            :name="'bai2-dang2-' + index"
+                                            :value="option"
+                                            x-model="question.userAnswer"
+                                            class="mr-3 h-5 w-5 text-green-600"
+                                        >
+                                        <span class="text-gray-700" x-text="optIndex + '. ' + option"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <div x-show="showAnswers" class="mt-3 ml-10">
+                                <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
+                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Dạng 3: Đúng/Sai -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 3: Câu hỏi đúng (T) / sai (F)</h3>
+                    <template x-for="(question, index) in examData.bai2.dang3" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-4">
+                                <span class="question-number" x-text="index+1"></span>
+                                <div class="text-gray-800" x-text="question.question"></div>
+                            </div>
+                            <div class="flex space-x-6 ml-10">
+                                <label class="flex items-center">
+                                    <input 
+                                        type="radio" 
+                                        :name="'bai2-dang3-' + index"
+                                        value="T"
+                                        x-model="question.userAnswer"
+                                        class="mr-2 h-5 w-5 text-green-600"
+                                    >
+                                    <span class="text-gray-700">Đúng (T)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input 
+                                        type="radio" 
+                                        :name="'bai2-dang3-' + index"
+                                        value="F"
+                                        x-model="question.userAnswer"
+                                        class="mr-2 h-5 w-5 text-red-600"
+                                    >
+                                    <span class="text-gray-700">Sai (F)</span>
+                                </label>
+                            </div>
+                            <div x-show="showAnswers" class="mt-3 ml-10">
+                                <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
+                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Dạng 4: Trả lời ngắn -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 4: Trả lời câu hỏi ngắn (dựa vào bài đọc)</h3>
+                    <template x-for="(question, index) in examData.bai2.dang4" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-3">
+                                <span class="question-number" x-text="index+1"></span>
+                                <div class="text-gray-800" x-text="question.question"></div>
+                            </div>
+                            <textarea 
+                                x-model="question.userAnswer"
+                                rows="2"
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                :placeholder="'Trả lời câu ' + (index+1)"
+                            ></textarea>
+                            <div x-show="showAnswers" class="mt-2">
+                                <span class="text-sm font-medium text-blue-600">
+                                    Đáp án tham khảo: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần 1: Kỹ năng đọc -->
+        <div x-show="activeTab === 2" class="space-y-8">
+            <div class="cute-card bg-white p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">
+                    <i class="fas fa-eye text-purple-500 mr-2"></i> PHẦN 1: KỸ NĂNG ĐỌC (30 CÂU)
+                </h2>
+                
+                <!-- Phần I: Chọn từ thích hợp -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">I. Chọn từ thích hợp điền vào chỗ trống (10 câu)</h3>
+                    <template x-for="(question, index) in examData.phan1.phanI" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-3">
+                                <span class="question-number" x-text="index+1"></span>
+                                <div class="text-gray-800" x-html="formatQuestion(question.question)"></div>
+                            </div>
+                            <select 
+                                x-model="question.userAnswer"
+                                class="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            >
+                                <option value="">Chọn từ thích hợp</option>
+                                <template x-for="option in question.options" :key="option">
+                                    <option :value="option" x-text="option"></option>
+                                </template>
+                            </select>
+                            <div x-show="showAnswers" class="mt-2">
+                                <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
+                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Phần II: Chọn đáp án đúng -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">II. Chọn đáp án đúng nhất (10 câu)</h3>
+                    <template x-for="(question, index) in examData.phan1.phanII" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-4">
+                                <span class="question-number" x-text="index+11"></span>
+                                <div class="text-gray-800 font-medium" x-text="question.question"></div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-3 ml-10">
+                                <template x-for="(option, optIndex) in question.options" :key="optIndex">
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-purple-50 transition-colors">
+                                        <input 
+                                            type="radio" 
+                                            :name="'phan1-phanII-' + index"
+                                            :value="option.value"
+                                            x-model="question.userAnswer"
+                                            class="mr-3 h-5 w-5 text-purple-600"
+                                        >
+                                        <span class="text-gray-700" x-text="option.label + '. ' + option.value"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <div x-show="showAnswers" class="mt-3 ml-10">
+                                <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
+                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Phần III: Đọc hiểu -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">III. Đọc đoạn văn và xác định Đúng (√) / Sai (x) (10 câu)</h3>
+                    <template x-for="(question, index) in examData.phan1.phanIII" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-4">
+                                <span class="question-number" x-text="index+21"></span>
+                                <div class="text-gray-800" x-text="question.question"></div>
+                            </div>
+                            <div class="flex space-x-6 ml-10">
+                                <label class="flex items-center">
+                                    <input 
+                                        type="radio" 
+                                        :name="'phan1-phanIII-' + index"
+                                        value="Đúng"
+                                        x-model="question.userAnswer"
+                                        class="mr-2 h-5 w-5 text-green-600"
+                                    >
+                                    <span class="text-gray-700">Đúng (√)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input 
+                                        type="radio" 
+                                        :name="'phan1-phanIII-' + index"
+                                        value="Sai"
+                                        x-model="question.userAnswer"
+                                        class="mr-2 h-5 w-5 text-red-600"
+                                    >
+                                    <span class="text-gray-700">Sai (x)</span>
+                                </label>
+                            </div>
+                            <div x-show="showAnswers" class="mt-3 ml-10">
+                                <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
+                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần 2: Kỹ năng viết -->
+        <div x-show="activeTab === 3" class="space-y-8">
+            <div class="cute-card bg-white p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">
+                    <i class="fas fa-pen text-orange-500 mr-2"></i> PHẦN 2: KỸ NĂNG VIẾT (30 CÂU)
+                </h2>
+                
+                <!-- Phần I: Sắp xếp từ -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">I. Sắp xếp từ thành câu hoàn chỉnh (10 câu)</h3>
+                    <template x-for="(question, index) in examData.phan2.phanI" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-3">
+                                <span class="question-number" x-text="index+1"></span>
+                                <div class="text-gray-800" x-text="question.question"></div>
+                            </div>
+                            <textarea 
+                                x-model="question.userAnswer"
+                                rows="2"
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                :placeholder="'Viết câu hoàn chỉnh câu ' + (index+1)"
+                            ></textarea>
+                            <div x-show="showAnswers" class="mt-2">
+                                <span class="text-sm font-medium text-blue-600">
+                                    Đáp án tham khảo: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Phần II: Dịch câu -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">II. Dịch câu Việt - Trung (10 câu)</h3>
+                    <template x-for="(question, index) in examData.phan2.phanII" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-3">
+                                <span class="question-number" x-text="index+11"></span>
+                                <div class="text-gray-800" x-text="question.question"></div>
+                            </div>
+                            <textarea 
+                                x-model="question.userAnswer"
+                                rows="3"
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                :placeholder="'Dịch sang tiếng Trung câu ' + (index+11)"
+                            ></textarea>
+                            <div x-show="showAnswers" class="mt-2">
+                                <span class="text-sm font-medium text-blue-600">
+                                    Đáp án tham khảo: <span class="font-bold" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Phần III: Viết chữ Hán -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">III. Viết chữ Hán từ Pinyin (10 câu)</h3>
+                    <template x-for="(question, index) in examData.phan2.phanIII" :key="index">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start mb-3">
+                                <span class="question-number" x-text="index+21"></span>
+                                <div class="text-gray-800" x-text="question.question + ' (' + question.pinyin + ')'"></div>
+                            </div>
+                            <input 
+                                type="text" 
+                                x-model="question.userAnswer"
+                                class="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-2xl"
+                                :placeholder="'Viết chữ Hán câu ' + (index+21)"
+                            >
+                            <div x-show="showAnswers" class="mt-2">
+                                <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
+                                    Đáp án: <span class="font-bold text-2xl" x-text="question.answer"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần thi nói -->
+        <div x-show="activeTab === 4" class="space-y-8">
+            <div class="cute-card bg-white p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">
+                    <i class="fas fa-microphone-alt text-red-500 mr-2"></i> Phần thi nói
+                </h2>
+                
+                <!-- Waiting Room -->
+                <div x-show="!allowSpeaking" class="text-center py-10">
+                    <div class="text-6xl mb-6 text-gray-300">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-700 mb-4">Đang chờ vào phòng thi nói</h3>
+                    <p class="text-gray-600 mb-6">Vui lòng chờ giáo viên mở đề thi. Khi đề thi được mở, phần câu hỏi sẽ hiện ra bên dưới.</p>
+                    <div class="inline-block px-6 py-3 bg-yellow-100 text-yellow-800 rounded-full font-semibold">
+                        <i class="fas fa-clock mr-2"></i> Trạng thái: <span x-text="speakingStatus"></span>
+                    </div>
+                </div>
+                
+                <!-- Speaking Room Active -->
+                <div x-show="allowSpeaking" class="space-y-8">
+                    <!-- 5 câu hỏi nói đơn giản -->
+                    <div class="listening-section">
+                        <h3 class="text-2xl font-bold mb-6 text-center">I. Trả lời câu hỏi nhanh (5 câu)</h3>
+                        <template x-for="(question, index) in examData.speaking" :key="index">
+                            <div class="mb-8 p-5 bg-white bg-opacity-30 rounded-xl">
+                                <div class="flex items-start mb-4">
+                                    <span class="flex items-center justify-center w-10 h-10 bg-white text-purple-600 rounded-full font-bold mr-4" x-text="index+1"></span>
+                                    <div class="text-lg font-medium text-white" x-text="question.question"></div>
+                                </div>
+                                <div class="ml-14">
+                                    <textarea 
+                                        x-model="question.userAnswer"
+                                        rows="3"
+                                        class="w-full p-4 border border-white border-opacity-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-white bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-70"
+                                        :placeholder="'Nhập câu trả lời cho câu ' + (index+1)"
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    
+                    <!-- Phần thi nghe MP3 -->
+                    <div class="listening-section">
+                        <h3 class="text-2xl font-bold mb-6 text-center">II. Lặp lại những gì mà bạn nghe được</h3>
+                        
+                        <!-- Audio Player Custom -->
+                        <div class="audio-player-custom" :class="{'audio-disabled': audioPlayed}">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="text-lg font-bold text-white">
+                                        <i class="fas fa-headphones mr-2"></i>
+                                        Bài nghe MP3
+                                    </h4>
+                                    <p class="text-white text-opacity-80 text-sm" x-text="'Thời lượng: ' + audioDuration + ' giây'"></p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-white font-medium" x-text="'Lượt nghe: ' + (audioPlayed ? 'Đã nghe' : 'Chưa nghe')"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Audio Progress -->
+                            <div class="audio-progress">
+                                <div class="audio-progress-fill" :style="'width: ' + audioProgress + '%'"></div>
+                            </div>
+                            
+                            <!-- Audio Controls -->
+                            <div class="audio-controls flex justify-center space-x-4">
+                                <template x-if="!audioPlayed">
+                                    <button @click="startAudio()" class="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition flex items-center">
+                                        <i class="fas fa-play mr-2"></i> Bắt đầu nghe
+                                    </button>
+                                </template>
+                                <template x-if="audioPlayed && !audioEnded">
+                                    <button class="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold flex items-center" disabled>
+                                        <i class="fas fa-spinner fa-spin mr-2"></i> Đang phát...
+                                    </button>
+                                </template>
+                                <template x-if="audioPlayed && audioEnded">
+                                    <button class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold flex items-center" disabled>
+                                        <i class="fas fa-check-circle mr-2"></i> Đã nghe xong
+                                    </button>
+                                </template>
+                                
+                                <div class="flex items-center text-white">
+                                    <span x-text="formatAudioTime(currentTime)"></span>
+                                    <span class="mx-2">/</span>
+                                    <span x-text="formatAudioTime(audioDuration)"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Audio Info -->
+                            <div class="mt-4 text-center text-white text-opacity-80 text-sm">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <span x-show="!audioPlayed">Nhấn "Bắt đầu nghe" để nghe bài. Bạn chỉ được nghe 01 lần duy nhất.</span>
+                                <span x-show="audioPlayed && !audioEnded">Đang phát bài nghe. Vui lòng lắng nghe cẩn thận.</span>
+                                <span x-show="audioPlayed && audioEnded">Bài nghe đã kết thúc. Vui lòng nhập lại nội dung bạn nghe được vào ô bên dưới.</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden Audio Element -->
+                        <audio 
+                            id="listening-audio" 
+                            preload="auto"
+                            @timeupdate="updateAudioProgress()"
+                            @ended="audioEnded = true"
+                        >
+                            <source src="https://res.cloudinary.com/dylnm79id/video/upload/v1769512923/dethilv1_envsnw.mp3" type="audio/mpeg">
+                            Trình duyệt của bạn không hỗ trợ phát audio.
+                        </audio>
+                        
+                        <!-- Answer Box -->
+                        <div class="mt-6">
+                            <h4 class="text-lg font-bold text-white mb-3">
+                                <i class="fas fa-pencil-alt mr-2"></i>
+                                Nhập lại nội dung bạn nghe được:
+                            </h4>
+                            <textarea 
+                                x-model="examData.listeningAnswer"
+                                rows="5"
+                                class="w-full p-4 border border-white border-opacity-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-white bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-70"
+                                placeholder="Nhập chính xác nội dung bạn nghe được từ file MP3..."
+                                :disabled="!audioEnded"
+                            ></textarea>
+                            <p class="text-white text-opacity-80 text-sm mt-2">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                Chỉ có thể nhập sau khi đã nghe xong bài nghe.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div x-show="activeTab === 5" class="cute-card bg-white p-8">
+            <div class="text-center">
+                <div class="text-6xl text-green-500 mb-6">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Bài thi đã được nộp thành công!</h2>
+                <p class="text-gray-600 mb-8">Dưới đây là kết quả bài thi của bạn. Đáp án chính xác được hiển thị bên dưới mỗi câu hỏi.</p>
+                
+                <div class="grid md:grid-cols-4 gap-6 mb-10">
+                    <div class="bg-blue-50 p-6 rounded-2xl text-center">
+                        <div class="text-3xl font-bold text-blue-600" x-text="calculateScore()"></div>
+                        <div class="text-gray-700">Điểm số</div>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-2xl text-center">
+                        <div class="text-3xl font-bold text-green-600" x-text="calculateCorrectAnswers()"></div>
+                        <div class="text-gray-700">Số câu đúng</div>
+                    </div>
+                    <div class="bg-yellow-50 p-6 rounded-2xl text-center">
+                        <div class="text-3xl font-bold text-yellow-600" x-text="calculateTotalQuestions()"></div>
+                        <div class="text-gray-700">Tổng số câu</div>
+                    </div>
+                    <div class="bg-purple-50 p-6 rounded-2xl text-center">
+                        <div class="text-3xl font-bold text-purple-600" x-text="calculatePercentage() + '%'"></div>
+                        <div class="text-gray-700">Tỷ lệ đúng</div>
+                    </div>
+                </div>
+                
+                <div class="mb-8 flex flex-wrap justify-center gap-4">
+                    <button @click="showAnswers = !showAnswers" class="btn-primary">
+                        <i class="fas" :class="showAnswers ? 'fa-eye-slash' : 'fa-eye'"></i>
+                        <span x-text="showAnswers ? 'Ẩn đáp án' : 'Hiện đáp án'"></span>
+                    </button>
+                    <button @click="exportToPDF()" class="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition">
+                        <i class="fas fa-file-pdf mr-2"></i> Xuất PDF kết quả
+                    </button>
+                    <button @click="resetExam()" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition">
+                        <i class="fas fa-redo mr-2"></i> Làm lại bài thi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Config -->
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDEXAMPLEKEY1234567890",
+            authDomain: "dethi-1b5e3.firebaseapp.com",
+            databaseURL: "https://dethi-1b5e3-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dethi-1b5e3",
+            storageBucket: "dethi-1b5e3.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef1234567890"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+    </script>
+
+    <script>
+        function examApp() {
+            return {
+                // App State
+                studentId: '',
+                activeTab: 0,
+                timer: 7200, // 120 phút = 7200 giây
+                showAnswers: false,
+                allowSpeaking: false,
+                speakingStatus: 'Chưa kết nối',
+                entryTime: new Date().toLocaleTimeString('vi-VN'),
+                
+                // Audio Player State
+                audioPlayed: false,
+                audioEnded: false,
+                audioDuration: 0,
+                currentTime: 0,
+                audioProgress: 0,
+                audioInterval: null,
+                
+                // Tabs
+                tabs: [
+                    { name: 'Bài 1' },
+                    { name: 'Bài 2' },
+                    { name: 'Phần 1: Đọc' },
+                    { name: 'Phần 2: Viết' },
+                    { name: 'Thi nói' },
+                    { name: 'Kết quả' }
+                ],
+                
+                // Exam Data
+                examData: {
+                    bai1: {
+                        dang1: [
+                            { question: "山田是______留学生，家在东京。", answer: "日本", userAnswer: "" },
+                            { question: "安娜是______人，她是山田的______。", answer: "美国，朋友", userAnswer: "" },
+                            { question: "玛丽是______人，她和安娜______是留学生。", answer: "英国，都", userAnswer: "" },
+                            { question: "山田在北京语言大学学习______。", answer: "汉语", userAnswer: "" },
+                            { question: "安娜和玛丽______在北京语言大学学习汉语。", answer: "也", userAnswer: "" }
+                        ],
+                        dang2: [
+                            { 
+                                question: "山田是哪国人？", 
+                                options: ["中国人", "日本人", "美国人"], 
+                                answer: "日本人", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "山田在哪儿学习汉语？", 
+                                options: ["东京大学", "北京语言大学", "伦敦大学"], 
+                                answer: "北京语言大学", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "安娜是哪国人？", 
+                                options: ["英国人", "中国人", "美国人"], 
+                                answer: "美国人", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "玛丽是哪国人？", 
+                                options: ["美国人", "英国人", "日本人"], 
+                                answer: "英国人", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "安娜和玛丽都在哪里学习？", 
+                                options: ["东京", "北京语言大学", "美国"], 
+                                answer: "北京语言大学", 
+                                userAnswer: "" 
+                            }
+                        ],
+                        dang3: [
+                            { question: "山田是中国人。", answer: "F", userAnswer: "" },
+                            { question: "安娜和玛丽都是美国人。", answer: "F", userAnswer: "" },
+                            { question: "玛丽是英国人。", answer: "T", userAnswer: "" },
+                            { question: "山田在日本学习汉语。", answer: "F", userAnswer: "" },
+                            { question: "安娜和玛丽也是北京语言大学的留学生。", answer: "T", userAnswer: "" }
+                        ],
+                        dang4: [
+                            { question: "山田家在哪里？", answer: "山田家在东京。", userAnswer: "" },
+                            { question: "山田的朋友安娜是哪国人？", answer: "安娜是美国人。", userAnswer: "" },
+                            { question: "玛丽是哪国人？", answer: "玛丽是英国人。", userAnswer: "" },
+                            { question: "安娜和玛丽学习什么？", answer: "她们学习汉语。", userAnswer: "" },
+                            { question: "山田、安娜和玛丽都在同一个大学吗？", answer: "是的，他们都在北京语言大学。", userAnswer: "" }
+                        ]
+                    },
+                    bai2: {
+                        dang1: [
+                            { question: "玛丽是北京语言大学的______留学生。", answer: "英国", userAnswer: "" },
+                            { question: "玛丽觉得汉语______不太难。", answer: "语法", userAnswer: "" },
+                            { question: "玛丽认为汉语的______和______很难。", answer: "发音，汉字", userAnswer: "" },
+                            { question: "安娜是______人，她是玛丽的______同学。", answer: "美国，同班", userAnswer: "" },
+                            { question: "安娜也是玛丽的______。", answer: "同屋", userAnswer: "" }
+                        ],
+                        dang2: [
+                            { 
+                                question: "玛丽是哪国人？", 
+                                options: ["美国人", "英国人", "日本人"], 
+                                answer: "英国人", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "玛丽在哪儿学习汉语？", 
+                                options: ["北京大学", "北京语言大学", "英国大学"], 
+                                answer: "北京语言大学", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "玛丽觉得汉语的什么不太难？", 
+                                options: ["发音", "语法", "汉字"], 
+                                answer: "语法", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "玛丽认为汉语的什么很难？", 
+                                options: ["语法和发音", "发音和汉字", "汉字和语法"], 
+                                answer: "发音和汉字", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "安娜和玛丽是什么关系？", 
+                                options: ["同班同学", "同屋", "同班同学和同屋"], 
+                                answer: "同班同学和同屋", 
+                                userAnswer: "" 
+                            }
+                        ],
+                        dang3: [
+                            { question: "玛丽是中国留学生。", answer: "F", userAnswer: "" },
+                            { question: "玛丽觉得汉语语法很难。", answer: "F", userAnswer: "" },
+                            { question: "安娜是英国人。", answer: "F", userAnswer: "" },
+                            { question: "安娜和玛丽是同班同学。", answer: "T", userAnswer: "" },
+                            { question: "安娜是玛丽的同屋。", answer: "T", userAnswer: "" }
+                        ],
+                        dang4: [
+                            { question: "玛丽在北京语言大学学习什么？", answer: "她学习汉语。", userAnswer: "" },
+                            { question: "玛丽觉得汉语的哪部分不太难？", answer: "她觉得汉语语法不太难。", userAnswer: "" },
+                            { question: "玛丽认为汉语的哪部分很难？", answer: "她认为汉语的发音和汉字很难。", userAnswer: "" },
+                            { question: "安娜是哪国人？", answer: "安娜是美国人。", userAnswer: "" },
+                            { question: "安娜和玛丽除了是同班同学，还有什么关系？", answer: "她们还是同屋。", userAnswer: "" }
+                        ]
+                    },
+                    phan1: {
+                        phanI: [
+                            { question: "你是_________国人？", options: ["吗", "呢", "哪", "谁", "几", "多少", "哪儿", "什么", "都", "和"], answer: "哪", userAnswer: "" },
+                            { question: "麦克在_________？他在图书馆。", options: ["吗", "呢", "哪", "谁", "几", "多少", "哪儿", "什么", "都", "和"], answer: "哪儿", userAnswer: "" },
+                            { question: "你们学校有_________个学生？", options: ["吗", "呢", "哪", "谁", "几", "多少", "哪儿", "什么", "都", "和"], answer: "多少", userAnswer: "" },
+                            { question: "这个书包_________钱？", options: ["吗", "呢", "哪", "谁", "几", "多少", "哪儿", "什么", "都", "和"], answer: "多少", userAnswer: "" },
+                            { question: "王老师是我们_________的老师。", options: ["吗", "呢", "哪", "谁", "几", "多少", "哪儿", "什么", "都", "和"], answer: "都", userAnswer: "" },
+                            { question: "你喝茶还是喝咖啡_________？", options: ["吗", "呢", "哪", "谁", "几", "多少", "哪儿", "什么", "都", "和"], answer: "呢", userAnswer: "" },
+                            { question: "我去银行取钱，你_________？", options: ["吗", "呢", "哪", "谁", "几", "多少", "哪儿", "什么", "都", "和"], answer: "呢", userAnswer: "" },
+                            { question: "那些留学生_________是我的好朋友。", options: ["吗", "呢", "哪", "谁", "几", "多少", "哪儿", "什么", "都", "和"], answer: "都", userAnswer: "" },
+                            { question: "我_________大卫去食堂吃饭。", options: ["吗", "呢", "哪", "谁", "几", "多少", "哪儿", "什么", "都", "和"], answer: "和", userAnswer: "" },
+                            { question: "请问，这位是_________？", options: ["吗", "呢", "哪", "谁", "几", "多少", "哪儿", "什么", "都", "和"], answer: "谁", userAnswer: "" }
+                        ],
+                        phanII: [
+                            { 
+                                question: "今天_________几？", 
+                                options: [
+                                    {label: "A", value: "星期"},
+                                    {label: "B", value: "月"},
+                                    {label: "C", value: "号"},
+                                    {label: "D", value: "天"}
+                                ], 
+                                answer: "号", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "我想买_________苹果。", 
+                                options: [
+                                    {label: "A", value: "一"},
+                                    {label: "B", value: "一斤"},
+                                    {label: "C", value: "一个"},
+                                    {label: "D", value: "一些"}
+                                ], 
+                                answer: "一斤", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "你们_________几口人？", 
+                                options: [
+                                    {label: "A", value: "家有"},
+                                    {label: "B", value: "有家"},
+                                    {label: "C", value: "家是"},
+                                    {label: "D", value: "是家"}
+                                ], 
+                                answer: "家有", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "这是_________的书？", 
+                                options: [
+                                    {label: "A", value: "谁"},
+                                    {label: "B", value: "谁的"},
+                                    {label: "C", value: "哪个"},
+                                    {label: "D", value: "什么的"}
+                                ], 
+                                answer: "谁的", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "他_________北京学习汉语。", 
+                                options: [
+                                    {label: "A", value: "去"},
+                                    {label: "B", value: "在"},
+                                    {label: "C", value: "是"},
+                                    {label: "D", value: "有"}
+                                ], 
+                                answer: "在", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "下午我去_________寄信。", 
+                                options: [
+                                    {label: "A", value: "银行"},
+                                    {label: "B", value: "食堂"},
+                                    {label: "C", value: "邮局"},
+                                    {label: "D", value: "商店"}
+                                ], 
+                                answer: "邮局", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "你_________咖啡吗？", 
+                                options: [
+                                    {label: "A", value: "吃"},
+                                    {label: "B", value: "喝"},
+                                    {label: "C", value: "看"},
+                                    {label: "D", value: "听"}
+                                ], 
+                                answer: "喝", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "我不_________中国名字。", 
+                                options: [
+                                    {label: "A", value: "有"},
+                                    {label: "B", value: "是"},
+                                    {label: "C", value: "叫"},
+                                    {label: "D", value: "姓"}
+                                ], 
+                                answer: "有", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "那个包_________块钱？", 
+                                options: [
+                                    {label: "A", value: "多少"},
+                                    {label: "B", value: "几"},
+                                    {label: "C", value: "什么"},
+                                    {label: "D", value: "哪儿"}
+                                ], 
+                                answer: "多少", 
+                                userAnswer: "" 
+                            },
+                            { 
+                                question: "我们班有_________个学生。", 
+                                options: [
+                                    {label: "A", value: "二十"},
+                                    {label: "B", value: "二十多"},
+                                    {label: "C", value: "很多"},
+                                    {label: "D", value: "以上皆可"}
+                                ], 
+                                answer: "以上皆可", 
+                                userAnswer: "" 
+                            }
+                        ],
+                        phanIII: [
+                            { question: "玛丽是美国人。", answer: "Sai", userAnswer: "" },
+                            { question: "玛丽在大学学习汉语。", answer: "Đúng", userAnswer: "" },
+                            { question: "玛丽的班有八个学生。", answer: "Sai", userAnswer: "" },
+                            { question: "玛丽的老师姓张。", answer: "Đúng", userAnswer: "" },
+                            { question: "张东是玛丽的朋友。", answer: "Đúng", userAnswer: "" },
+                            { question: "今天是休息日。", answer: "Đúng", userAnswer: "" },
+                            { question: "我和大卫上午去商店。", answer: "Sai", userAnswer: "" },
+                            { question: "苹果比香蕉贵。", answer: "Đúng", userAnswer: "" },
+                            { question: "大卫买了三斤水果。", answer: "Đúng", userAnswer: "" },
+                            { question: "我买了苹果。", answer: "Sai", userAnswer: "" }
+                        ]
+                    },
+                    phan2: {
+                        phanI: [
+                            { question: "老师 / 哪 / 国 / 你的 / 人 / 是 / ?", answer: "你的老师是哪国人？", userAnswer: "" },
+                            { question: "名字 / 什么 / 叫 / 你 / ?", answer: "你叫什么名字？", userAnswer: "" },
+                            { question: "我 / 没 / 钱 / 有 / 很多 / 。", answer: "我没有很多钱。", userAnswer: "" },
+                            { question: "我们 / 在 / 学习 / 学校 / 汉语 / 。", answer: "我们在学校学习汉语。", userAnswer: "" },
+                            { question: "多少 / 这 / 字典 / 钱 / 本 / ?", answer: "这本字典多少钱？", userAnswer: "" },
+                            { question: "苹果 / 怎么 / 一斤 / 卖 / ?", answer: "苹果一斤怎么卖？", userAnswer: "" },
+                            { question: "爸爸 / 吗 / 的 / 忙 / 工作 / 你 / ?", answer: "你爸爸的工作忙吗？", userAnswer: "" },
+                            { question: "下午 / 去 / 银行 / 我 / 取钱 / 。", answer: "下午我去银行取钱。", userAnswer: "" },
+                            { question: "谁 / 那个 / 留学生 / 是 / ?", answer: "那个留学生是谁？", userAnswer: "" },
+                            { question: "今天 / 星期 / 不 / 六 / 是 / 。", answer: "今天不是星期六。", userAnswer: "" }
+                        ],
+                        phanII: [
+                            { question: "Bạn uống trà hay uống cà phê?", answer: "你喝茶还是喝咖啡？", userAnswer: "" },
+                            { question: "Thư viện của trường chúng tôi rất lớn.", answer: "我们学校的图书馆很大。", userAnswer: "" },
+                            { question: "Hôm nay là sinh nhật của tôi, ngày 15 tháng 10.", answer: "今天是我的生日，十月十五号。", userAnswer: "" },
+                            { question: "Nhà bạn có mấy người? Nhà tôi có 4 người.", answer: "你家有几口人？我家有四口人。", userAnswer: "" },
+                            { question: "Một cân quýt bao nhiêu tiền?", answer: "橘子一斤多少钱？", userAnswer: "" },
+                            { question: "Ông ấy là bác sĩ, không phải giáo viên.", answer: "他是医生，不是老师。", userAnswer: "" },
+                            { question: "Bạn đi bưu điện làm gì? Tôi đi gửi thư.", answer: "你去邮局做什么？我去寄信。", userAnswer: "" },
+                            { question: "Tiếng Hán không khó lắm, chữ Hán rất khó.", answer: "汉语不太难，汉字很难。", userAnswer: "" },
+                            { question: "Bạn có bản đồ Trung Quốc không?", answer: "你有中国地图吗？", userAnswer: "" },
+                            { question: "Buổi chiều tôi ở nhà xem sách.", answer: "下午我在家看书。", userAnswer: "" }
+                        ],
+                        phanIII: [
+                            { question: "Trường học", pinyin: "xuéxiào", answer: "学校", userAnswer: "" },
+                            { question: "Sách tiếng Hán", pinyin: "hànshū", answer: "汉书", userAnswer: "" },
+                            { question: "Ngân hàng", pinyin: "yínháng", answer: "银行", userAnswer: "" },
+                            { question: "Bạn bè", pinyin: "péngyou", answer: "朋友", userAnswer: "" },
+                            { question: "Cảm ơn", pinyin: "xièxie", answer: "谢谢", userAnswer: "" },
+                            { question: "Thầy cô", pinyin: "lǎoshī", answer: "老师", userAnswer: "" },
+                            { question: "Mua đồ", pinyin: "mǎidongxi", answer: "买东西", userAnswer: "" },
+                            { question: "Trung Quốc", pinyin: "zhōngguó", answer: "中国", userAnswer: "" },
+                            { question: "Bận", pinyin: "mǎng", answer: "忙", userAnswer: "" },
+                            { question: "Phòng học", pinyin: "jiàoshì", answer: "教室", userAnswer: "" }
+                        ]
+                    },
+                    speaking: [
+                        { question: "你是哪国留学生？", userAnswer: "" },
+                        { question: "你们学校叫什么名字？", userAnswer: "" },
+                        { question: "你有几本汉语书？", userAnswer: "" },
+                        { question: "你的生日是哪天？", userAnswer: "" },
+                        { question: "你喜欢吃中餐还是西餐？", userAnswer: "" }
+                    ],
+                    listeningAnswer: ""
+                },
+                
+                // Initialize App
+                initApp() {
+                    // Start timer with real-time synchronization
+                    this.startTimer();
+                    
+                    // Load saved data
+                    this.loadFromLocalStorage();
+                    
+                    // Check for student ID in URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const idFromUrl = urlParams.get('id');
+                    if (idFromUrl) {
+                        this.studentId = idFromUrl.toUpperCase();
+                        this.connectToFirebase();
+                    }
+                    
+                    // Update entry time every minute
+                    setInterval(() => {
+                        this.entryTime = new Date().toLocaleTimeString('vi-VN');
+                    }, 60000);
+                    
+                    // Initialize audio
+                    this.initAudio();
+                },
+                
+                // Initialize audio player
+                initAudio() {
+                    const audio = document.getElementById('listening-audio');
+                    if (audio) {
+                        // Set audio duration when loaded
+                        audio.addEventListener('loadedmetadata', () => {
+                            this.audioDuration = Math.round(audio.duration);
+                        });
+                        
+                        // Load audio duration
+                        setTimeout(() => {
+                            if (audio.duration) {
+                                this.audioDuration = Math.round(audio.duration);
+                            }
+                        }, 1000);
+                    }
+                },
+                
+                // Start timer with real-time countdown
+                startTimer() {
+                    setInterval(() => {
+                        if (this.timer > 0) {
+                            this.timer--;
+                            // Auto-save every 30 seconds
+                            if (this.timer % 30 === 0) {
+                                this.saveToLocalStorage();
+                            }
+                        } else {
+                            // Auto-submit when time is up
+                            if (this.activeTab !== 5) {
+                                this.submitExam();
+                            }
+                        }
+                    }, 1000); // Update every second
+                },
+                
+                // Format time to MM:SS
+                formatTime(seconds) {
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    const secs = seconds % 60;
+                    
+                    if (hours > 0) {
+                        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    }
+                    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                },
+                
+                // Format audio time
+                formatAudioTime(seconds) {
+                    const mins = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                },
+                
+                // Start audio playback
+                startAudio() {
+                    const audio = document.getElementById('listening-audio');
+                    if (audio && !this.audioPlayed) {
+                        this.audioPlayed = true;
+                        this.audioEnded = false;
+                        audio.play();
+                        
+                        // Start progress update interval
+                        this.audioInterval = setInterval(() => {
+                            this.updateAudioProgress();
+                        }, 100);
+                        
+                        // Save state
+                        this.saveToLocalStorage();
+                    }
+                },
+                
+                // Update audio progress
+                updateAudioProgress() {
+                    const audio = document.getElementById('listening-audio');
+                    if (audio) {
+                        this.currentTime = audio.currentTime;
+                        this.audioProgress = (audio.currentTime / audio.duration) * 100;
+                        
+                        // Check if audio ended
+                        if (audio.ended) {
+                            this.audioEnded = true;
+                            if (this.audioInterval) {
+                                clearInterval(this.audioInterval);
+                                this.audioInterval = null;
+                            }
+                        }
+                    }
+                },
+                
+                // Format question with blank
+                formatQuestion(text) {
+                    return text.replace(/______/g, '<span class="inline-block w-24 border-b-2 border-dashed border-gray-400 mx-1"></span>');
+                },
+                
+                // Connect to Firebase
+                connectToFirebase() {
+                    if (!this.studentId) {
+                        alert("Vui lòng nhập mã học viên");
+                        return;
+                    }
+                    
+                    // Save to local storage
+                    localStorage.setItem('studentId', this.studentId);
+                    
+                    // Update entry time
+                    this.entryTime = new Date().toLocaleTimeString('vi-VN');
+                    
+                    // Listen for changes in Firebase
+                    const studentRef = database.ref('students/' + this.studentId);
+                    
+                    studentRef.on('value', (snapshot) => {
+                        const data = snapshot.val();
+                        if (data) {
+                            this.allowSpeaking = data.allow_speaking === true;
+                            this.speakingStatus = data.status || "Đã kết nối";
+                            
+                            // Update status in Firebase
+                            if (!data.status) {
+                                studentRef.update({
+                                    status: "Đã vào phòng thi lúc " + this.entryTime,
+                                    entry_time: new Date().toISOString()
+                                });
+                            }
+                        } else {
+                            // Create student entry if not exists
+                            studentRef.set({
+                                allow_speaking: false,
+                                status: "Đã vào phòng thi lúc " + this.entryTime,
+                                entry_time: new Date().toISOString(),
+                                student_id: this.studentId
+                            });
+                            this.speakingStatus = "Đã kết nối";
+                        }
+                    });
+                    
+                    // Save studentId to all answers
+                    this.saveToLocalStorage();
+                },
+                
+                // Submit exam
+                submitExam() {
+                    if (confirm("Bạn có chắc chắn muốn nộp bài? Sau khi nộp bạn sẽ không thể thay đổi câu trả lời.")) {
+                        this.showAnswers = true;
+                        this.activeTab = 5; // Move to results tab
+                        this.saveToLocalStorage();
+                        
+                        // Update Firebase status
+                        if (this.studentId) {
+                            const studentRef = database.ref('students/' + this.studentId);
+                            studentRef.update({
+                                status: "Đã nộp bài thi lúc " + new Date().toLocaleTimeString('vi-VN'),
+                                submit_time: new Date().toISOString(),
+                                score: this.calculateScore(),
+                                percentage: this.calculatePercentage(),
+                                listening_played: this.audioPlayed,
+                                listening_answer: this.examData.listeningAnswer
+                            });
+                        }
+                        
+                        alert("Bài thi đã được nộp thành công! Kết quả đang được hiển thị.");
+                    }
+                },
+                
+                // Check answer
+                checkAnswer(userAnswer, correctAnswer) {
+                    if (!userAnswer) return false;
+                    return userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+                },
+                
+                // Calculate score
+                calculateScore() {
+                    let score = 0;
+                    
+                    // Bài 1
+                    this.examData.bai1.dang1.forEach(q => {
+                        if (this.checkAnswer(q.userAnswer, q.answer)) score += 1;
+                    });
+                    
+                    this.examData.bai1.dang2.forEach(q => {
+                        if (this.checkAnswer(q.userAnswer, q.answer)) score += 1;
+                    });
+                    
+                    this.examData.bai1.dang3.forEach(q => {
+                        if (this.checkAnswer(q.userAnswer, q.answer)) score += 1;
+                    });
+                    
+                    // Bài 2
+                    this.examData.bai2.dang1.forEach(q => {
+                        if (this.checkAnswer(q.userAnswer, q.answer)) score += 1;
+                    });
+                    
+                    this.examData.bai2.dang2.forEach(q => {
+                        if (this.checkAnswer(q.userAnswer, q.answer)) score += 1;
+                    });
+                    
+                    this.examData.bai2.dang3.forEach(q => {
+                        if (this.checkAnswer(q.userAnswer, q.answer)) score += 1;
+                    });
+                    
+                    // Phần 1
+                    this.examData.phan1.phanI.forEach(q => {
+                        if (this.checkAnswer(q.userAnswer, q.answer)) score += 1;
+                    });
+                    
+                    this.examData.phan1.phanII.forEach(q => {
+                        if (this.checkAnswer(q.userAnswer, q.answer)) score += 1;
+                    });
+                    
+                    this.examData.phan1.phanIII.forEach(q => {
+                        if (this.checkAnswer(q.userAnswer, q.answer)) score += 1;
+                    });
+                    
+                    // Phần 2 - Viết chữ Hán
+                    this.examData.phan2.phanIII.forEach(q => {
+                        if (this.checkAnswer(q.userAnswer, q.answer)) score += 1;
+                    });
+                    
+                    return score;
+                },
+                
+                // Calculate correct answers
+                calculateCorrectAnswers() {
+                    return this.calculateScore();
+                },
+                
+                // Calculate total questions
+                calculateTotalQuestions() {
+                    return 5 + 5 + 5 + 5 + 5 + 5 + 10 + 10 + 10 + 10;
+                },
+                
+                // Calculate percentage
+                calculatePercentage() {
+                    const total = this.calculateTotalQuestions();
+                    const correct = this.calculateCorrectAnswers();
+                    return total > 0 ? Math.round((correct / total) * 100) : 0;
+                },
+                
+                // Save to local storage
+                saveToLocalStorage() {
+                    const saveData = {
+                        studentId: this.studentId,
+                        examData: this.examData,
+                        timer: this.timer,
+                        entryTime: this.entryTime,
+                        audioPlayed: this.audioPlayed,
+                        audioEnded: this.audioEnded
+                    };
+                    localStorage.setItem('examData', JSON.stringify(saveData));
+                },
+                
+                // Load from local storage
+                loadFromLocalStorage() {
+                    const saved = localStorage.getItem('examData');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.studentId = data.studentId || '';
+                        this.timer = data.timer || 7200;
+                        this.entryTime = data.entryTime || new Date().toLocaleTimeString('vi-VN');
+                        this.audioPlayed = data.audioPlayed || false;
+                        this.audioEnded = data.audioEnded || false;
+                        
+                        // Merge saved answers with current exam data
+                        if (data.examData) {
+                            // Merge each section
+                            Object.keys(data.examData).forEach(section => {
+                                if (this.examData[section]) {
+                                    Object.keys(data.examData[section]).forEach(subsection => {
+                                        if (this.examData[section][subsection]) {
+                                            this.examData[section][subsection].forEach((q, i) => {
+                                                if (data.examData[section][subsection][i]) {
+                                                    this.examData[section][subsection][i].userAnswer = 
+                                                        data.examData[section][subsection][i].userAnswer || '';
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                            
+                            // Load listening answer
+                            if (data.examData.listeningAnswer) {
+                                this.examData.listeningAnswer = data.examData.listeningAnswer;
+                            }
+                            
+                            // Load speaking answers
+                            if (data.examData.speaking) {
+                                data.examData.speaking.forEach((q, i) => {
+                                    if (this.examData.speaking[i]) {
+                                        this.examData.speaking[i].userAnswer = q.userAnswer || '';
+                                    }
+                                });
+                            }
+                        }
+                        
+                        if (this.studentId) {
+                            this.connectToFirebase();
+                        }
+                    }
+                },
+                
+                // Reset exam
+                resetExam() {
+                    if (confirm("Bạn có chắc chắn muốn làm lại bài thi? Tất cả câu trả lời sẽ bị xóa.")) {
+                        // Reset all answers
+                        Object.keys(this.examData).forEach(section => {
+                            Object.keys(this.examData[section]).forEach(subsection => {
+                                this.examData[section][subsection].forEach(q => {
+                                    q.userAnswer = "";
+                                });
+                            });
+                        });
+                        
+                        // Reset speaking answers
+                        this.examData.speaking.forEach(q => {
+                            q.userAnswer = "";
+                        });
+                        
+                        // Reset listening
+                        this.examData.listeningAnswer = "";
+                        
+                        // Reset audio state
+                        this.audioPlayed = false;
+                        this.audioEnded = false;
+                        this.currentTime = 0;
+                        this.audioProgress = 0;
+                        
+                        // Reset timer
+                        this.timer = 7200;
+                        
+                        // Reset UI
+                        this.showAnswers = false;
+                        this.activeTab = 0;
+                        this.entryTime = new Date().toLocaleTimeString('vi-VN');
+                        
+                        // Clear local storage
+                        localStorage.removeItem('examData');
+                        
+                        // Reset audio element
+                        const audio = document.getElementById('listening-audio');
+                        if (audio) {
+                            audio.pause();
+                            audio.currentTime = 0;
+                        }
+                        
+                        // Update Firebase status
+                        if (this.studentId) {
+                            const studentRef = database.ref('students/' + this.studentId);
+                            studentRef.update({
+                                status: "Đã reset và làm lại bài thi",
+                                reset_time: new Date().toISOString()
+                            });
+                        }
+                        
+                        alert("Bài thi đã được reset. Bạn có thể bắt đầu lại từ đầu.");
+                    }
+                },
+                
+                // Export to PDF
+                exportToPDF() {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF('p', 'mm', 'a4');
+                    
+                    // Add title
+                    doc.setFontSize(20);
+                    doc.setTextColor(40, 53, 147);
+                    doc.text('KẾT QUẢ BÀI THI TIẾNG TRUNG', 105, 20, null, null, 'center');
+                    
+                    // Add student info
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(`Mã học viên: ${this.studentId}`, 20, 35);
+                    doc.text(`Thời gian vào: ${this.entryTime}`, 20, 42);
+                    doc.text(`Thời gian nộp: ${new Date().toLocaleTimeString('vi-VN')}`, 20, 49);
+                    
+                    // Add score summary
+                    doc.setFontSize(14);
+                    doc.setTextColor(0, 102, 0);
+                    doc.text('TỔNG KẾT KẾT QUẢ', 105, 65, null, null, 'center');
+                    
+                    const summary = [
+                        ['Điểm số', this.calculateScore()],
+                        ['Số câu đúng', this.calculateCorrectAnswers()],
+                        ['Tổng số câu', this.calculateTotalQuestions()],
+                        ['Tỷ lệ đúng', this.calculatePercentage() + '%']
+                    ];
+                    
+                    doc.autoTable({
+                        startY: 70,
+                        head: [['Chỉ số', 'Giá trị']],
+                        body: summary,
+                        theme: 'grid',
+                        headStyles: { fillColor: [102, 126, 234] },
+                        margin: { left: 50, right: 50 }
+                    });
+                    
+                    // Add detailed results
+                    let yPos = doc.lastAutoTable.finalY + 15;
+                    doc.setFontSize(14);
+                    doc.setTextColor(40, 53, 147);
+                    doc.text('CHI TIẾT CÂU TRẢ LỜI', 105, yPos, null, null, 'center');
+                    
+                    // Prepare data for detailed table
+                    const tableData = [];
+                    
+                    // Add questions from all sections
+                    this.addQuestionsToTable(tableData, 'Bài 1 - Dạng 1', this.examData.bai1.dang1);
+                    this.addQuestionsToTable(tableData, 'Bài 1 - Dạng 2', this.examData.bai1.dang2);
+                    this.addQuestionsToTable(tableData, 'Bài 1 - Dạng 3', this.examData.bai1.dang3);
+                    this.addQuestionsToTable(tableData, 'Bài 2 - Dạng 1', this.examData.bai2.dang1);
+                    this.addQuestionsToTable(tableData, 'Bài 2 - Dạng 2', this.examData.bai2.dang2);
+                    this.addQuestionsToTable(tableData, 'Bài 2 - Dạng 3', this.examData.bai2.dang3);
+                    this.addQuestionsToTable(tableData, 'Phần 1 - Chọn từ', this.examData.phan1.phanI);
+                    this.addQuestionsToTable(tableData, 'Phần 1 - Trắc nghiệm', this.examData.phan1.phanII);
+                    this.addQuestionsToTable(tableData, 'Phần 1 - Đọc hiểu', this.examData.phan1.phanIII);
+                    this.addQuestionsToTable(tableData, 'Phần 2 - Viết chữ Hán', this.examData.phan2.phanIII);
+                    
+                    // Add speaking answers
+                    this.examData.speaking.forEach((q, index) => {
+                        tableData.push([
+                            `Nói ${index+1}`,
+                            'Phần thi nói: ' + q.question,
+                            q.userAnswer || 'Chưa trả lời',
+                            'Câu hỏi mở',
+                            '-'
+                        ]);
+                    });
+                    
+                    // Add listening answer
+                    if (this.examData.listeningAnswer) {
+                        tableData.push([
+                            'Nghe',
+                            'Lặp lại những gì bạn nghe được',
+                            this.examData.listeningAnswer,
+                            'Câu hỏi mở',
+                            '-'
+                        ]);
+                    }
+                    
+                    // Create detailed table
+                    doc.autoTable({
+                        startY: yPos + 10,
+                        head: [['Câu', 'Câu hỏi', 'Đáp án của bạn', 'Đáp án đúng', 'Đúng/Sai']],
+                        body: tableData,
+                        theme: 'grid',
+                        headStyles: { fillColor: [102, 126, 234] },
+                        columnStyles: {
+                            0: { cellWidth: 15 },
+                            1: { cellWidth: 60 },
+                            2: { cellWidth: 30 },
+                            3: { cellWidth: 30 },
+                            4: { cellWidth: 20 }
+                        },
+                        margin: { left: 10, right: 10 },
+                        styles: { fontSize: 8, cellPadding: 2 },
+                        didDrawPage: function(data) {
+                            // Footer
+                            doc.setFontSize(10);
+                            doc.text('Hệ thống thi trực tuyến Tiếng Trung', data.settings.margin.left, doc.internal.pageSize.height - 10);
+                            doc.text(`Trang ${doc.internal.getNumberOfPages()}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10, null, null, 'right');
+                        }
+                    });
+                    
+                    // Save the PDF
+                    doc.save(`ketqua_thi_${this.studentId}_${new Date().toISOString().slice(0,10)}.pdf`);
+                    
+                    alert("PDF đã được tạo và tải xuống!");
+                },
+                
+                // Helper function to add questions to table data
+                addQuestionsToTable(tableData, sectionName, questions) {
+                    questions.forEach((q, index) => {
+                        const isCorrect = this.checkAnswer(q.userAnswer, q.answer);
+                        tableData.push([
+                            `Q${index+1}`,
+                            sectionName + ': ' + (q.question || q.pinyin || ''),
+                            q.userAnswer || 'Chưa trả lời',
+                            q.answer || '',
+                            isCorrect ? '✓' : '✗'
+                        ]);
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
