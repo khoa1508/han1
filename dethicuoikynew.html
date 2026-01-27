@@ -868,12 +868,15 @@
                 </div>
                 
                 <div class="mb-8 flex flex-wrap justify-center gap-4">
-                    <button @click="showAnswers = !showAnswers" class="btn-primary">
+                    <button x-show="isSubmitted" @click="showAnswers = !showAnswers" class="btn-primary">
                         <i class="fas" :class="showAnswers ? 'fa-eye-slash' : 'fa-eye'"></i>
                         <span x-text="showAnswers ? 'Ẩn đáp án' : 'Hiện đáp án'"></span>
                     </button>
                     <button @click="exportToPDF()" class="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition">
                         <i class="fas fa-file-pdf mr-2"></i> Xuất PDF kết quả
+                    </button>
+                    <button @click="resetExam()" class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition">
+                        <i class="fas fa-trash-alt mr-2"></i> Xóa dữ liệu & Làm lại
                     </button>
                 </div>
             </div>
@@ -905,6 +908,7 @@
                 activeTab: 0,
                 timer: 7200, // 120 phút = 7200 giây
                 showAnswers: false,
+                isSubmitted: false, // New flag
                 allowSpeaking: false,
                 speakingStatus: 'Chưa kết nối',
                 entryTime: new Date().toLocaleTimeString('vi-VN'),
@@ -1316,7 +1320,8 @@
                             currentTime: this.currentTime,
                             audioProgress: this.audioProgress,
                             saveTimestamp: new Date().toISOString(),
-                            saveCount: this.saveCount + 1
+                            saveCount: this.saveCount + 1,
+                            isSubmitted: this.isSubmitted // Save submitted status
                         };
                         
                         localStorage.setItem('examData', JSON.stringify(saveData));
@@ -1343,6 +1348,15 @@
                     }
                 },
                 
+                // Reset Exam Data
+                resetExam() {
+                    if(confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu và làm lại? Hành động này không thể hoàn tác.")) {
+                        localStorage.removeItem('examData');
+                        // Option: localStorage.removeItem('studentId'); 
+                        window.location.reload();
+                    }
+                },
+
                 // Format time to MM:SS
                 formatTime(seconds) {
                     const hours = Math.floor(seconds / 3600);
@@ -1451,6 +1465,7 @@
                 // Submit exam
                 submitExam() {
                     if (confirm("Bạn có chắc chắn muốn nộp bài? Sau khi nộp bạn sẽ không thể thay đổi câu trả lời.")) {
+                        this.isSubmitted = true; // Set submitted status
                         this.showAnswers = true;
                         this.activeTab = 5; // Move to results tab
                         
@@ -1563,6 +1578,7 @@
                             this.audioProgress = data.audioProgress || 0;
                             this.saveCount = data.saveCount || 0;
                             this.lastSaveTime = data.lastSaveTime || null;
+                            this.isSubmitted = data.isSubmitted || false; // Load submitted status
                             
                             // Merge saved answers with current exam data
                             if (data.examData) {
@@ -1623,13 +1639,13 @@
                     }
                 },
                 
-                // Export to PDF with proper font support using html2canvas (No network dependency for fonts)
+                // Export to PDF using html2canvas directly to fix blank page and font issues
                 async exportToPDF() {
                     const { jsPDF } = window.jspdf;
                     
                     alert("Đang xử lý PDF (có thể mất 5-10 giây), vui lòng không tắt trình duyệt...");
 
-                    // 1. Prepare Data
+                    // 1. Prepare Data for HTML generation
                     const tableData = [];
                     // Add questions from all sections
                     this.addQuestionsToTable(tableData, 'Bài 1 - Dạng 1', this.examData.bai1.dang1);
@@ -1651,16 +1667,15 @@
                     }
 
                     // 2. Generate HTML Structure for PDF
-                    // This creates a hidden table structure that looks like a PDF page
                     let htmlContent = `
-                        <div style="font-family: 'Noto Sans SC', sans-serif; padding: 20px; background: white;">
-                            <h1 style="text-align: center; color: #403593; font-size: 24px; margin-bottom: 5px;">KẾT QUẢ BÀI THI TIẾNG TRUNG</h1>
+                        <div style="font-family: 'Noto Sans SC', sans-serif; padding: 40px; background: white; color: black;">
+                            <h1 style="text-align: center; color: #403593; font-size: 24px; margin-bottom: 5px; font-weight: bold;">KẾT QUẢ BÀI THI TIẾNG TRUNG</h1>
                             <div style="text-align: left; margin-bottom: 20px; font-size: 14px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
                                 <p><strong>Mã học viên:</strong> ${this.studentId}</p>
                                 <p><strong>Thời gian nộp:</strong> ${new Date().toLocaleTimeString('vi-VN')}</p>
                             </div>
 
-                            <h2 style="color: #006600; font-size: 18px; margin-top: 10px;">TỔNG KẾT</h2>
+                            <h2 style="color: #006600; font-size: 18px; margin-top: 10px; font-weight: bold;">TỔNG KẾT</h2>
                             <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
                                 <tr style="background-color: #667eea; color: white;">
                                     <th style="padding: 8px; border: 1px solid #ddd;">Điểm số</th>
@@ -1676,7 +1691,7 @@
                                 </tr>
                             </table>
 
-                            <h2 style="color: #403593; font-size: 18px; margin-top: 20px;">CHI TIẾT CÂU TRẢ LỜI</h2>
+                            <h2 style="color: #403593; font-size: 18px; margin-top: 20px; font-weight: bold;">CHI TIẾT CÂU TRẢ LỜI</h2>
                             <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
                                 <tr style="background-color: #667eea; color: white;">
                                     <th style="padding: 5px; border: 1px solid #999; width: 5%;">Câu</th>
@@ -1701,30 +1716,56 @@
 
                     htmlContent += `</table></div>`;
 
-                    // 3. Create invisible container for rendering
+                    // 3. Create a TEMPORARY visible container attached to body
                     const container = document.createElement('div');
                     container.innerHTML = htmlContent;
-                    container.style.width = '794px'; // A4 width in pixels (approx) at 96 DPI
+                    container.style.width = '794px'; // Fixed A4 width at approx 96 DPI
+                    container.style.backgroundColor = '#ffffff';
                     container.style.position = 'absolute';
-                    container.style.left = '-9999px';
                     container.style.top = '0';
+                    container.style.left = '0';
+                    container.style.zIndex = '-9999'; // Behind other content but technically visible
                     document.body.appendChild(container);
 
-                    // 4. Generate PDF using doc.html (uses html2canvas internally)
-                    // This method renders the HTML visually, so it supports all fonts natively
-                    const doc = new jsPDF('p', 'mm', 'a4');
-                    
-                    doc.html(container, {
-                        callback: function (doc) {
-                            doc.save(`ketqua_thi_${this.studentId || 'unknown'}.pdf`);
-                            document.body.removeChild(container);
-                            alert("PDF đã được tạo thành công!");
-                        }.bind(this),
-                        x: 10,
-                        y: 10,
-                        width: 190, // Target width in mm (210mm - 20mm margins)
-                        windowWidth: 794 // Window width in pixels to match element width
-                    });
+                    try {
+                        // 4. Use html2canvas to take a picture of it
+                        const canvas = await html2canvas(container, {
+                            scale: 2, // Improve resolution
+                            useCORS: true,
+                            logging: false
+                        });
+
+                        // 5. Put that picture into a PDF
+                        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                        const doc = new jsPDF('p', 'mm', 'a4');
+                        const imgWidth = 210; // A4 width in mm
+                        const pageHeight = 295; // A4 height in mm
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        let heightLeft = imgHeight;
+                        let position = 0;
+
+                        // Add first page
+                        doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+
+                        // Add subsequent pages if content is long
+                        while (heightLeft >= 0) {
+                            position = heightLeft - imgHeight;
+                            doc.addPage();
+                            doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                            heightLeft -= pageHeight;
+                        }
+
+                        doc.save(`ketqua_thi_${this.studentId || 'unknown'}.pdf`);
+                        alert("PDF đã được tạo thành công!");
+
+                    } catch (err) {
+                        console.error(err);
+                        alert("Có lỗi khi tạo PDF. Vui lòng thử lại.");
+                    } finally {
+                        // Clean up
+                        document.body.removeChild(container);
+                    }
                 },
                 
                 // Helper function to add questions to table data
