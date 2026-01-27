@@ -9,13 +9,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <!-- Thêm thư viện jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
         body {
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Nunito', 'Noto Sans SC', sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
         }
@@ -159,16 +160,17 @@
         .auto-save-notification.show {
             transform: translateX(0);
         }
+        .chinese-font {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
     </style>
 </head>
 <body x-data="examApp()" x-init="initApp()" class="py-8 px-4">
-    <!-- Auto Save Notification -->
     <div class="auto-save-notification" :class="{'show': showSaveNotification}" x-transition>
         <i class="fas fa-save mr-2"></i>
         <span x-text="saveMessage"></span>
     </div>
 
-    <!-- Header -->
     <div class="max-w-6xl mx-auto mb-10">
         <div class="flex justify-between items-center">
             <div>
@@ -194,7 +196,6 @@
     </div>
 
     <div class="max-w-6xl mx-auto">
-        <!-- Student ID Input & Status -->
         <div class="cute-card bg-white p-6 mb-8">
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
@@ -240,7 +241,6 @@
             </div>
         </div>
 
-        <!-- Tabs Navigation -->
         <div class="flex flex-wrap border-b border-gray-200 mb-8">
             <template x-for="(tab, index) in tabs" :key="index">
                 <button
@@ -258,53 +258,49 @@
             </button>
         </div>
 
-        <!-- Bài 1 -->
         <div x-show="activeTab === 0" class="space-y-8">
             <div class="cute-card bg-white p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">
                     <i class="fas fa-book-open text-blue-500 mr-2"></i> Bài 1
                 </h2>
                 
-                <!-- Bài đọc Bài 1 -->
                 <div class="reading-passage">
                     <h4><i class="fas fa-book-reader mr-2"></i> Đọc đoạn văn sau:</h4>
-                    <p>我是日本留学生，我叫山田。我家在日本东京（Tokyo）。我在北京语言大学学习汉语。<br>
+                    <p class="chinese-font">我是日本留学生，我叫山田。我家在日本东京（Tokyo）。我在北京语言大学学习汉语。<br>
                     这是我朋友安娜，她是美国人。那是我朋友玛丽，她是英国人。她们都是留学生，她们也在北京语言大学学习汉语。</p>
                 </div>
                 
-                <!-- Dạng 1: Điền từ -->
                 <div class="mb-10">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 1: Điền từ vào chỗ trống (dựa vào bài đọc)</h3>
                     <template x-for="(question, index) in examData.bai1.dang1" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-3">
                                 <span class="question-number" x-text="index+1"></span>
-                                <div class="text-gray-800" x-html="formatQuestion(question.question)"></div>
+                                <div class="text-gray-800 chinese-font" x-html="formatQuestion(question.question)"></div>
                             </div>
                             <input 
                                 type="text" 
                                 x-model="question.userAnswer"
                                 @input.debounce.1000ms="autoSave()"
-                                class="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 chinese-font"
                                 :placeholder="'Câu ' + (index+1) + ' - Nhập đáp án'"
                             >
                             <div x-show="showAnswers" class="mt-2">
                                 <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
-                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
                     </template>
                 </div>
                 
-                <!-- Dạng 2: Trắc nghiệm -->
                 <div class="mb-10">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 2: Câu hỏi trắc nghiệm (chọn đáp án đúng)</h3>
                     <template x-for="(question, index) in examData.bai1.dang2" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-4">
                                 <span class="question-number" x-text="index+1"></span>
-                                <div class="text-gray-800 font-medium" x-text="question.question"></div>
+                                <div class="text-gray-800 font-medium chinese-font" x-text="question.question"></div>
                             </div>
                             <div class="grid md:grid-cols-2 gap-3 ml-10">
                                 <template x-for="(option, optIndex) in question.options" :key="optIndex">
@@ -317,27 +313,26 @@
                                             @change="autoSave()"
                                             class="mr-3 h-5 w-5 text-blue-600"
                                         >
-                                        <span class="text-gray-700" x-text="optIndex + '. ' + option"></span>
+                                        <span class="text-gray-700 chinese-font" x-text="optIndex + '. ' + option"></span>
                                     </label>
                                 </template>
                             </div>
                             <div x-show="showAnswers" class="mt-3 ml-10">
                                 <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
-                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
                     </template>
                 </div>
                 
-                <!-- Dạng 3: Đúng/Sai -->
                 <div class="mb-10">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 3: Câu hỏi đúng (T) / sai (F)</h3>
                     <template x-for="(question, index) in examData.bai1.dang3" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-4">
                                 <span class="question-number" x-text="index+1"></span>
-                                <div class="text-gray-800" x-text="question.question"></div>
+                                <div class="text-gray-800 chinese-font" x-text="question.question"></div>
                             </div>
                             <div class="flex space-x-6 ml-10">
                                 <label class="flex items-center">
@@ -365,32 +360,31 @@
                             </div>
                             <div x-show="showAnswers" class="mt-3 ml-10">
                                 <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
-                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
                     </template>
                 </div>
                 
-                <!-- Dạng 4: Trả lời ngắn -->
                 <div>
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 4: Trả lời câu hỏi ngắn (dựa vào bài đọc)</h3>
                     <template x-for="(question, index) in examData.bai1.dang4" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-3">
                                 <span class="question-number" x-text="index+1"></span>
-                                <div class="text-gray-800" x-text="question.question"></div>
+                                <div class="text-gray-800 chinese-font" x-text="question.question"></div>
                             </div>
                             <textarea 
                                 x-model="question.userAnswer"
                                 @input.debounce.1000ms="autoSave()"
                                 rows="2"
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 chinese-font"
                                 :placeholder="'Trả lời câu ' + (index+1)"
                             ></textarea>
                             <div x-show="showAnswers" class="mt-2">
                                 <span class="text-sm font-medium text-blue-600">
-                                    Đáp án tham khảo: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án tham khảo: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
@@ -399,52 +393,48 @@
             </div>
         </div>
 
-        <!-- Bài 2 -->
         <div x-show="activeTab === 1" class="space-y-8">
             <div class="cute-card bg-white p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">
                     <i class="fas fa-book-open text-green-500 mr-2"></i> Bài 2
                 </h2>
                 
-                <!-- Bài đọc Bài 2 -->
                 <div class="reading-passage">
                     <h4><i class="fas fa-book-reader mr-2"></i> Đọc đoạn văn sau:</h4>
-                    <p>我是北京语言大学的英国留学生，我叫玛丽。我在这儿（here）学习汉语。我觉得汉语语法不太难，但是，发音和汉字很难。安娜是美国人，她是我的同班同学，也是我的同屋。</p>
+                    <p class="chinese-font">我是北京语言大学的英国留学生，我叫玛丽。我在这儿（here）学习汉语。我觉得汉语语法不太难，但是，发音和汉字很难。安娜是美国人，她是我的同班同学，也是我的同屋。</p>
                 </div>
                 
-                <!-- Dạng 1: Điền từ -->
                 <div class="mb-10">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 1: Điền từ vào chỗ trống (dựa vào bài đọc)</h3>
                     <template x-for="(question, index) in examData.bai2.dang1" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-3">
                                 <span class="question-number" x-text="index+1"></span>
-                                <div class="text-gray-800" x-html="formatQuestion(question.question)"></div>
+                                <div class="text-gray-800 chinese-font" x-html="formatQuestion(question.question)"></div>
                             </div>
                             <input 
                                 type="text" 
                                 x-model="question.userAnswer"
                                 @input.debounce.1000ms="autoSave()"
-                                class="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                class="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 chinese-font"
                                 :placeholder="'Câu ' + (index+1) + ' - Nhập đáp án'"
                             >
                             <div x-show="showAnswers" class="mt-2">
                                 <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
-                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
                     </template>
                 </div>
                 
-                <!-- Dạng 2: Trắc nghiệm -->
                 <div class="mb-10">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 2: Câu hỏi trắc nghiệm (chọn đáp án đúng)</h3>
                     <template x-for="(question, index) in examData.bai2.dang2" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-4">
                                 <span class="question-number" x-text="index+1"></span>
-                                <div class="text-gray-800 font-medium" x-text="question.question"></div>
+                                <div class="text-gray-800 font-medium chinese-font" x-text="question.question"></div>
                             </div>
                             <div class="grid md:grid-cols-2 gap-3 ml-10">
                                 <template x-for="(option, optIndex) in question.options" :key="optIndex">
@@ -457,27 +447,26 @@
                                             @change="autoSave()"
                                             class="mr-3 h-5 w-5 text-green-600"
                                         >
-                                        <span class="text-gray-700" x-text="optIndex + '. ' + option"></span>
+                                        <span class="text-gray-700 chinese-font" x-text="optIndex + '. ' + option"></span>
                                     </label>
                                 </template>
                             </div>
                             <div x-show="showAnswers" class="mt-3 ml-10">
                                 <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
-                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
                     </template>
                 </div>
                 
-                <!-- Dạng 3: Đúng/Sai -->
                 <div class="mb-10">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 3: Câu hỏi đúng (T) / sai (F)</h3>
                     <template x-for="(question, index) in examData.bai2.dang3" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-4">
                                 <span class="question-number" x-text="index+1"></span>
-                                <div class="text-gray-800" x-text="question.question"></div>
+                                <div class="text-gray-800 chinese-font" x-text="question.question"></div>
                             </div>
                             <div class="flex space-x-6 ml-10">
                                 <label class="flex items-center">
@@ -505,32 +494,31 @@
                             </div>
                             <div x-show="showAnswers" class="mt-3 ml-10">
                                 <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
-                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
                     </template>
                 </div>
                 
-                <!-- Dạng 4: Trả lời ngắn -->
                 <div>
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Dạng 4: Trả lời câu hỏi ngắn (dựa vào bài đọc)</h3>
                     <template x-for="(question, index) in examData.bai2.dang4" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-3">
                                 <span class="question-number" x-text="index+1"></span>
-                                <div class="text-gray-800" x-text="question.question"></div>
+                                <div class="text-gray-800 chinese-font" x-text="question.question"></div>
                             </div>
                             <textarea 
                                 x-model="question.userAnswer"
                                 @input.debounce.1000ms="autoSave()"
                                 rows="2"
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 chinese-font"
                                 :placeholder="'Trả lời câu ' + (index+1)"
                             ></textarea>
                             <div x-show="showAnswers" class="mt-2">
                                 <span class="text-sm font-medium text-blue-600">
-                                    Đáp án tham khảo: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án tham khảo: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
@@ -539,21 +527,19 @@
             </div>
         </div>
 
-        <!-- Phần 1: Kỹ năng đọc -->
         <div x-show="activeTab === 2" class="space-y-8">
             <div class="cute-card bg-white p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">
                     <i class="fas fa-eye text-purple-500 mr-2"></i> PHẦN 1: KỸ NĂNG ĐỌC (30 CÂU)
                 </h2>
                 
-                <!-- Phần I: Chọn từ thích hợp -->
                 <div class="mb-10">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">I. Chọn từ thích hợp điền vào chỗ trống (10 câu)</h3>
                     <template x-for="(question, index) in examData.phan1.phanI" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-3">
                                 <span class="question-number" x-text="index+1"></span>
-                                <div class="text-gray-800" x-html="formatQuestion(question.question)"></div>
+                                <div class="text-gray-800 chinese-font" x-html="formatQuestion(question.question)"></div>
                             </div>
                             <select 
                                 x-model="question.userAnswer"
@@ -562,26 +548,25 @@
                             >
                                 <option value="">Chọn từ thích hợp</option>
                                 <template x-for="option in question.options" :key="option">
-                                    <option :value="option" x-text="option"></option>
+                                    <option :value="option" x-text="option" class="chinese-font"></option>
                                 </template>
                             </select>
                             <div x-show="showAnswers" class="mt-2">
                                 <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
-                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
                     </template>
                 </div>
                 
-                <!-- Phần II: Chọn đáp án đúng -->
                 <div class="mb-10">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">II. Chọn đáp án đúng nhất (10 câu)</h3>
                     <template x-for="(question, index) in examData.phan1.phanII" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-4">
                                 <span class="question-number" x-text="index+11"></span>
-                                <div class="text-gray-800 font-medium" x-text="question.question"></div>
+                                <div class="text-gray-800 font-medium chinese-font" x-text="question.question"></div>
                             </div>
                             <div class="grid md:grid-cols-2 gap-3 ml-10">
                                 <template x-for="(option, optIndex) in question.options" :key="optIndex">
@@ -594,27 +579,26 @@
                                             @change="autoSave()"
                                             class="mr-3 h-5 w-5 text-purple-600"
                                         >
-                                        <span class="text-gray-700" x-text="option.label + '. ' + option.value"></span>
+                                        <span class="text-gray-700 chinese-font" x-text="option.label + '. ' + option.value"></span>
                                     </label>
                                 </template>
                             </div>
                             <div x-show="showAnswers" class="mt-3 ml-10">
                                 <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
-                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
                     </template>
                 </div>
                 
-                <!-- Phần III: Đọc hiểu -->
                 <div>
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">III. Đọc đoạn văn và xác định Đúng (√) / Sai (x) (10 câu)</h3>
                     <template x-for="(question, index) in examData.phan1.phanIII" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-4">
                                 <span class="question-number" x-text="index+21"></span>
-                                <div class="text-gray-800" x-text="question.question"></div>
+                                <div class="text-gray-800 chinese-font" x-text="question.question"></div>
                             </div>
                             <div class="flex space-x-6 ml-10">
                                 <label class="flex items-center">
@@ -642,7 +626,7 @@
                             </div>
                             <div x-show="showAnswers" class="mt-3 ml-10">
                                 <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
-                                    Đáp án: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
@@ -651,39 +635,36 @@
             </div>
         </div>
 
-        <!-- Phần 2: Kỹ năng viết -->
         <div x-show="activeTab === 3" class="space-y-8">
             <div class="cute-card bg-white p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">
                     <i class="fas fa-pen text-orange-500 mr-2"></i> PHẦN 2: KỸ NĂNG VIẾT (30 CÂU)
                 </h2>
                 
-                <!-- Phần I: Sắp xếp từ -->
                 <div class="mb-10">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">I. Sắp xếp từ thành câu hoàn chỉnh (10 câu)</h3>
                     <template x-for="(question, index) in examData.phan2.phanI" :key="index">
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-start mb-3">
                                 <span class="question-number" x-text="index+1"></span>
-                                <div class="text-gray-800" x-text="question.question"></div>
+                                <div class="text-gray-800 chinese-font" x-text="question.question"></div>
                             </div>
                             <textarea 
                                 x-model="question.userAnswer"
                                 @input.debounce.1000ms="autoSave()"
                                 rows="2"
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 chinese-font"
                                 :placeholder="'Viết câu hoàn chỉnh câu ' + (index+1)"
                             ></textarea>
                             <div x-show="showAnswers" class="mt-2">
                                 <span class="text-sm font-medium text-blue-600">
-                                    Đáp án tham khảo: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án tham khảo: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
                     </template>
                 </div>
                 
-                <!-- Phần II: Dịch câu -->
                 <div class="mb-10">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">II. Dịch câu Việt - Trung (10 câu)</h3>
                     <template x-for="(question, index) in examData.phan2.phanII" :key="index">
@@ -696,19 +677,18 @@
                                 x-model="question.userAnswer"
                                 @input.debounce.1000ms="autoSave()"
                                 rows="3"
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 chinese-font"
                                 :placeholder="'Dịch sang tiếng Trung câu ' + (index+11)"
                             ></textarea>
                             <div x-show="showAnswers" class="mt-2">
                                 <span class="text-sm font-medium text-blue-600">
-                                    Đáp án tham khảo: <span class="font-bold" x-text="question.answer"></span>
+                                    Đáp án tham khảo: <span class="font-bold chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
                     </template>
                 </div>
                 
-                <!-- Phần III: Viết chữ Hán -->
                 <div>
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">III. Viết chữ Hán từ Pinyin (10 câu)</h3>
                     <template x-for="(question, index) in examData.phan2.phanIII" :key="index">
@@ -721,12 +701,12 @@
                                 type="text" 
                                 x-model="question.userAnswer"
                                 @input.debounce.1000ms="autoSave()"
-                                class="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-2xl"
+                                class="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-2xl chinese-font"
                                 :placeholder="'Viết chữ Hán câu ' + (index+21)"
                             >
                             <div x-show="showAnswers" class="mt-2">
                                 <span class="text-sm font-medium" :class="checkAnswer(question.userAnswer, question.answer) ? 'text-green-600' : 'text-red-600'">
-                                    Đáp án: <span class="font-bold text-2xl" x-text="question.answer"></span>
+                                    Đáp án: <span class="font-bold text-2xl chinese-font" x-text="question.answer"></span>
                                 </span>
                             </div>
                         </div>
@@ -735,14 +715,12 @@
             </div>
         </div>
 
-        <!-- Phần thi nói -->
         <div x-show="activeTab === 4" class="space-y-8">
             <div class="cute-card bg-white p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-200">
                     <i class="fas fa-microphone-alt text-red-500 mr-2"></i> Phần thi nói
                 </h2>
                 
-                <!-- Waiting Room -->
                 <div x-show="!allowSpeaking" class="text-center py-10">
                     <div class="text-6xl mb-6 text-gray-300">
                         <i class="fas fa-user-clock"></i>
@@ -754,23 +732,21 @@
                     </div>
                 </div>
                 
-                <!-- Speaking Room Active -->
                 <div x-show="allowSpeaking" class="space-y-8">
-                    <!-- 5 câu hỏi nói đơn giản -->
                     <div class="listening-section">
                         <h3 class="text-2xl font-bold mb-6 text-center">I. Trả lời câu hỏi nhanh (5 câu)</h3>
                         <template x-for="(question, index) in examData.speaking" :key="index">
                             <div class="mb-8 p-5 bg-white bg-opacity-30 rounded-xl">
                                 <div class="flex items-start mb-4">
                                     <span class="flex items-center justify-center w-10 h-10 bg-white text-purple-600 rounded-full font-bold mr-4" x-text="index+1"></span>
-                                    <div class="text-lg font-medium text-white" x-text="question.question"></div>
+                                    <div class="text-lg font-medium text-white chinese-font" x-text="question.question"></div>
                                 </div>
                                 <div class="ml-14">
                                     <textarea 
                                         x-model="question.userAnswer"
                                         @input.debounce.1000ms="autoSave()"
                                         rows="3"
-                                        class="w-full p-4 border border-white border-opacity-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-white bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-70"
+                                        class="w-full p-4 border border-white border-opacity-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-white bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-70 chinese-font"
                                         :placeholder="'Nhập câu trả lời cho câu ' + (index+1)"
                                     ></textarea>
                                 </div>
@@ -778,11 +754,9 @@
                         </template>
                     </div>
                     
-                    <!-- Phần thi nghe MP3 -->
                     <div class="listening-section">
                         <h3 class="text-2xl font-bold mb-6 text-center">II. Lặp lại những gì mà bạn nghe được</h3>
                         
-                        <!-- Audio Player Custom -->
                         <div class="audio-player-custom" :class="{'audio-disabled': audioPlayed}">
                             <div class="flex items-center justify-between mb-4">
                                 <div>
@@ -797,12 +771,10 @@
                                 </div>
                             </div>
                             
-                            <!-- Audio Progress -->
                             <div class="audio-progress">
                                 <div class="audio-progress-fill" :style="'width: ' + audioProgress + '%'"></div>
                             </div>
                             
-                            <!-- Audio Controls -->
                             <div class="audio-controls flex justify-center space-x-4">
                                 <template x-if="!audioPlayed">
                                     <button @click="startAudio()" class="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition flex items-center">
@@ -827,7 +799,6 @@
                                 </div>
                             </div>
                             
-                            <!-- Audio Info -->
                             <div class="mt-4 text-center text-white text-opacity-80 text-sm">
                                 <i class="fas fa-info-circle mr-2"></i>
                                 <span x-show="!audioPlayed">Nhấn "Bắt đầu nghe" để nghe bài. Bạn chỉ được nghe 01 lần duy nhất.</span>
@@ -836,7 +807,6 @@
                             </div>
                         </div>
                         
-                        <!-- Hidden Audio Element -->
                         <audio 
                             id="listening-audio" 
                             preload="auto"
@@ -847,7 +817,6 @@
                             Trình duyệt của bạn không hỗ trợ phát audio.
                         </audio>
                         
-                        <!-- Answer Box -->
                         <div class="mt-6">
                             <h4 class="text-lg font-bold text-white mb-3">
                                 <i class="fas fa-pencil-alt mr-2"></i>
@@ -857,7 +826,7 @@
                                 x-model="examData.listeningAnswer"
                                 @input.debounce.1000ms="autoSave()"
                                 rows="5"
-                                class="w-full p-4 border border-white border-opacity-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-white bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-70"
+                                class="w-full p-4 border border-white border-opacity-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-white bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-70 chinese-font"
                                 placeholder="Nhập chính xác nội dung bạn nghe được từ file MP3..."
                                 :disabled="!audioEnded"
                             ></textarea>
@@ -871,7 +840,6 @@
             </div>
         </div>
 
-        <!-- Submit Section -->
         <div x-show="activeTab === 5" class="cute-card bg-white p-8">
             <div class="text-center">
                 <div class="text-6xl text-green-500 mb-6">
@@ -907,18 +875,11 @@
                     <button @click="exportToPDF()" class="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition">
                         <i class="fas fa-file-pdf mr-2"></i> Xuất PDF kết quả
                     </button>
-                    <button @click="resetExam()" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition">
-                        <i class="fas fa-redo mr-2"></i> Làm lại bài thi
-                    </button>
-                    <button @click="clearAllData()" class="px-6 py-3 bg-red-100 text-red-700 rounded-lg font-semibold hover:bg-red-200 transition">
-                        <i class="fas fa-trash-alt mr-2"></i> Xóa tất cả dữ liệu
-                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase Config -->
     <script>
         // Firebase Configuration
         const firebaseConfig = {
@@ -1301,9 +1262,6 @@
                     // Set up beforeunload event to save before closing
                     window.addEventListener('beforeunload', (e) => {
                         this.autoSave();
-                        // Optional: Show confirmation message
-                        // e.preventDefault();
-                        // e.returnValue = '';
                     });
                 },
                 
@@ -1665,58 +1623,14 @@
                     }
                 },
                 
-
-                
-    
-                
-                // Export to PDF
-                exportToPDF() {
+                // Export to PDF with proper font support using html2canvas (No network dependency for fonts)
+                async exportToPDF() {
                     const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF('p', 'mm', 'a4');
                     
-                    // Add title
-                    doc.setFontSize(20);
-                    doc.setTextColor(40, 53, 147);
-                    doc.text('KẾT QUẢ BÀI THI TIẾNG TRUNG', 105, 20, null, null, 'center');
-                    
-                    // Add student info
-                    doc.setFontSize(12);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text(`Mã học viên: ${this.studentId}`, 20, 35);
-                    doc.text(`Thời gian vào: ${this.entryTime}`, 20, 42);
-                    doc.text(`Thời gian nộp: ${new Date().toLocaleTimeString('vi-VN')}`, 20, 49);
-                    doc.text(`Lần lưu cuối: ${this.lastSaveTime || 'Chưa lưu'}`, 20, 56);
-                    
-                    // Add score summary
-                    doc.setFontSize(14);
-                    doc.setTextColor(0, 102, 0);
-                    doc.text('TỔNG KẾT KẾT QUẢ', 105, 70, null, null, 'center');
-                    
-                    const summary = [
-                        ['Điểm số', this.calculateScore()],
-                        ['Số câu đúng', this.calculateCorrectAnswers()],
-                        ['Tổng số câu', this.calculateTotalQuestions()],
-                        ['Tỷ lệ đúng', this.calculatePercentage() + '%']
-                    ];
-                    
-                    doc.autoTable({
-                        startY: 75,
-                        head: [['Chỉ số', 'Giá trị']],
-                        body: summary,
-                        theme: 'grid',
-                        headStyles: { fillColor: [102, 126, 234] },
-                        margin: { left: 50, right: 50 }
-                    });
-                    
-                    // Add detailed results
-                    let yPos = doc.lastAutoTable.finalY + 15;
-                    doc.setFontSize(14);
-                    doc.setTextColor(40, 53, 147);
-                    doc.text('CHI TIẾT CÂU TRẢ LỜI', 105, yPos, null, null, 'center');
-                    
-                    // Prepare data for detailed table
+                    alert("Đang xử lý PDF (có thể mất 5-10 giây), vui lòng không tắt trình duyệt...");
+
+                    // 1. Prepare Data
                     const tableData = [];
-                    
                     // Add questions from all sections
                     this.addQuestionsToTable(tableData, 'Bài 1 - Dạng 1', this.examData.bai1.dang1);
                     this.addQuestionsToTable(tableData, 'Bài 1 - Dạng 2', this.examData.bai1.dang2);
@@ -1729,56 +1643,88 @@
                     this.addQuestionsToTable(tableData, 'Phần 1 - Đọc hiểu', this.examData.phan1.phanIII);
                     this.addQuestionsToTable(tableData, 'Phần 2 - Viết chữ Hán', this.examData.phan2.phanIII);
                     
-                    // Add speaking answers
                     this.examData.speaking.forEach((q, index) => {
-                        tableData.push([
-                            `Nói ${index+1}`,
-                            'Phần thi nói: ' + q.question,
-                            q.userAnswer || 'Chưa trả lời',
-                            'Câu hỏi mở',
-                            '-'
-                        ]);
+                        tableData.push([`Nói ${index+1}`, 'Phần thi nói: ' + q.question, q.userAnswer || 'Chưa trả lời', 'Câu hỏi mở', '-']);
                     });
-                    
-                    // Add listening answer
                     if (this.examData.listeningAnswer) {
-                        tableData.push([
-                            'Nghe',
-                            'Lặp lại những gì bạn nghe được',
-                            this.examData.listeningAnswer,
-                            'Câu hỏi mở',
-                            '-'
-                        ]);
+                        tableData.push(['Nghe', 'Lặp lại những gì bạn nghe được', this.examData.listeningAnswer, 'Câu hỏi mở', '-']);
                     }
-                    
-                    // Create detailed table
-                    doc.autoTable({
-                        startY: yPos + 10,
-                        head: [['Câu', 'Câu hỏi', 'Đáp án của bạn', 'Đáp án đúng', 'Đúng/Sai']],
-                        body: tableData,
-                        theme: 'grid',
-                        headStyles: { fillColor: [102, 126, 234] },
-                        columnStyles: {
-                            0: { cellWidth: 15 },
-                            1: { cellWidth: 60 },
-                            2: { cellWidth: 30 },
-                            3: { cellWidth: 30 },
-                            4: { cellWidth: 20 }
-                        },
-                        margin: { left: 10, right: 10 },
-                        styles: { fontSize: 8, cellPadding: 2 },
-                        didDrawPage: function(data) {
-                            // Footer
-                            doc.setFontSize(10);
-                            doc.text('Hệ thống thi trực tuyến Tiếng Trung', data.settings.margin.left, doc.internal.pageSize.height - 10);
-                            doc.text(`Trang ${doc.internal.getNumberOfPages()}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10, null, null, 'right');
-                        }
+
+                    // 2. Generate HTML Structure for PDF
+                    // This creates a hidden table structure that looks like a PDF page
+                    let htmlContent = `
+                        <div style="font-family: 'Noto Sans SC', sans-serif; padding: 20px; background: white;">
+                            <h1 style="text-align: center; color: #403593; font-size: 24px; margin-bottom: 5px;">KẾT QUẢ BÀI THI TIẾNG TRUNG</h1>
+                            <div style="text-align: left; margin-bottom: 20px; font-size: 14px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                                <p><strong>Mã học viên:</strong> ${this.studentId}</p>
+                                <p><strong>Thời gian nộp:</strong> ${new Date().toLocaleTimeString('vi-VN')}</p>
+                            </div>
+
+                            <h2 style="color: #006600; font-size: 18px; margin-top: 10px;">TỔNG KẾT</h2>
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
+                                <tr style="background-color: #667eea; color: white;">
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Điểm số</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Số câu đúng</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Tổng câu</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Tỷ lệ</th>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${this.calculateScore()}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${this.calculateCorrectAnswers()}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${this.calculateTotalQuestions()}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${this.calculatePercentage()}%</td>
+                                </tr>
+                            </table>
+
+                            <h2 style="color: #403593; font-size: 18px; margin-top: 20px;">CHI TIẾT CÂU TRẢ LỜI</h2>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                <tr style="background-color: #667eea; color: white;">
+                                    <th style="padding: 5px; border: 1px solid #999; width: 5%;">Câu</th>
+                                    <th style="padding: 5px; border: 1px solid #999; width: 40%;">Câu hỏi</th>
+                                    <th style="padding: 5px; border: 1px solid #999; width: 25%;">Đáp án của bạn</th>
+                                    <th style="padding: 5px; border: 1px solid #999; width: 20%;">Đáp án đúng</th>
+                                    <th style="padding: 5px; border: 1px solid #999; width: 10%;">Đ/S</th>
+                                </tr>
+                    `;
+
+                    tableData.forEach(row => {
+                        htmlContent += `
+                            <tr>
+                                <td style="padding: 5px; border: 1px solid #ccc; text-align: center;">${row[0]}</td>
+                                <td style="padding: 5px; border: 1px solid #ccc;">${row[1]}</td>
+                                <td style="padding: 5px; border: 1px solid #ccc;">${row[2]}</td>
+                                <td style="padding: 5px; border: 1px solid #ccc;">${row[3]}</td>
+                                <td style="padding: 5px; border: 1px solid #ccc; text-align: center; color: ${row[4] === '✓' ? 'green' : (row[4] === '✗' ? 'red' : 'black')}; font-weight: bold;">${row[4]}</td>
+                            </tr>
+                        `;
                     });
+
+                    htmlContent += `</table></div>`;
+
+                    // 3. Create invisible container for rendering
+                    const container = document.createElement('div');
+                    container.innerHTML = htmlContent;
+                    container.style.width = '794px'; // A4 width in pixels (approx) at 96 DPI
+                    container.style.position = 'absolute';
+                    container.style.left = '-9999px';
+                    container.style.top = '0';
+                    document.body.appendChild(container);
+
+                    // 4. Generate PDF using doc.html (uses html2canvas internally)
+                    // This method renders the HTML visually, so it supports all fonts natively
+                    const doc = new jsPDF('p', 'mm', 'a4');
                     
-                    // Save the PDF
-                    doc.save(`ketqua_thi_${this.studentId}_${new Date().toISOString().slice(0,10)}.pdf`);
-                    
-                    alert("PDF đã được tạo và tải xuống!");
+                    doc.html(container, {
+                        callback: function (doc) {
+                            doc.save(`ketqua_thi_${this.studentId || 'unknown'}.pdf`);
+                            document.body.removeChild(container);
+                            alert("PDF đã được tạo thành công!");
+                        }.bind(this),
+                        x: 10,
+                        y: 10,
+                        width: 190, // Target width in mm (210mm - 20mm margins)
+                        windowWidth: 794 // Window width in pixels to match element width
+                    });
                 },
                 
                 // Helper function to add questions to table data
