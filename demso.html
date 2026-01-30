@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiếng Trung: Tương tác trực tuyến</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Nunito:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+            background-color: #f0fdf4;
+            touch-action: manipulation;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            background-color: #ffffff;
+            border-radius: 1rem;
+        }
+
+        .correct {
+            background-color: #86efac !important;
+            border-color: #22c55e !important;
+            color: #14532d;
+            z-index: 10;
+        }
+
+        .shake { animation: shake 0.5s; background-color: #fca5a5 !important; }
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-4px, 0); }
+            75% { transform: translate(4px, 0); }
+        }
+
+        .chicken-marker {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            font-size: 1.6rem;
+            filter: drop-shadow(2px 2px 0 white);
+            animation: bounce 1s infinite;
+            z-index: 20;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .pinyin { font-size: 0.65rem; color: #64748b; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90%; }
+        .hanzi { font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
+
+        .label-marker {
+            position: absolute;
+            font-weight: 800;
+            font-size: 10px;
+            z-index: 30;
+            padding: 2px 6px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .start-label { 
+            top: -10px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            background: #ef4444; 
+            color: white; 
+            border: 2px solid white;
+        }
+
+        .exit-label { 
+            bottom: -10px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            background: #22c55e; 
+            color: white; 
+            border: 2px solid white;
+        }
+
+        .entrance-cell {
+            border: 4px solid #ef4444 !important;
+            background-color: #fff1f2;
+        }
+
+        .exit-cell {
+            border: 4px solid #22c55e !important;
+            background-color: #f0fdf4;
+        }
+
+        .current-player-banner {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+        }
+        
+        .waiting-banner {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        #lock-overlay {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-blur: 2px;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-green-50 flex flex-col items-center p-4">
+
+    <header class="text-center w-full max-w-4xl mb-4">
+        <h1 class="text-3xl font-black text-green-800 italic underline decoration-yellow-400 uppercase tracking-tight">Gà Con Tìm Đường Online</h1>
+        <p class="text-gray-600 text-sm font-bold" id="range-info">Lối vào 🚪 -> Tìm số -> Lối ra 🏁</p>
+    </header>
+
+    <div class="w-full max-w-5xl flex flex-col lg:flex-row gap-6">
+        
+        <div class="flex-grow flex flex-col items-center">
+            
+            <div id="player-banner" class="w-full max-w-md rounded-2xl p-4 mb-4 text-center shadow-lg hidden transition-all">
+                <div id="banner-title" class="text-[10px] uppercase tracking-[0.2em] font-black mb-1">...</div>
+                <div id="current-player-name" class="text-3xl font-black tracking-tight">---</div>
+                <div id="turn-status-msg" class="text-xs mt-2 italic font-bold"></div>
+            </div>
+
+            <div class="flex items-center justify-between w-full max-w-md mb-2 px-1">
+                <div class="bg-white px-4 py-2 rounded-2xl shadow-md border-2 border-green-200 flex-grow mr-2">
+                    <span class="text-gray-400 text-[10px] uppercase font-black">Số cần tìm:</span>
+                    <span id="target-display" class="font-black text-2xl text-green-600 ml-2">...</span>
+                </div>
+                <!-- GV Reset -->
+                <button id="btn-reset-sync" class="bg-orange-500 hover:bg-orange-600 text-white font-black py-2 px-4 rounded-xl shadow transition text-sm hidden">
+                    🔄 Đổi đề
+                </button>
+            </div>
+
+            <div class="grid-container w-full max-w-md relative p-2">
+                <div id="lock-overlay" class="hidden absolute inset-0 z-20 flex items-center justify-center rounded-2xl">
+                    <div class="bg-white/95 p-6 rounded-3xl shadow-2xl border-2 border-gray-100 text-center animate-pulse">
+                        <span class="text-4xl">🚪👀</span>
+                        <p class="text-sm font-black text-gray-500 mt-3 uppercase tracking-wider">Đang xem bạn học...</p>
+                    </div>
+                </div>
+
+                <div id="game-grid" class="grid grid-cols-5 gap-3 bg-white p-4 rounded-[2rem] shadow-2xl border-4 border-green-100">
+                    <!-- Ô lưới -->
+                </div>
+            </div>
+
+            <button id="btn-skip-turn" class="mt-4 text-[10px] uppercase font-black bg-red-50 text-red-500 px-4 py-2 rounded-full hover:bg-red-100 transition tracking-widest border border-red-100">
+                ⏭️ Bỏ qua lượt (Dành cho GV)
+            </button>
+        </div>
+
+        <div class="w-full lg:w-72 flex-shrink-0">
+            <div class="bg-white rounded-[2rem] shadow-xl border border-gray-200 p-6 sticky top-4">
+                <h3 class="font-black text-gray-800 mb-5 flex items-center gap-2 border-b-2 border-gray-50 pb-3 text-lg">
+                    <span>👥</span> LỚP HỌC ONLINE
+                </h3>
+                <div id="queue-list" class="space-y-3 min-h-[250px]">
+                    <div id="queue-status" class="text-gray-400 text-center py-10 italic text-sm">Đang tải...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Win Modal -->
+    <div id="win-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white p-10 rounded-[3rem] shadow-2xl text-center max-w-sm w-full animate-bounce-in border-8 border-green-50">
+            <div class="text-8xl mb-4">🏁🏆</div>
+            <h2 class="text-3xl font-black text-green-600 mb-2">VỀ ĐÍCH!</h2>
+            <p id="winner-msg" class="text-gray-700 font-bold mb-8"></p>
+            <button id="btn-finish-turn" class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-5 px-8 rounded-2xl shadow-xl transition-all text-xl uppercase tracking-tighter">
+                Hoàn thành lượt ✅
+            </button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-green-100 z-50 flex items-center justify-center p-4">
+        <div class="bg-white p-10 rounded-[3rem] shadow-2xl max-w-sm w-full text-center border-8 border-white">
+            <div class="text-7xl mb-6">🚪🐥</div>
+            <h2 class="text-3xl font-black text-green-800 mb-2 uppercase italic">Vào Lớp</h2>
+            <p id="login-desc" class="text-gray-500 mb-8 font-bold text-sm text-center">Nhập tên để xếp hàng chơi cùng cả lớp</p>
+            
+            <input type="text" id="login-name-input" placeholder="Tên của em..." 
+                class="w-full border-4 border-green-50 bg-green-50 rounded-2xl px-6 py-4 mb-6 focus:outline-none focus:ring-4 focus:ring-green-200 text-2xl text-center font-black placeholder:text-gray-300">
+            
+            <button id="btn-login" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 px-8 rounded-2xl shadow-2xl transition-all text-xl uppercase">
+                Bắt đầu ngay 🚀
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // RULE 1: Đúng đường dẫn artifacts
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        let myName = "";
+        let currentQueue = [];
+        let remoteCurrentTargetOffset = 1; // 1 to 10
+        let remoteBaseNumber = 0; // 0, 10, 20, 30...
+        let remotePathIndices = [];
+        let remoteCellsData = [];
+        let isAuthReady = false;
+
+        // --- HELPER: CHUYỂN SỐ SANG TIẾNG TRUNG (HỖ TRỢ ĐẾN 999) ---
+        const CN_DIGITS = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+        const CN_PINYIN = ['líng', 'yī', 'èr', 'sān', 'sì', 'wǔ', 'liù', 'qī', 'bā', 'jiǔ'];
+        
+        function toChinese(num) {
+            if (num <= 0) return { hanzi: '?', pinyin: '?' };
+            if (num === 10) return { hanzi: '十', pinyin: 'shí' };
+            
+            let hanzi = '';
+            let pinyin = '';
+            
+            // Xử lý Hàng Trăm
+            if (num >= 100) {
+                const hundreds = Math.floor(num / 100);
+                hanzi += CN_DIGITS[hundreds] + '百';
+                pinyin += CN_PINYIN[hundreds] + ' bǎi ';
+                num %= 100;
+                
+                // Nếu còn số dư nhưng nhỏ hơn 10 (ví dụ 105), cần thêm 'linh' (ling)
+                if (num > 0 && num < 10) {
+                    hanzi += '零';
+                    pinyin += 'líng ';
+                }
+            }
+
+            // Xử lý Hàng Chục
+            if (num >= 20) {
+                const tens = Math.floor(num / 10);
+                hanzi += CN_DIGITS[tens] + '十';
+                pinyin += CN_PINYIN[tens] + ' shí ';
+                num %= 10;
+            } else if (num >= 10) {
+                // 10-19: Mười mấy (shí...)
+                hanzi += '十';
+                pinyin += 'shí ';
+                num %= 10;
+            }
+
+            // Xử lý Hàng Đơn Vị
+            if (num > 0) {
+                hanzi += CN_DIGITS[num];
+                pinyin += CN_PINYIN[num];
+            }
+
+            return { hanzi: hanzi.trim(), pinyin: pinyin.trim() };
+        }
+
+        function getNumberObject(val) {
+            const cn = toChinese(val);
+            return { val: val, hanzi: cn.hanzi, pinyin: cn.pinyin };
+        }
+
+        // --- AUTH (RULE 3) ---
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth Error:", error);
+            }
+        };
+
+        initAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                isAuthReady = true;
+                setupRealtimeSync();
+            } else {
+                isAuthReady = false;
+            }
+        });
+
+        // --- REALTIME SYNC ---
+        function setupRealtimeSync() {
+            if (!auth.currentUser) return;
+
+            // RULE 1: Path artifacts
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game_v2', 'current_state');
+
+            onSnapshot(docRef, (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    currentQueue = data.queue || [];
+                    remoteCurrentTargetOffset = data.currentTargetOffset || 1;
+                    remoteBaseNumber = data.baseNumber || 0;
+                    
+                    const newPathStr = JSON.stringify(data.pathIndices || []);
+                    const oldPathStr = JSON.stringify(remotePathIndices);
+                    
+                    if (newPathStr !== oldPathStr || remoteCellsData.length === 0) {
+                        remotePathIndices = data.pathIndices || [];
+                        remoteCellsData = data.cellsData ? JSON.parse(data.cellsData) : [];
+                        renderGrid();
+                    }
+
+                    updateUI();
+                    syncVisualProgress();
+                } else {
+                    // Init lần đầu
+                    setDoc(docRef, { 
+                        queue: [], 
+                        currentTargetOffset: 1, 
+                        baseNumber: 0,
+                        pathIndices: [], 
+                        cellsData: "" 
+                    }).catch(console.error);
+                }
+            }, (err) => {
+                console.error("Firestore Error:", err);
+                const status = document.getElementById('queue-status');
+                if (status) status.innerText = "Lỗi kết nối lớp học.";
+            });
+        }
+
+        function updateUI() {
+            const banner = document.getElementById('player-banner');
+            const nameEl = document.getElementById('current-player-name');
+            const titleEl = document.getElementById('banner-title');
+            const lock = document.getElementById('lock-overlay');
+            const resetBtn = document.getElementById('btn-reset-sync');
+            const rangeInfo = document.getElementById('range-info');
+
+            // Cập nhật thông tin khoảng số
+            const startNum = remoteBaseNumber + 1;
+            const endNum = remoteBaseNumber + 10;
+            rangeInfo.textContent = `Lối vào 🚪 -> Tìm từ ${startNum} đến ${endNum} -> Lối ra 🏁`;
+
+            if (currentQueue.length > 0) {
+                banner.classList.remove('hidden');
+                const currentPlayer = currentQueue[0];
+                nameEl.textContent = currentPlayer;
+                
+                if (currentPlayer === myName) {
+                    banner.className = "w-full max-w-md rounded-2xl p-4 mb-4 text-center shadow-lg current-player-banner";
+                    titleEl.textContent = "⭐️ ĐẾN LƯỢT BẠN ⭐️";
+                    lock.classList.add('hidden');
+                    resetBtn.classList.remove('hidden');
+                } else {
+                    banner.className = "w-full max-w-md rounded-2xl p-4 mb-4 text-center shadow-lg waiting-banner";
+                    titleEl.textContent = `Bạn học đang chơi`;
+                    lock.classList.remove('hidden');
+                    resetBtn.classList.add('hidden');
+                }
+            } else {
+                banner.classList.add('hidden');
+                lock.classList.remove('hidden');
+            }
+
+            const listEl = document.getElementById('queue-list');
+            listEl.innerHTML = '';
+            currentQueue.forEach((name, i) => {
+                const div = document.createElement('div');
+                const isMe = name === myName;
+                const isPlaying = i === 0;
+                div.className = `flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${isPlaying ? 'border-green-500 bg-green-50 scale-105 shadow-md' : 'border-gray-50 bg-white'}`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 flex items-center justify-center rounded-full ${isPlaying ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'} text-xs font-black">${i+1}</span>
+                        <span class="font-black text-sm ${isPlaying ? 'text-green-800' : 'text-gray-600'}">${name} ${isMe ? '(Em)' : ''}</span>
+                    </div>
+                `;
+                listEl.appendChild(div);
+            });
+        }
+
+        function syncVisualProgress() {
+            const cells = document.querySelectorAll('.grid-cell');
+            cells.forEach((cell, idx) => {
+                const pathIdx = remotePathIndices.indexOf(idx);
+                // pathIdx = 0 nghĩa là số đầu tiên (baseNumber + 1)
+                // remoteCurrentTargetOffset chạy từ 1 đến 10
+                
+                // Logic: Các số đã tìm được (nhỏ hơn target hiện tại)
+                if (pathIdx !== -1 && (pathIdx + 1) < remoteCurrentTargetOffset) {
+                    cell.classList.add('correct');
+                } else {
+                    cell.classList.remove('correct');
+                }
+                
+                // Con gà đứng ở vị trí số vừa tìm được (ngay trước target)
+                // Nếu chưa tìm số nào (offset=1), gà chưa xuất hiện hoặc ở cửa vào?
+                // Để hay hơn: Gà luôn đứng ở số MỚI NHẤT đã tìm được.
+                // Nếu target=1 -> chưa tìm được gì.
+                // Nếu target=2 -> đã tìm được số thứ 1.
+                if (pathIdx !== -1 && (pathIdx + 1) === (remoteCurrentTargetOffset - 1)) {
+                    placeChicken(cell);
+                }
+            });
+            
+            // Hiển thị số cần tìm tiếp theo
+            if (remoteCurrentTargetOffset <= 10) {
+                // pathIndices[remoteCurrentTargetOffset - 1] là vị trí cell chứa số cần tìm
+                // Nhưng ta cần giá trị text. 
+                // Ta biết số cần tìm là remoteBaseNumber + remoteCurrentTargetOffset
+                const targetVal = remoteBaseNumber + remoteCurrentTargetOffset;
+                const targetInfo = getNumberObject(targetVal);
+                document.getElementById('target-display').textContent = `${targetInfo.hanzi} (${targetInfo.pinyin})`;
+            }
+        }
+
+        function placeChicken(parentElement) {
+            document.querySelectorAll('.chicken-marker').forEach(c => c.remove());
+            const chicken = document.createElement('div');
+            chicken.className = 'chicken-marker';
+            chicken.textContent = '🐥';
+            parentElement.appendChild(chicken);
+        }
+
+        function renderGrid() {
+            const gridEl = document.getElementById('game-grid');
+            gridEl.innerHTML = '';
+            remoteCellsData.forEach((cell, index) => {
+                const div = document.createElement('div');
+                div.className = 'grid-cell border-2 border-gray-100 flex flex-col items-center justify-center';
+                div.dataset.index = index;
+                div.dataset.val = cell.val;
+                
+                // Cửa vào: Số đầu tiên của dãy (base + 1) -> pathIndices[0]
+                const isStart = remotePathIndices[0] === index;
+                const isEnd = remotePathIndices[9] === index;
+
+                if (isStart) {
+                    div.classList.add('entrance-cell');
+                    div.innerHTML += `<div class="label-marker start-label">🚪 Vào</div>`;
+                }
+                if (isEnd) {
+                    div.classList.add('exit-cell');
+                    div.innerHTML += `<div class="label-marker exit-label">🏁 Ra</div>`;
+                }
+
+                div.innerHTML += `<span class="pinyin">${cell.pinyin}</span><span class="hanzi">${cell.hanzi}</span>`;
+                div.onclick = () => handleCellClick(div, index);
+                gridEl.appendChild(div);
+            });
+        }
+
+        async function handleCellClick(el, index) {
+            if (!auth.currentUser || currentQueue[0] !== myName) return; 
+            
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game_v2', 'current_state');
+            
+            // Kiểm tra xem ô click có phải là số tiếp theo trong đường đi không
+            const expectedIndex = remotePathIndices[remoteCurrentTargetOffset - 1];
+            
+            if (index === expectedIndex) {
+                const newOffset = remoteCurrentTargetOffset + 1;
+                updateDoc(docRef, { currentTargetOffset: newOffset }).catch(console.error);
+                
+                playTone(600 + (newOffset * 50)); // Tăng cao độ khi tìm đúng
+                
+                // Đọc tiếng Trung
+                const val = parseInt(el.dataset.val);
+                if ('speechSynthesis' in window) {
+                    const u = new SpeechSynthesisUtterance(toChinese(val).hanzi);
+                    u.lang = 'zh-CN';
+                    speechSynthesis.speak(u);
+                }
+
+                if (newOffset > 10) {
+                    document.getElementById('winner-msg').textContent = `Chúc mừng ${myName}! Bạn đã hoàn thành chặng ${remoteBaseNumber + 1} - ${remoteBaseNumber + 10}.`;
+                    document.getElementById('win-modal').classList.remove('hidden');
+                    const u = new SpeechSynthesisUtterance("Hảo pa"); // Hao bang (Giỏi quá)
+                    u.lang = 'zh-CN';
+                    speechSynthesis.speak(u);
+                }
+            } else {
+                el.classList.add('shake');
+                playTone(200, 'sawtooth');
+                setTimeout(() => el.classList.remove('shake'), 500);
+            }
+        }
+
+        function playTone(f, type='sine') {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = type; o.frequency.value = f;
+            o.connect(g); g.connect(ctx.destination);
+            o.start(); g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.2);
+            o.stop(ctx.currentTime + 0.2);
+        }
+
+        async function generateNewMaze() {
+            if (!auth.currentUser) return;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game_v2', 'current_state');
+            
+            // Lấy state mới nhất để biết baseNumber hiện tại (để chắc chắn không bị ghi đè sai)
+            const snap = await getDoc(docRef);
+            let currentBase = snap.exists() ? (snap.data().baseNumber || 0) : 0;
+            
+            const gridSize = 5;
+            // Thuật toán DFS tạo đường đi ngẫu nhiên
+            const getNeighbors = (idx) => {
+                const r = Math.floor(idx/gridSize), c = idx%gridSize, n = [];
+                if(r>0) n.push(idx-gridSize); if(r<gridSize-1) n.push(idx+gridSize);
+                if(c>0) n.push(idx-1); if(c<gridSize-1) n.push(idx+1);
+                return n;
+            };
+            
+            const dfs = (curr, path, visited) => {
+                path.push(curr); visited.add(curr);
+                if(path.length === 10) return path;
+                const neighbors = getNeighbors(curr).sort(() => Math.random() - 0.5);
+                for(let next of neighbors) {
+                    if(!visited.has(next)) {
+                        const res = dfs(next, [...path], new Set(visited));
+                        if(res) return res;
+                    }
+                }
+                return null;
+            };
+
+            const path = dfs(0, [], new Set());
+            if (!path) {
+                // Fallback nếu không tìm được đường (hiếm)
+                return generateNewMaze();
+            }
+
+            // Tạo dữ liệu cho 25 ô
+            // Ô nằm trên đường đi (Path) sẽ có giá trị từ (base+1) đến (base+10)
+            // Ô nhiễu (Noise) sẽ là số ngẫu nhiên không thuộc dãy đó
+            
+            const cells = new Array(25).fill(null).map((_, i) => {
+                const pIdx = path.indexOf(i);
+                
+                if (pIdx !== -1) {
+                    // Đây là ô đúng
+                    const val = currentBase + pIdx + 1;
+                    return getNumberObject(val);
+                } else {
+                    // Đây là ô nhiễu (random số khác)
+                    // Random từ 1-999 nhưng tránh dãy hiện tại
+                    let rVal;
+                    do {
+                        rVal = Math.floor(Math.random() * 100) + 1; // Random đơn giản
+                    } while (rVal >= currentBase + 1 && rVal <= currentBase + 10);
+                    
+                    return getNumberObject(rVal);
+                }
+            });
+            
+            updateDoc(docRef, { 
+                pathIndices: path, 
+                cellsData: JSON.stringify(cells), 
+                currentTargetOffset: 1,
+                baseNumber: currentBase // Giữ nguyên baseNumber khi chỉ reset đề (hoặc đổi đề)
+            }).catch(console.error);
+        }
+
+        // Sự kiện: Vào lớp
+        document.getElementById('btn-login').onclick = async () => {
+            if (!isAuthReady) {
+                alert("Đang kết nối...");
+                return;
+            }
+            const name = document.getElementById('login-name-input').value.trim();
+            if(!name) return;
+            myName = name;
+            
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game_v2', 'current_state');
+            const snap = await getDoc(docRef);
+            let q = snap.exists() ? (snap.data().queue || []) : [];
+            if(!q.includes(name)) q.push(name);
+            await updateDoc(docRef, { queue: q });
+            
+            // Nếu là người đầu tiên, tạo đề
+            if(q.length === 1) await generateNewMaze();
+            
+            document.getElementById('login-modal').classList.add('hidden');
+        };
+
+        // Sự kiện: Hoàn thành lượt (Người thắng bấm)
+        document.getElementById('btn-finish-turn').onclick = async () => {
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game_v2', 'current_state');
+            
+            // Đẩy người thắng xuống cuối hàng
+            let q = [...currentQueue];
+            const finisher = q.shift();
+            q.push(finisher); 
+            
+            // Tăng BaseNumber lên 10 đơn vị cho người sau (Luân phiên đếm)
+            let newBase = remoteBaseNumber + 10;
+            if (newBase >= 990) newBase = 0; // Reset nếu vượt quá 999
+            
+            // Cập nhật lên server
+            await updateDoc(docRef, { 
+                queue: q, 
+                baseNumber: newBase,
+                currentTargetOffset: 1 
+            });
+            
+            document.getElementById('win-modal').classList.add('hidden');
+            
+            // Tạo mê cung mới cho người kế tiếp với số mới
+            setTimeout(() => generateNewMaze(), 500);
+        };
+
+        // Sự kiện: Giáo viên đổi đề (giữ nguyên số hiện tại, chỉ đổi vị trí)
+        document.getElementById('btn-reset-sync').onclick = () => {
+            if (auth.currentUser) generateNewMaze();
+        };
+
+        // Sự kiện: Giáo viên bỏ qua lượt
+        document.getElementById('btn-skip-turn').onclick = async () => {
+            if (auth.currentUser && confirm("Bỏ qua lượt người này?")) {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game_v2', 'current_state');
+                let q = [...currentQueue];
+                const skipped = q.shift();
+                q.push(skipped);
+                
+                // Khi skip, không tăng số (để người sau làm lại bộ đó) hoặc tăng tùy ý.
+                // Ở đây giữ nguyên số để người sau giải quyết.
+                await updateDoc(docRef, { queue: q, currentTargetOffset: 1 });
+                await generateNewMaze();
+            }
+        };
+    </script>
+</body>
+</html>
