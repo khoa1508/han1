@@ -248,21 +248,28 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Cấu hình Firebase
+        // ==========================================
+        // KHU VỰC CẤU HÌNH FIREBASE (ĐÃ CẬP NHẬT)
+        // ==========================================
         const userConfig = {
-            apiKey: "AIzaSyDcsk8X1rFd1qMd1W9510-ZKFlSfZUUKV8", 
-            authDomain: "dethi-1b5e3.firebaseapp.com",
-            databaseURL: "https://dethi-1b5e3-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "dethi-1b5e3",
-            storageBucket: "dethi-1b5e3.firebasestorage.app"
+            apiKey: "AIzaSyCH2STmAILHA2AfERyQYcCQP5_snOVvNHU",
+            authDomain: "trochoi-8664d.firebaseapp.com",
+            databaseURL: "https://trochoi-8664d-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "trochoi-8664d",
+            storageBucket: "trochoi-8664d.firebasestorage.app",
+            messagingSenderId: "167174083950",
+            appId: "1:167174083950:web:892eb3853d1f13a1a65d7f"
         };
+        // ==========================================
 
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : userConfig;
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // Sử dụng appId cố định để đồng bộ dữ liệu
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'trochoi-tieng-trung-online';
 
         let myName = "";
         let myRole = ""; // 'teacher' hoặc 'student'
@@ -282,6 +289,13 @@
                 }
             } catch (error) {
                 console.error("Auth Error:", error);
+                if (error.code === 'auth/invalid-api-key') {
+                    alert("Lỗi: API Key không hợp lệ. Vui lòng kiểm tra lại cấu hình Firebase trong code.");
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    alert("Lỗi: Chưa bật 'Anonymous Sign-in'. Vui lòng vào Firebase Console -> Authentication -> Sign-in method -> Bật Anonymous.");
+                } else {
+                    alert("Lỗi kết nối: " + error.message);
+                }
             }
         };
 
@@ -329,6 +343,7 @@
         function setupRealtimeSync() {
             if (!auth.currentUser) return;
 
+            // Sử dụng đường dẫn cố định cho bản build GitHub
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game', 'current_state');
 
             onSnapshot(docRef, (snap) => {
@@ -350,6 +365,11 @@
                     syncVisualProgress();
                 } else {
                     setDoc(docRef, { queue: [], currentTarget: 1, pathIndices: [], cellsData: "" }).catch(console.error);
+                }
+            }, (error) => {
+                console.error("Firestore Listen Error:", error);
+                if (error.code === 'permission-denied') {
+                    document.getElementById('queue-status').innerText = "Lỗi quyền truy cập (Permission Denied). Vui lòng kiểm tra Rules.";
                 }
             });
         }
@@ -587,7 +607,6 @@
                 if(q.length === 1) await generateNewMaze();
             } else {
                 // Giáo viên: Không thêm vào hàng đợi, chỉ đăng nhập để xem
-                // Có thể cần khởi tạo mê cung nếu chưa có ai chơi
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game', 'current_state');
                 const snap = await getDoc(docRef);
                 if (!snap.exists()) {
