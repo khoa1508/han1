@@ -681,6 +681,10 @@
             }
 
             document.getElementById('login-modal').classList.add('hidden');
+            
+            // CẬP NHẬT GIAO DIỆN NGAY LẬP TỨC
+            // Để đảm bảo quyền Giáo Viên được hiển thị
+            updateUI();
         };
 
         document.getElementById('btn-finish-turn').onclick = async () => {
