@@ -85,16 +85,6 @@
             border: 2px solid white;
         }
 
-        .entrance-cell {
-            border: 4px solid #ef4444 !important;
-            background-color: #fff1f2;
-        }
-
-        .exit-cell {
-            border: 4px solid #22c55e !important;
-            background-color: #f0fdf4;
-        }
-
         .current-player-banner {
             background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
             color: white;
@@ -106,7 +96,7 @@
         }
 
         .teacher-mode {
-            background: #fff7ed; /* Orange tint for teacher */
+            background: #fff7ed; /* Màu nền cam nhạt cho chế độ Giáo viên */
         }
 
         #lock-overlay {
@@ -115,8 +105,8 @@
         }
 
         /* Tab switching */
-        .tab-btn { opacity: 0.5; filter: grayscale(1); }
-        .tab-btn.active { opacity: 1; filter: grayscale(0); transform: scale(1.05); }
+        .tab-btn { opacity: 0.6; filter: grayscale(1); transform: scale(0.95); }
+        .tab-btn.active { opacity: 1; filter: grayscale(0); transform: scale(1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
 <body class="min-h-screen bg-green-50 flex flex-col items-center p-4">
@@ -171,7 +161,7 @@
                     <span>👥</span> LỚP HỌC ONLINE
                 </h3>
                 <div id="queue-list" class="space-y-3 min-h-[250px]">
-                    <div id="queue-status" class="text-gray-400 text-center py-10 italic text-sm">Đang tải...</div>
+                    <div id="queue-status" class="text-gray-400 text-center py-10 italic text-sm">Đang kết nối lớp học...</div>
                 </div>
             </div>
         </div>
@@ -194,14 +184,14 @@
     <div id="login-modal" class="fixed inset-0 bg-green-100 z-50 flex items-center justify-center p-4">
         <div class="bg-white p-6 rounded-[2.5rem] shadow-2xl max-w-sm w-full text-center border-8 border-white">
             
-            <div class="flex justify-center gap-4 mb-6">
-                <button id="tab-student" class="tab-btn active flex-1 bg-green-100 p-3 rounded-xl border-2 border-green-200 transition-all" onclick="switchTab('student')">
+            <div class="flex justify-center gap-3 mb-6 bg-gray-100 p-1.5 rounded-2xl">
+                <button id="tab-student" class="tab-btn active flex-1 bg-white text-green-700 p-3 rounded-xl border border-gray-200 transition-all shadow-sm" onclick="switchTab('student')">
                     <div class="text-2xl">🐥</div>
-                    <div class="font-black text-green-800 text-xs uppercase mt-1">Học Viên</div>
+                    <div class="font-black text-[10px] uppercase mt-1">Học Viên</div>
                 </button>
-                <button id="tab-teacher" class="tab-btn flex-1 bg-orange-100 p-3 rounded-xl border-2 border-orange-200 transition-all" onclick="switchTab('teacher')">
+                <button id="tab-teacher" class="tab-btn flex-1 bg-white text-orange-700 p-3 rounded-xl border border-gray-200 transition-all shadow-sm" onclick="switchTab('teacher')">
                     <div class="text-2xl">👩‍🏫</div>
-                    <div class="font-black text-orange-800 text-xs uppercase mt-1">Giáo Viên</div>
+                    <div class="font-black text-[10px] uppercase mt-1">Giáo Viên</div>
                 </button>
             </div>
 
@@ -217,13 +207,18 @@
                 <h2 class="text-2xl font-black text-orange-800 mb-2 uppercase italic">Quản Lý Lớp</h2>
                 <p class="text-gray-500 mb-6 font-bold text-xs">Nhập mã PIN để kiểm soát hệ thống</p>
                 
-                <input type="password" id="login-pin-input" placeholder="Mã PIN (1234)" 
+                <input type="password" id="login-pin-input" placeholder="Nhập mã PIN" 
                     class="w-full border-4 border-orange-50 bg-orange-50 rounded-2xl px-6 py-4 mb-4 focus:outline-none focus:ring-4 focus:ring-orange-200 text-xl text-center font-black placeholder:text-gray-300">
             </div>
             
-            <button id="btn-login" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 px-8 rounded-2xl shadow-lg transition-all text-lg uppercase mt-2">
+            <button id="btn-login" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 px-8 rounded-2xl shadow-lg transition-all text-lg uppercase mt-2 disabled:bg-gray-400 disabled:cursor-wait">
                 Bắt đầu ngay 🚀
             </button>
+            
+            <div id="error-console" class="hidden mt-4 bg-red-50 p-3 rounded-xl border border-red-200 text-left">
+                <p class="text-[10px] font-bold text-red-600 uppercase mb-1">⚠️ Chi tiết lỗi:</p>
+                <p id="error-text" class="text-[10px] text-red-500 font-mono break-words"></p>
+            </div>
         </div>
     </div>
 
@@ -243,14 +238,14 @@
                 teacherTab.classList.remove('active');
                 studentForm.classList.remove('hidden');
                 teacherForm.classList.add('hidden');
-                btn.className = "w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 px-8 rounded-2xl shadow-lg transition-all text-lg uppercase mt-2";
+                btn.className = "w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 px-8 rounded-2xl shadow-lg transition-all text-lg uppercase mt-2 disabled:bg-gray-400 disabled:cursor-wait";
                 btn.innerHTML = "Bắt đầu ngay 🚀";
             } else {
                 teacherTab.classList.add('active');
                 studentTab.classList.remove('active');
                 teacherForm.classList.remove('hidden');
                 studentForm.classList.add('hidden');
-                btn.className = "w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-4 px-8 rounded-2xl shadow-lg transition-all text-lg uppercase mt-2";
+                btn.className = "w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-4 px-8 rounded-2xl shadow-lg transition-all text-lg uppercase mt-2 disabled:bg-gray-400 disabled:cursor-wait";
                 btn.innerHTML = "Vào trang quản lý 🛠️";
             }
         }
@@ -261,7 +256,7 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // CẤU HÌNH FIREBASE GỐC CỦA BẠN (Dùng làm fallback nếu không có env)
+        // --- CẤU HÌNH FIREBASE ---
         const userConfig = {
             apiKey: "AIzaSyDcsk8X1rFd1qMd1W9510-ZKFlSfZUUKV8",
             authDomain: "dethi-1b5e3.firebaseapp.com",
@@ -278,7 +273,7 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         let myName = "";
-        let isTeacher = false; // Biến xác định chế độ giáo viên
+        let isTeacher = false;
         let currentQueue = [];
         let remoteCurrentTargetOffset = 1; 
         let remoteBaseNumber = 0; 
@@ -286,7 +281,6 @@
         let remoteCellsData = [];
         let isAuthReady = false;
 
-        // --- HELPER: CHUYỂN SỐ SANG TIẾNG TRUNG ---
         const CN_DIGITS = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
         const CN_PINYIN = ['líng', 'yī', 'èr', 'sān', 'sì', 'wǔ', 'liù', 'qī', 'bā', 'jiǔ'];
         
@@ -332,7 +326,6 @@
             return { val: val, hanzi: cn.hanzi, pinyin: cn.pinyin };
         }
 
-        // --- AUTH ---
         const initAuth = async () => {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -343,7 +336,24 @@
             } catch (error) {
                 console.error("Auth Error:", error);
                 const desc = document.getElementById('login-desc');
-                if(desc) desc.innerText = "Lỗi kết nối Firebase (Auth). Vui lòng tải lại.";
+                const errConsole = document.getElementById('error-console');
+                const errText = document.getElementById('error-text');
+                
+                let readableError = "Lỗi kết nối máy chủ.";
+                
+                if (error.code === 'auth/operation-not-allowed') {
+                    readableError = "Chưa bật 'Anonymous' (Ẩn danh) trong Firebase Authentication.";
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    readableError = `Tên miền '${window.location.hostname}' chưa được cấp quyền trong Firebase Console.`;
+                } else if (error.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') {
+                    readableError = "API Key không đúng hoặc dự án đã bị xóa.";
+                }
+
+                if(desc) desc.innerHTML = `<span class="text-red-500 font-bold">⚠️ ${readableError}</span>`;
+                if(errConsole) {
+                    errConsole.classList.remove('hidden');
+                    errText.textContent = `${error.code}: ${error.message}`;
+                }
             }
         };
 
@@ -353,12 +363,14 @@
             if (user) {
                 isAuthReady = true;
                 setupRealtimeSync();
+                // Ẩn thông báo lỗi nếu đã kết nối thành công
+                const errConsole = document.getElementById('error-console');
+                if(errConsole) errConsole.classList.add('hidden');
             } else {
                 isAuthReady = false;
             }
         });
 
-        // --- REALTIME SYNC ---
         function setupRealtimeSync() {
             if (!auth.currentUser) return;
 
@@ -394,7 +406,7 @@
             }, (err) => {
                 console.error("Firestore Error:", err);
                 const status = document.getElementById('queue-status');
-                if (status) status.innerText = "Lỗi dữ liệu.";
+                if (status) status.innerText = "Chờ đồng bộ dữ liệu...";
             });
         }
 
@@ -411,13 +423,10 @@
             const endNum = remoteBaseNumber + 10;
             rangeInfo.textContent = `Lối vào 🚪 -> Tìm từ ${startNum} đến ${endNum} -> Lối ra 🏁`;
 
-            // Xử lý hiển thị điều khiển
             const hasQueue = currentQueue.length > 0;
             const currentPlayer = hasQueue ? currentQueue[0] : null;
             const isMyTurn = currentPlayer === myName && !isTeacher;
 
-            // Nút điều khiển: Hiện nếu là Giáo viên HOẶC là lượt của mình
-            // Giáo viên thấy Reset và Skip. Học sinh chỉ thấy Reset (đổi đề) khi đến lượt.
             if (isTeacher) {
                 resetBtn.classList.remove('hidden');
                 skipBtn.classList.remove('hidden');
@@ -442,8 +451,7 @@
                     lock.classList.add('hidden');
                 } else {
                     banner.className = "w-full max-w-md rounded-2xl p-4 mb-4 text-center shadow-lg waiting-banner";
-                    titleEl.textContent = isTeacher ? "Đang làm bài" : "Bạn học đang chơi";
-                    // Giáo viên luôn nhìn thấy bàn cờ (không bị lock), Học sinh chờ thì bị lock
+                    titleEl.textContent = isTeacher ? "Đang làm bài..." : "Bạn học đang chơi";
                     if (isTeacher) {
                         lock.classList.add('hidden'); 
                     } else {
@@ -452,7 +460,6 @@
                 }
             } else {
                 banner.classList.add('hidden');
-                // Nếu không có ai chơi, Giáo viên vẫn xem được bàn cờ trống
                 if (isTeacher) {
                     lock.classList.add('hidden');
                 } else {
@@ -464,7 +471,7 @@
             listEl.innerHTML = '';
             currentQueue.forEach((name, i) => {
                 const div = document.createElement('div');
-                const isMe = name === myName && !isTeacher; // Giáo viên không được đánh dấu là 'Em' trong hàng đợi
+                const isMe = name === myName && !isTeacher; 
                 const isPlaying = i === 0;
                 div.className = `flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${isPlaying ? 'border-green-500 bg-green-50 scale-105 shadow-md' : 'border-gray-50 bg-white'}`;
                 div.innerHTML = `
@@ -477,7 +484,7 @@
             });
             
             if (currentQueue.length === 0) {
-                 listEl.innerHTML = '<div class="text-center text-gray-400 py-4 italic">Lớp học đang trống...</div>';
+                 listEl.innerHTML = '<div class="text-center text-gray-400 py-4 italic text-sm">Lớp chưa có ai...</div>';
             }
         }
 
@@ -539,9 +546,8 @@
         }
 
         async function handleCellClick(el, index) {
-            // Giáo viên không chơi, chỉ xem
             if (isTeacher) {
-                playTone(200, 'triangle'); // Âm thanh nhẹ để biết click ăn
+                playTone(200, 'triangle'); 
                 return;
             }
 
@@ -640,52 +646,91 @@
             }).catch(console.error);
         }
 
-        // XỬ LÝ ĐĂNG NHẬP
         document.getElementById('btn-login').onclick = async () => {
+            const btn = document.getElementById('btn-login');
+            const errConsole = document.getElementById('error-console');
+            const errText = document.getElementById('error-text');
+            
             if (!isAuthReady) {
-                alert("Hệ thống đang kết nối máy chủ, vui lòng đợi giây lát...");
+                alert("Hệ thống chưa kết nối xong, vui lòng đợi 3-5 giây.");
                 return;
             }
 
-            // LOGIC CHO GIÁO VIÊN
-            if (loginMode === 'teacher') {
-                const pin = document.getElementById('login-pin-input').value.trim();
-                if (pin === '1234') { // PIN MẶC ĐỊNH
-                    isTeacher = true;
-                    myName = "Giáo Viên";
-                    document.getElementById('login-modal').classList.add('hidden');
-                    updateUI(); // Cập nhật ngay để hiện nút
-                } else {
-                    alert("Sai mã PIN! Vui lòng thử lại.");
-                    document.getElementById('login-pin-input').value = '';
+            try {
+                // UI Loading
+                btn.disabled = true;
+                const originalText = btn.innerText;
+                btn.innerText = "Đang kết nối...";
+                if(errConsole) errConsole.classList.add('hidden');
+
+                if (loginMode === 'teacher') {
+                    const pin = document.getElementById('login-pin-input').value.trim();
+                    if (pin === 'hanailab') { 
+                        isTeacher = true;
+                        myName = "Giáo Viên";
+                        document.getElementById('login-modal').classList.add('hidden');
+                        updateUI(); 
+                    } else {
+                        alert("Sai mã PIN!");
+                        document.getElementById('login-pin-input').value = '';
+                    }
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    return;
                 }
-                return;
-            }
 
-            // LOGIC CHO HỌC VIÊN
-            const name = document.getElementById('login-name-input').value.trim();
-            if(!name) {
-                alert("Vui lòng nhập tên của em!");
-                return;
+                const name = document.getElementById('login-name-input').value.trim();
+                if(!name) {
+                    alert("Vui lòng nhập tên của em!");
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    return;
+                }
+                
+                myName = name;
+                isTeacher = false;
+                
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game_v2', 'current_state');
+                
+                // --- QUAN TRỌNG: DÙNG setDoc THAY VÌ getDoc + updateDoc ---
+                // Điều này giúp tự động tạo document nếu nó chưa tồn tại (tránh lỗi No document to update)
+                // Đồng thời xử lý race condition tốt hơn
+                
+                // 1. Lấy dữ liệu cũ an toàn
+                let q = [];
+                try {
+                    const snap = await getDoc(docRef);
+                    if (snap.exists()) {
+                        q = snap.data().queue || [];
+                    }
+                } catch(e) {
+                    // Nếu lỗi permission hoặc chưa có doc, cứ tiếp tục với queue rỗng
+                    console.log("Queue read skipped or empty");
+                }
+                
+                if(!q.includes(name)) q.push(name);
+                
+                // 2. Ghi đè an toàn (merge: true)
+                await setDoc(docRef, { queue: q }, { merge: true });
+                
+                // 3. Nếu là người đầu tiên, tạo đề
+                if(q.length === 1) await generateNewMaze();
+                
+                document.getElementById('login-modal').classList.add('hidden');
+
+            } catch (error) {
+                console.error("Login Error:", error);
+                if(errConsole) {
+                    errConsole.classList.remove('hidden');
+                    errText.textContent = `${error.code || 'Error'}: ${error.message}`;
+                }
+                alert("Đã xảy ra lỗi khi vào lớp. Vui lòng xem chi tiết lỗi bên dưới nút bấm.");
+            } finally {
+                btn.disabled = false;
+                if(btn.innerText === "Đang kết nối...") btn.innerText = "Bắt đầu ngay 🚀";
             }
-            
-            myName = name;
-            isTeacher = false;
-            
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game_v2', 'current_state');
-            const snap = await getDoc(docRef);
-            let q = snap.exists() ? (snap.data().queue || []) : [];
-            
-            // Nếu chưa có trong hàng đợi thì thêm vào
-            if(!q.includes(name)) q.push(name);
-            await updateDoc(docRef, { queue: q });
-            
-            if(q.length === 1) await generateNewMaze();
-            
-            document.getElementById('login-modal').classList.add('hidden');
         };
 
-        // KẾT THÚC LƯỢT (HỌC VIÊN)
         document.getElementById('btn-finish-turn').onclick = async () => {
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game_v2', 'current_state');
             let q = [...currentQueue];
@@ -705,14 +750,12 @@
             setTimeout(() => generateNewMaze(), 500);
         };
 
-        // GIÁO VIÊN: ĐỔI ĐỀ
         document.getElementById('btn-reset-sync').onclick = () => {
             if (auth.currentUser) generateNewMaze();
         };
 
-        // GIÁO VIÊN: BỎ QUA LƯỢT
         document.getElementById('btn-skip-turn').onclick = async () => {
-            if (auth.currentUser && confirm("Bạn có chắc muốn bỏ qua lượt của học viên này không?")) {
+            if (auth.currentUser && confirm("Giáo viên muốn bỏ qua lượt này?")) {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_game_v2', 'current_state');
                 let q = [...currentQueue];
                 if (q.length > 0) {
